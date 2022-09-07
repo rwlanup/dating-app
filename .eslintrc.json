@@ -1,0 +1,8 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "extends": ["eslint:recommended", "next/core-web-vitals", "plugin:prettier/recommended"],
+  "rules": {
+    "eqeqeq": [2, "allow-null"],
+    "no-unused-vars": "off"
+  }
+}
