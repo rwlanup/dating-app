@@ -4,5 +4,8 @@
   "rules": {
     "eqeqeq": [2, "allow-null"],
     "no-unused-vars": "off"
+  },
+  "globals": {
+    "JSX": "readonly"
   }
 }

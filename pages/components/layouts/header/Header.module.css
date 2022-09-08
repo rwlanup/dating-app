@@ -1,0 +1,8 @@
+.skipNavBtn {
+  @apply absolute opacity-0 -translate-x-full mt-4 ml-4 transition;
+  &:focus,
+  &:hover,
+  &.active {
+    @apply opacity-100 translate-x-0;
+  }
+}
