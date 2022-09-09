@@ -1,0 +1,3 @@
+.stepPill {
+  @apply inline-flex px-8 py-3 bg-primaryLighter rounded-full text-primaryText text-h3 font-serif font-bold;
+}
