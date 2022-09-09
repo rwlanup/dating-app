@@ -9,3 +9,7 @@
 body {
   @apply font-sans font-normal text-base;
 }
+
+.container-fluid {
+  @apply xl:px-16 lg:px-10 md:px-5 px-4;
+}

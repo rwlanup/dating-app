@@ -6,3 +6,19 @@
     @apply opacity-100 translate-x-0;
   }
 }
+
+.logoWrapper {
+  @apply inline-block h-10;
+}
+
+.navbar {
+  @apply flex items-center justify-between;
+}
+
+.desktopAccountBtns {
+  @apply hidden gap-5 sm:flex;
+}
+
+.mobileAccountBtn {
+  @apply sm:hidden;
+}
