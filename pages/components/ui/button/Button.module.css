@@ -1,0 +1,72 @@
+.btn {
+  @apply inline-flex rounded-full px-8 py-3 gap-3 border transition-colors focus:outline-none active:outline-none focus:ring-4;
+  &.sm {
+    @apply px-4 py-1.5 text-sm;
+  }
+  &.fill {
+    &.primary,
+    &.secondary {
+      @apply disabled:bg-primaryLight disabled:border-primaryLight disabled:text-muted;
+    }
+    &.primary {
+      @apply bg-primary text-black border-primary;
+      &:not(:disabled) {
+        @apply hover:bg-primaryActive hover:border-primaryActive focus:bg-primaryActive focus:border-primaryActive;
+      }
+      &.active:not(:disabled) {
+        @apply bg-primaryActive border-primaryActive;
+      }
+    }
+
+    &.secondary {
+      @apply bg-primaryLight text-black border-primaryLight disabled:text-muted;
+      &:not(:disabled) {
+        @apply hover:bg-primary hover:border-primary focus:bg-primary focus:border-primary;
+      }
+      &.active {
+        @apply bg-primary border-primary;
+      }
+    }
+
+    &.tertiary {
+      @apply bg-primaryLighter text-black border-primaryLighter disabled:text-muted;
+      &:not(:disabled) {
+        @apply hover:bg-primaryLight hover:border-primaryLight focus:bg-primaryLight focus:border-primaryLight;
+      }
+      &.active {
+        @apply bg-primaryLight;
+      }
+    }
+  }
+
+  &.outlined {
+    @apply bg-transparent;
+    &:hover:not(:disabled) {
+      @apply bg-primaryLightest;
+    }
+    &.primary,
+    &.secondary {
+      @apply disabled:border-primaryLight disabled:text-primaryLight;
+    }
+
+    &.primary {
+      @apply border-primary text-primary;
+      &:not(:disabled) {
+        @apply hover:text-primaryActive hover:border-primaryActive focus:text-primaryActive focus:border-primaryActive;
+      }
+      &.active {
+        @apply text-primaryActive border-primaryActive;
+      }
+    }
+
+    &.secondary {
+      @apply border-primaryLight text-primary;
+      &:not(:disabled) {
+        @apply hover:text-primary hover:border-primary focus:text-primary focus:border-primary;
+      }
+      &.active {
+        @apply text-primary border-primary;
+      }
+    }
+  }
+}
