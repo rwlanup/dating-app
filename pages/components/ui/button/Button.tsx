@@ -43,11 +43,13 @@ export const Button = <Tag extends keyof JSX.IntrinsicElements = 'button'>({
     );
   }, [className, isActive, size, variant, hierarchy]);
 
+  const useNextLink = !withoutNextLink && href;
+
   const renderComponent = (): React.ReactElement => {
     return (
       <Component
         {...btnProps}
-        href={withoutNextLink && href}
+        href={useNextLink ? undefined : href}
         ref={btnRef}
         className={classes}
       >
@@ -57,7 +59,7 @@ export const Button = <Tag extends keyof JSX.IntrinsicElements = 'button'>({
   };
 
   // Render next link component in case href attribute is provided
-  if (href && !withoutNextLink) {
+  if (useNextLink) {
     return (
       <Link
         passHref

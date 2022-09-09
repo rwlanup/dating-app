@@ -7,7 +7,7 @@
 }
 
 body {
-  @apply font-sans font-normal text-base;
+  @apply font-sans font-normal text-base relative;
 }
 
 .container-fluid {

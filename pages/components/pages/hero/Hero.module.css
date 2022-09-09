@@ -1,0 +1,13 @@
+.heroSection {
+  @apply -mt-[4.625rem] pt-28 bg-primaryLightest;
+}
+.heroContainer {
+  @apply flex justify-between items-center flex-col-reverse md:flex-row;
+}
+
+.imageContainer {
+  @apply mb-8 md:mb-0;
+  & > span {
+    @apply block !important;
+  }
+}
