@@ -10,7 +10,6 @@ ARG GROUP_ID
 ARG GROUP_NAME
 ARG USER_ID
 ARG USER_NAME
-ARG PORT
 
 # Removing default user
 RUN deluser --remove-home node
@@ -29,9 +28,6 @@ USER ${USER_NAME}:${GROUP_NAME}
 # Copy and install dependencies
 COPY --chown=${USER_NAME}:${GROUP_NAME} package*.json .
 RUN npm ci
-
-# Expose ports
-EXPOSE ${PORT}
 
 # Run development server
 CMD [ "npm", "run", "dev" ]

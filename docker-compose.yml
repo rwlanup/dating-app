@@ -13,14 +13,20 @@ services:
         - PORT=${PORT:-3000}
     ports:
       - ${PORT:-3000}:3000
+      - ${PRISMA_STUDIO_PORT:-5555}:5555
+    expose:
+      - ${PORT:-3000}
+      - ${PRISMA_STUDIO_PORT:-5555}
     restart: always
     volumes:
       - .:/app
       - node_modules:/app/node_modules
     depends_on:
       - db
+      - shadow_db
   db:
     image: mysql:8.0.28
+    user: ${USER_ID:-1000}:${GROUP_ID:-1000}
     container_name: db
     restart: always
     environment:
@@ -32,7 +38,20 @@ services:
       - ${MYSQL_PORT:-3306}:3306
     volumes:
       - mysql:/var/lib/mysql
-
+  shadow_db:
+    image: mysql:8.0.28
+    user: ${USER_ID:-1000}:${GROUP_ID:-1000}
+    container_name: shadow_db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD?}
+      - MYSQL_DATABASE=${MYSQL_SHADOW_DATABASE?}
+      - MYSQL_USER=${MYSQL_USER?}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD?}
+    ports:
+      - ${MYSQL_SHADOW_PORT:-3307}:3306
+    volumes:
+      - mysql_shadow:/var/lib/mysql
 volumes:
   node_modules:
     driver: local
@@ -41,5 +60,7 @@ volumes:
       o: bind
       device: ${APP_PATH?}/node_modules
   mysql:
+    driver: local
+  mysql_shadow:
     driver: local
   
