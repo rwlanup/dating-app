@@ -1,12 +1,13 @@
 import type { FC } from 'react';
 import { Button } from '../../ui/button/Button';
 import { Input } from '../../ui/form/input/Input';
-import styles from './RegisterForm.module.css';
+import { TextLink } from '../../ui/text-link/TextLink';
+import styles from '../auth-dialog/AuthDialog.module.css';
 
 export const RegisterForm: FC = () => {
   return (
     <div>
-      <h2 className="text-h2 font-serif font-black mb-8">Create your account</h2>
+      <h2 className={styles.heading}>Create your account</h2>
       <form className={styles.form}>
         <Input
           id="register-form-fullName-field"
@@ -38,6 +39,9 @@ export const RegisterForm: FC = () => {
         />
         <Button type="submit">Create account</Button>
       </form>
+      <div className={styles.footerLinkWrapper}>
+        <TextLink href="/?action=login">Already a member? Log in</TextLink>
+      </div>
     </div>
   );
 };

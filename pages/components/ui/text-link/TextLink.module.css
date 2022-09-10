@@ -1,0 +1,9 @@
+.link {
+  @apply text-primary hover:text-primaryActive focus:text-primaryActive disabled:text-muted font-serif font-bold;
+  &.underline-always {
+    @apply underline;
+  }
+  &.underline-hover {
+    @apply hover:underline;
+  }
+}

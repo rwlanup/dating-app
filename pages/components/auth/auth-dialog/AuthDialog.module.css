@@ -1,4 +1,16 @@
 .dialogContent {
-  @apply px-5 py-10 sm:px-10 sm:py-20 mt-auto rounded-b-none sm:mt-0 sm:rounded-b-2xl;
+  @apply px-5 pt-10 pb-5 sm:px-10 sm:pt-20 sm:pb-10 mt-auto rounded-b-none sm:mt-0 sm:rounded-b-2xl;
   min-width: min(100vw, 35em);
+}
+
+.heading {
+  @apply text-h3 md:text-h2 font-serif font-black mb-8;
+}
+
+.form {
+  @apply flex flex-col gap-5;
+}
+
+.footerLinkWrapper {
+  @apply text-center mt-6 pt-6 sm:mt-8 sm:pt-8 border-t border-border flex justify-end;
 }

@@ -18,7 +18,7 @@ export const Hero: FC = () => {
             again. Find your real feelings.
           </p>
           <Button
-            href="/register"
+            href="/?action=register"
             className="mt-10"
           >
             Create account
