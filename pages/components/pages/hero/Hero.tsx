@@ -2,7 +2,7 @@ import Image from 'next/image';
 import type { FC } from 'react';
 import { Button } from '../../ui/button/Button';
 import HeroIllustration from '../../../../public/images/hero-illustration.svg';
-import { mergeClasses } from '../../../../string';
+import { mergeClasses } from '../../../../util/string';
 import styles from './Hero.module.css';
 
 export const Hero: FC = () => {

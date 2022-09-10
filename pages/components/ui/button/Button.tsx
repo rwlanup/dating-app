@@ -1,6 +1,6 @@
 import Link, { LinkProps } from 'next/link';
 import React, { ElementType, PropsWithChildren, Ref, useMemo } from 'react';
-import { mergeClasses } from '../../../../string';
+import { mergeClasses } from '../../../../util/string';
 import styles from './Button.module.css';
 
 type ButtonProps<Tag extends keyof JSX.IntrinsicElements> = {

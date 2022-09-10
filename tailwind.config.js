@@ -28,7 +28,7 @@ module.exports = {
         '"Noto Color Emoji"',
       ],
     },
-    colors: {
+    colors: ({ colors }) => ({
       primaryText: '#190109',
       primaryActive: '#F90657',
       primary: '#FA3D7C',
@@ -45,7 +45,9 @@ module.exports = {
       black: '#0A0003',
       border: '#C9B6BC',
       transparent: 'transparent',
-    },
+      green: colors.green,
+      red: colors.red,
+    }),
     fontWeight: {
       normal: 400,
       medium: 500,

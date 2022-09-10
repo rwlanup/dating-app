@@ -4,13 +4,14 @@ import { FC } from 'react';
 import { Button } from '../../ui/button/Button';
 import styles from './Header.module.css';
 import Logo from '../../../../public/images/logo.svg';
+import { HeaderAuthAction } from './components/HeaderAuthAction';
 
 const Header: FC = () => {
   return (
     <header className="container-fluid py-3">
       <Button
         hierarchy="secondary"
-        href="#main"
+        href="/#main"
         className={styles.skipNavBtn}
       >
         Skip navigation
@@ -27,21 +28,7 @@ const Header: FC = () => {
             />
           </a>
         </Link>
-        <div className={styles.desktopAccountBtns}>
-          <Button
-            variant="outlined"
-            href="/login"
-          >
-            Log in
-          </Button>
-          <Button href="/register">Create account</Button>
-        </div>
-        <Button
-          href="/login"
-          className={styles.mobileAccountBtn}
-        >
-          Log in
-        </Button>
+        <HeaderAuthAction />
       </nav>
     </header>
   );

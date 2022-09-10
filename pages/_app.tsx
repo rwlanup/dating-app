@@ -1,4 +1,5 @@
 import '../styles/globals.css';
+import { SessionProvider } from 'next-auth/react';
 import type { AppProps } from 'next/app';
 import { RootLayout } from './components/layouts';
 import type { NextPage } from 'next';
@@ -16,7 +17,16 @@ const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps }) => {
   // Use the layout defined at the page level, if available
   const getLayout = Component.getLayout ?? ((page) => page);
 
-  return <RootLayout>{getLayout(<Component {...pageProps} />)}</RootLayout>;
+  return (
+    <SessionProvider session={pageProps.session}>
+      <div className="bg-white">
+        <RootLayout>
+          {getLayout(<Component {...pageProps} />)}
+          <div id="dialog-root"></div>
+        </RootLayout>
+      </div>
+    </SessionProvider>
+  );
 };
 
 export default MyApp;
