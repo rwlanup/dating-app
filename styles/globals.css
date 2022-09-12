@@ -1,15 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 * {
-  @apply box-border p-0 m-0;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
 body {
-  @apply font-sans font-normal text-base relative text-black bg-white;
-}
-
-.container-fluid {
-  @apply xl:px-16 lg:px-10 md:px-5 px-4;
+  position: relative;
 }

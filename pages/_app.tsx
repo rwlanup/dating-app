@@ -1,9 +1,11 @@
 import '../styles/globals.css';
 import { SessionProvider } from 'next-auth/react';
 import type { AppProps } from 'next/app';
-import { RootLayout } from './components/layouts';
 import type { NextPage } from 'next';
 import type { ReactElement, ReactNode, FC } from 'react';
+import { ThemeProvider } from '@mui/material';
+import { theme } from '../theme';
+import { RootLayout } from '../components/layouts/root-layout/RootLayout';
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -19,12 +21,9 @@ const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps }) => {
 
   return (
     <SessionProvider session={pageProps.session}>
-      <div className="bg-white">
-        <RootLayout>
-          {getLayout(<Component {...pageProps} />)}
-          <div id="dialog-root"></div>
-        </RootLayout>
-      </div>
+      <ThemeProvider theme={theme}>
+        <RootLayout>{getLayout(<Component {...pageProps} />)}</RootLayout>
+      </ThemeProvider>
     </SessionProvider>
   );
 };

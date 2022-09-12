@@ -28,9 +28,13 @@ A dating app built for privacy or find your soul mates from your interests.
 
   It uses tRPC for type safety between client and server side.
 
-- [Tailwind](https://tailwindcss.com/)
+- [Material UI](https://mui.com/material-ui/getting-started/overview/)
 
-  It uses tailwind css for styling purpose.
+  It uses material UI as component library for react. It supports all use cases for the application.
+
+- [Material Icon](https://mui.com/material-ui/material-icons/)
+
+  It users material icon as icon library. It has over 2100 icons that is enought for project
 
 - [Next Auth](https://next-auth.js.org/)
 
@@ -71,7 +75,7 @@ A dating app built for privacy or find your soul mates from your interests.
    ```
    docker compose build --no-cache
    ```
-5. To kill application with volume run
+5. To kill application with volume run. Warning: This command also removes database volume.
    ```
    docker compose down -v
    ```

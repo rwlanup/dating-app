@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { Hero } from './components/pages/hero/Hero';
-import { WorkProcess } from './components/pages/work-process/WorkProcess';
+import { Hero } from '../components/pages/hero/Hero';
+import { Process } from '../components/pages/process/Process';
 
 const Home: NextPage = () => {
   return (
@@ -18,7 +18,7 @@ const Home: NextPage = () => {
         />
       </Head>
       <Hero />
-      <WorkProcess />
+      <Process />
     </>
   );
 };
