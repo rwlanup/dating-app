@@ -23,7 +23,7 @@ export const HeaderAuthAction: FC = () => {
   return (
     <>
       {isMobile ? (
-        <Button>Log in</Button>
+        <Button onClick={openAuthDialog.bind(null, 'login')}>Log in</Button>
       ) : (
         <Grid
           container

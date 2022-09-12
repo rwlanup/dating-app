@@ -26,7 +26,7 @@ export const Process: FC = () => {
   return (
     <Container
       component="section"
-      sx={{ py: { xs: 4, md: 8 } }}
+      sx={{ py: 8 }}
     >
       <Typography
         align="center"
@@ -65,7 +65,8 @@ export const Process: FC = () => {
                 }}
               >
                 <Typography
-                  variant="h3"
+                  variant="h4"
+                  component="h3"
                   color="secondary"
                 >
                   Step {index + 1}

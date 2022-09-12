@@ -1,5 +1,6 @@
 import { alpha, Box, Button, Container, Grid, styled, Typography } from '@mui/material';
 import Image from 'next/image';
+import Link from 'next/link';
 import type { FC } from 'react';
 import HeroIllustration from '../../../public/images/hero-illustration.svg';
 
@@ -40,7 +41,12 @@ export const Hero: FC = () => {
               Tell us about your interest and find your matching soulmates. It&apos;s never too late to fall in love
               again. Find your real feelings.
             </Typography>
-            <Button>Create account</Button>
+            <Link
+              passHref
+              href="?action=register"
+            >
+              <Button>Create account</Button>
+            </Link>
           </Grid>
           <Grid
             item
