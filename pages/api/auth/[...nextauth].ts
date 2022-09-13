@@ -1,12 +1,7 @@
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaClient } from '@prisma/client';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
 
-const prisma = new PrismaClient();
-
-export default NextAuth({
-  adapter: PrismaAdapter(prisma),
+export const nextAuthOptions: NextAuthOptions = {
   pages: {
     signIn: '/auth/login',
     signOut: '/auth/logout',
@@ -25,4 +20,23 @@ export default NextAuth({
       },
     }),
   ],
-});
+  callbacks: {
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+      }
+
+      return token;
+    },
+
+    session: async ({ session, token }) => {
+      if (token) {
+        session.id = token.id;
+      }
+      return session;
+    },
+  },
+};
+
+export default NextAuth(nextAuthOptions);
