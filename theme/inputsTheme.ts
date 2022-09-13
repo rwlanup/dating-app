@@ -28,6 +28,17 @@ export const inputsTheme = (theme: Theme): ThemeOptions => {
         },
       },
 
+      MuiFormHelperText: {
+        defaultProps: {
+          variant: 'standard',
+        },
+        styleOverrides: {
+          root: {
+            fontSize: '0.875rem',
+          },
+        },
+      },
+
       MuiButton: {
         defaultProps: {
           disableElevation: true,

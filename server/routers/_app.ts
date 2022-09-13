@@ -3,6 +3,7 @@
  */
 import { createRouter } from '../createRouter';
 import superjson from 'superjson';
+import { authRouter } from './auth';
 
 /**
  * Create your application's root router
@@ -10,6 +11,6 @@ import superjson from 'superjson';
  * @link https://trpc.io/docs/ssg
  * @link https://trpc.io/docs/router
  */
-export const appRouter = createRouter().transformer(superjson);
+export const appRouter = createRouter().transformer(superjson).merge(authRouter);
 
 export type AppRouter = typeof appRouter;

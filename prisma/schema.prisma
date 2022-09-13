@@ -11,38 +11,6 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-// Table to handle next auth
-model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refreshToken      String? @map("refresh_token") @db.Text
-  accessToken       String? @map("access_token") @db.Text
-  expiresAt         Int?    @map("expires_at")
-  tokenType         String? @map("token_type")
-  scope             String?
-  idToken           String? @map("id_token") @db.Text
-  sessionState      String? @map("session_state")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-  @@map("accounts")
-}
-
-// Table to handle sessions
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-
 // Gender for User
 enum Gender {
   MALE
@@ -50,40 +18,29 @@ enum Gender {
   OTHER
 }
 
-// Table to handle user details and next auth verification
 model User {
   id                 String    @id @default(cuid())
-  fullName           String?
-  email              String?   @unique // Optional in case of using provider like google, facebook
-  emailVerified      DateTime? // Optional in case of using provider like google, facebook
-  password           String?   @db.VarChar(255) // Optional in case of using provider like google, facebook
-  accounts           Account[]
-  sessions           Session[]
+  fullName           String
+  email              String    @unique @db.VarChar(255)
+  slug               String    @unique @db.VarChar(255)
+  password           String    @db.VarChar(255)
   bio                String?   @db.Text
   country            String?   @db.VarChar(255)
   city               String?   @db.VarChar(255)
   profession         String?   @db.VarChar(255)
+  profilePictureId   String?
   dob                DateTime? @db.Date
   gender             Gender?
+  isVerified         Boolean   @default(false)
+  verificationToken  String?   @db.VarChar(255)
+  passwordResetToken String?   @db.VarChar(255)
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   deletedAt          DateTime?
   medias             Media[]   @relation("UploadedMedias")
-  profilePictureId   String?
   profilePicture     Media?    @relation(name: "ProfilePicture", fields: [profilePictureId], references: [id])
-  passwordResetToken String?   @db.VarChar(255)
 
   @@map("users")
-}
-
-// Table to handle email verfication
-model VerificationToken {
-  identifier String
-  token      String   @unique @db.VarChar(255)
-  expires    DateTime
-
-  @@unique([identifier, token])
-  @@map("verificationTokens")
 }
 
 // Supported media type
