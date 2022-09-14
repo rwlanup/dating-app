@@ -6,7 +6,7 @@ import { prisma } from '../../../server/prisma';
 
 export const nextAuthOptions: NextAuthOptions = {
   pages: {
-    signIn: '/auth/login',
+    signIn: '/?action=login',
     signOut: '/auth/logout',
   },
   providers: [
