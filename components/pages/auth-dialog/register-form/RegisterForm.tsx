@@ -1,32 +1,41 @@
-import { Box, Button, DialogContent, DialogTitle, InputLabel, Link, TextField, Grid } from '@mui/material';
+import { Box, DialogContent, DialogTitle, InputLabel, Link, TextField, Grid, Alert } from '@mui/material';
 import type { FC } from 'react';
 import NextLink from 'next/link';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RegisterInputs, registerSchema } from '../../../../common/validation/auth/register';
 import { trpc } from '../../../../util/trpc';
+import LoadingButton from '@mui/lab/LoadingButton';
+
+const FORM_DEFAULT_VALUES: RegisterInputs = {
+  fullName: '',
+  username: '',
+  password: '',
+  confirmPassword: '',
+};
 
 export const RegisterForm: FC = () => {
   const {
-    mutateAsync: registerAccount,
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset,
+  } = useForm<RegisterInputs>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: FORM_DEFAULT_VALUES,
+  });
+
+  const {
+    mutate: registerAccount,
     isLoading,
     isSuccess,
     isError,
     error,
     data,
   } = trpc.useMutation('authRegister', {
-    onError: (error) => {
-      console.log(error);
+    onSuccess() {
+      reset();
     },
-  });
-
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<RegisterInputs>({
-    // resolver: zodResolver(registerSchema),
-    mode: 'onBlur',
   });
 
   const onSubmit = handleSubmit(async (data) => {
@@ -48,10 +57,25 @@ export const RegisterForm: FC = () => {
             rowSpacing={2.5}
             sx={{ mb: 4 }}
           >
+            {isSuccess && (
+              <Alert
+                sx={{ mt: 2 }}
+                severity="success"
+              >
+                {data.message}
+              </Alert>
+            )}
+            {isError && (
+              <Alert
+                sx={{ mt: 2 }}
+                severity="error"
+              >
+                {error.message}
+              </Alert>
+            )}
             <Grid item>
               <InputLabel htmlFor="register-form-name-field">Full name</InputLabel>
               <Controller
-                defaultValue=""
                 control={control}
                 name="fullName"
                 render={({ field }) => (
@@ -69,22 +93,20 @@ export const RegisterForm: FC = () => {
               />
             </Grid>
             <Grid item>
-              <InputLabel htmlFor="register-form-email-field">Email address</InputLabel>
+              <InputLabel htmlFor="register-form-username-field">Username</InputLabel>
               <Controller
-                defaultValue=""
                 control={control}
-                name="email"
+                name="username"
                 render={({ field }) => (
                   <TextField
                     {...field}
                     disabled={isLoading}
-                    helperText={errors.email?.message}
-                    error={Boolean(errors.email)}
-                    placeholder="Eg. johndoe@example.com"
+                    helperText={errors.username?.message}
+                    error={Boolean(errors.username)}
+                    placeholder="Eg. johndoe"
                     required
-                    name="email"
-                    type="email"
-                    id="register-form-email-field"
+                    name="username"
+                    id="register-form-username-field"
                   />
                 )}
               />
@@ -92,7 +114,6 @@ export const RegisterForm: FC = () => {
             <Grid item>
               <InputLabel htmlFor="register-form-password-field">Password</InputLabel>
               <Controller
-                defaultValue=""
                 control={control}
                 name="password"
                 render={({ field }) => (
@@ -113,7 +134,6 @@ export const RegisterForm: FC = () => {
             <Grid item>
               <InputLabel htmlFor="register-form-confirm_password-field">Re-type password</InputLabel>
               <Controller
-                defaultValue=""
                 control={control}
                 name="confirmPassword"
                 render={({ field }) => (
@@ -132,13 +152,13 @@ export const RegisterForm: FC = () => {
               />
             </Grid>
           </Grid>
-          <Button
-            disabled={isLoading}
+          <LoadingButton
+            loading={isLoading}
             fullWidth
             type="submit"
           >
             Create account
-          </Button>
+          </LoadingButton>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, mb: 1 }}>
             <NextLink
               href="?action=login"

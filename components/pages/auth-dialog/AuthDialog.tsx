@@ -2,11 +2,10 @@ import { alpha } from '@mui/material';
 import { useRouter } from 'next/router';
 import type { FC } from 'react';
 import { SlideinDialog } from '../../ui/slidein-dialog/SlideinDialog';
-import { ForgotPasswordForm } from './forgot-password-form/ForgotPasswordForm';
 import { LoginForm } from './login-form/LoginForm';
 import { RegisterForm } from './register-form/RegisterForm';
 
-export const AuthActions = ['login', 'register', 'forgot-password'] as const;
+export const AuthActions = ['login', 'register'] as const;
 
 interface AuthDialogProps {
   isOpen?: boolean;
@@ -58,7 +57,7 @@ export const AuthDialog: FC<AuthDialogProps> = ({ isOpen, onClose, authAction })
         }),
       }}
     >
-      {_action === 'login' ? <LoginForm /> : _action === 'register' ? <RegisterForm /> : <ForgotPasswordForm />}
+      {_action === 'login' ? <LoginForm /> : <RegisterForm />}
     </SlideinDialog>
   );
 };

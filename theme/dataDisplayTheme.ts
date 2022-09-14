@@ -102,6 +102,14 @@ export const dataDisplayTheme = (theme: Theme): ThemeOptions => {
           },
         },
       },
+
+      MuiAvatar: {
+        styleOverrides: {
+          root: {
+            backgroundColor: theme.palette.secondary.main,
+          },
+        },
+      },
     },
   };
 };

@@ -1,8 +1,66 @@
-import { Box, Button, DialogContent, DialogTitle, InputLabel, Link, TextField } from '@mui/material';
-import type { FC } from 'react';
+import { Alert, Box, DialogContent, DialogTitle, InputLabel, Link, TextField } from '@mui/material';
+import { FC, useState } from 'react';
 import NextLink from 'next/link';
+import { Controller, useForm } from 'react-hook-form';
+import { LoginInputs, loginSchema } from '../../../../common/validation/auth/login';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { signIn } from 'next-auth/react';
+import LoadingButton from '@mui/lab/LoadingButton';
+
+const FORM_DEFAULT_VALUES: LoginInputs = {
+  username: '',
+  password: '',
+};
+
+interface FormUIState {
+  isLoading: boolean;
+  isError: boolean;
+  error?: string;
+}
 
 export const LoginForm: FC = () => {
+  const {
+    control,
+    formState: { errors },
+    handleSubmit,
+  } = useForm<LoginInputs>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: FORM_DEFAULT_VALUES,
+  });
+
+  const [{ isError, isLoading, error }, setFormUIState] = useState<FormUIState>({
+    isLoading: false,
+    isError: false,
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      setFormUIState({
+        isLoading: true,
+        isError: false,
+      });
+      const result = await signIn('credentials', {
+        ...data,
+        redirect: false,
+      });
+      if (!result?.ok) {
+        setFormUIState((prevState) => ({
+          ...prevState,
+          isLoading: false,
+          isError: true,
+          error: 'Your username or password does not match',
+        }));
+      }
+    } catch (error) {
+      setFormUIState((prevState) => ({
+        ...prevState,
+        isLoading: false,
+        isError: true,
+        error: 'Something went wrong, please try again :(',
+      }));
+    }
+  });
+
   return (
     <>
       <DialogTitle variant="h3">Log in to your account</DialogTitle>
@@ -10,41 +68,63 @@ export const LoginForm: FC = () => {
         <Box
           sx={{ pt: 1 }}
           component="form"
+          onSubmit={onSubmit}
         >
+          {isError && (
+            <Alert
+              sx={{ mb: 2 }}
+              severity="error"
+            >
+              {error}
+            </Alert>
+          )}
           <Box sx={{ mb: 2.5 }}>
-            <InputLabel htmlFor="login-form-email-field">Email address</InputLabel>
-            <TextField
-              placeholder="Eg. johndoe@example.com"
-              required
-              autoFocus
-              name="email"
-              type="email"
-              id="login-form-email-field"
+            <InputLabel htmlFor="login-form-username-field">Username</InputLabel>
+            <Controller
+              control={control}
+              name="username"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  error={Boolean(errors.username?.message)}
+                  helperText={errors.username?.message}
+                  placeholder="Eg. johndoe"
+                  required
+                  disabled={isLoading}
+                  type="text"
+                  name="username"
+                  id="login-form-username-field"
+                />
+              )}
             />
           </Box>
           <Box sx={{ mb: 4 }}>
             <InputLabel htmlFor="login-form-password-field">Password</InputLabel>
-            <TextField
-              placeholder="Password"
-              required
+            <Controller
+              control={control}
               name="password"
-              type="password"
-              id="login-form-password-field"
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  error={Boolean(errors.password?.message)}
+                  helperText={errors.password?.message}
+                  placeholder="Password"
+                  required
+                  disabled={isLoading}
+                  name="password"
+                  type="password"
+                  id="login-form-password-field"
+                />
+              )}
             />
           </Box>
-          <NextLink
-            href="?action=forgot-password"
-            passHref
+          <LoadingButton
+            loading={isLoading}
+            fullWidth
+            type="submit"
           >
-            <Button
-              variant="outlined"
-              fullWidth
-              sx={{ mb: 2.5 }}
-            >
-              Forgot password?
-            </Button>
-          </NextLink>
-          <Button fullWidth>Log in</Button>
+            Log in
+          </LoadingButton>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, mb: 1 }}>
             <NextLink
               href="?action=register"

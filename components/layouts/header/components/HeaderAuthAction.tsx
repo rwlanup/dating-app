@@ -1,4 +1,4 @@
-import { Button, Grid, Theme, useMediaQuery } from '@mui/material';
+import { Avatar, Box, Button, Grid, Theme, useMediaQuery } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import { FC, useState } from 'react';
 import { AuthActions, AuthDialog } from '../../../pages/auth-dialog/AuthDialog';
@@ -18,7 +18,14 @@ export const HeaderAuthAction: FC = () => {
     }
   };
 
-  if (session.status === 'authenticated') return <div>Auth Name</div>;
+  if (session.status === 'authenticated') {
+    console.log(session.data.user);
+    return (
+      <Box>
+        <Avatar alt={session.data.user.fullName}></Avatar>
+      </Box>
+    );
+  }
 
   return (
     <>

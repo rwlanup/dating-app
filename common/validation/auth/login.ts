@@ -1,12 +1,15 @@
 import * as z from 'zod';
 
 export const loginSchema = z.object({
-  email: z
+  username: z
     .string({
       required_error: 'Please enter your email address',
       invalid_type_error: 'Please enter a valid email address',
     })
-    .email('Please enter a valid email address'),
+    .trim()
+    .min(5, 'Username must be at least 5 characters long')
+    .max(20, 'Username cannot be longer than 20 characters')
+    .refine((value) => value.indexOf(' ') === -1, 'Username cannot contain spaces'),
   password: z
     .string({
       required_error: 'Please enter a password',

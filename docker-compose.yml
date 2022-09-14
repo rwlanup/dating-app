@@ -2,7 +2,7 @@ version: '3'
 services:
   app:
     image: dating-app-dev
-    container_name: app
+    container_name: dating_app
     build:
       context: .
       args:
@@ -20,47 +20,21 @@ services:
     restart: always
     volumes:
       - .:/app
-      - node_modules:/app/node_modules
+      - /app/node_modules
     depends_on:
       - db
-      - shadow_db
   db:
-    image: mysql:8.0.28
-    user: ${USER_ID:-1000}:${GROUP_ID:-1000}
-    container_name: db
+    image: postgres:14.5
+    container_name: dating_app_db
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD?}
-      - MYSQL_DATABASE=${MYSQL_DATABASE?}
-      - MYSQL_USER=${MYSQL_USER?}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD?}
+      - POSTGRES_PASSWORD=${DB_PASSWORD?}
+      - POSTGRES_USER=${DB_USER?}
+      - POSTGRES_DB=${DB_NAME:-app_db}
     ports:
-      - ${MYSQL_PORT:-3306}:3306
+      - ${DB_PORT:-5432}:5432
     volumes:
-      - mysql:/var/lib/mysql
-  shadow_db:
-    image: mysql:8.0.28
-    user: ${USER_ID:-1000}:${GROUP_ID:-1000}
-    container_name: shadow_db
-    restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD?}
-      - MYSQL_DATABASE=${MYSQL_SHADOW_DATABASE?}
-      - MYSQL_USER=${MYSQL_USER?}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD?}
-    ports:
-      - ${MYSQL_SHADOW_PORT:-3307}:3306
-    volumes:
-      - mysql_shadow:/var/lib/mysql
+      - db:/var/lib/postgresql/data
 volumes:
-  node_modules:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${APP_PATH?}/node_modules
-  mysql:
-    driver: local
-  mysql_shadow:
-    driver: local
+  db:
   
