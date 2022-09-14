@@ -19,7 +19,6 @@ export const HeaderAuthAction: FC = () => {
   };
 
   if (session.status === 'authenticated') {
-    console.log(session.data.user);
     return (
       <Box>
         <Avatar alt={session.data.user.fullName}></Avatar>
