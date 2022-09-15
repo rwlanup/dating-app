@@ -6,6 +6,7 @@ import { LoginInputs, loginSchema } from '../../../../common/validation/auth/log
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { useRouter } from 'next/router';
 
 const FORM_DEFAULT_VALUES: LoginInputs = {
   username: '',
@@ -19,6 +20,7 @@ interface FormUIState {
 }
 
 export const LoginForm: FC = () => {
+  const router = useRouter();
   const {
     control,
     formState: { errors },
@@ -50,6 +52,8 @@ export const LoginForm: FC = () => {
           isError: true,
           error: 'Your username or password does not match',
         }));
+      } else {
+        router.replace('/profile');
       }
     } catch (error) {
       setFormUIState((prevState) => ({

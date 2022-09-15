@@ -9,8 +9,17 @@ interface ErrorScreenProps {
 
 export const ErrorScreen: FC<ErrorScreenProps> = ({ title, message }) => {
   return (
-    <Container sx={{ py: 5, height: 1 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', height: 1, justifyContent: 'center' }}>
+    <Container sx={{ py: 5 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          minHeight: '80vh',
+          flexDirection: 'column',
+          alignItems: 'center',
+          height: 1,
+          justifyContent: 'center',
+        }}
+      >
         <Typography variant="h1">{title}</Typography>
         {message && (
           <Typography

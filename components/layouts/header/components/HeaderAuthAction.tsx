@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, Grid, Theme, useMediaQuery } from '@mui/material';
+import { Avatar, Box, Button, Grid, Skeleton, Theme, useMediaQuery } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import { FC, useState } from 'react';
 import { AuthActions, AuthDialog } from '../../../pages/auth-dialog/AuthDialog';
@@ -17,6 +17,16 @@ export const HeaderAuthAction: FC = () => {
       setAuthAction(authAction);
     }
   };
+
+  if (session.status === 'loading') {
+    return (
+      <Skeleton
+        variant="circular"
+        height={40}
+        width={40}
+      />
+    );
+  }
 
   if (session.status === 'authenticated') {
     return (

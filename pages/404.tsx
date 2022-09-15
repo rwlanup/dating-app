@@ -1,7 +1,7 @@
-import type { FC } from 'react';
+import type { NextPage } from 'next';
 import { ErrorScreen } from '../components/pages/error-screen/ErrorScreen';
 
-const NotFoundPage: FC = () => {
+const NotFoundPage: NextPage = () => {
   return (
     <ErrorScreen
       title="404 Page not found"

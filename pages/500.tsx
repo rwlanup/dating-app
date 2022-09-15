@@ -1,7 +1,7 @@
-import type { FC } from 'react';
+import type { NextPage } from 'next';
 import { ErrorScreen } from '../components/pages/error-screen/ErrorScreen';
 
-const ServerErrorPage: FC = () => {
+const ServerErrorPage: NextPage = () => {
   return (
     <ErrorScreen
       title="500 Internal Server Error"

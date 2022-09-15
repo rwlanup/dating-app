@@ -7,7 +7,6 @@ import { prisma } from '../../../server/prisma';
 export const nextAuthOptions: NextAuthOptions = {
   pages: {
     signIn: '/?action=login',
-    signOut: '/auth/logout',
   },
   providers: [
     CredentialsProvider({
@@ -16,7 +15,7 @@ export const nextAuthOptions: NextAuthOptions = {
         username: { label: 'Username', type: 'text', placeholder: 'Eg: johndoe' },
         password: { label: 'Password', type: 'password', placeholder: 'Password' },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         const { username, password } = await loginSchema.parseAsync(credentials);
 
         const user = await prisma.user.findFirst({

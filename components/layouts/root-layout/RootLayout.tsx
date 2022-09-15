@@ -10,7 +10,7 @@ export const RootLayout: FC<PropsWithChildren> = ({ children }) => {
       <Box
         component="main"
         id="main"
-        sx={{ flex: '1 0 auto', height: 0 }}
+        sx={{ flex: '1 0 auto' }}
       >
         {children}
       </Box>

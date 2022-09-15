@@ -20,7 +20,7 @@ services:
     restart: always
     volumes:
       - .:/app
-      - /app/node_modules
+      - node_modules:/app/node_modules
     depends_on:
       - db
   db:
@@ -37,4 +37,9 @@ services:
       - db:/var/lib/postgresql/data
 volumes:
   db:
-  
+  node_modules:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/node_modules
