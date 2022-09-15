@@ -38,7 +38,7 @@ export const RegisterForm: FC = () => {
     },
   });
 
-  const onSubmit = handleSubmit(async (data) => {
+  const onSubmit = handleSubmit((data) => {
     registerAccount(data);
   });
 

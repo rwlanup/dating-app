@@ -52,10 +52,10 @@ export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
       icon: <LogoutTwoToneIcon />,
       onClick: async (event) => {
         event.preventDefault();
-        await signOut({
+        const response = await signOut({
           redirect: false,
         });
-        router.replace('/');
+        router.replace(response.url);
       },
     },
   ];
