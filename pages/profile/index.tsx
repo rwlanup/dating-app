@@ -1,6 +1,6 @@
 import { NextPage } from 'next';
-const Profile: NextPage = () => {
-  return <div>Profile</div>;
+const DiscoverPartnersPage: NextPage = () => {
+  return <div>DiscoverPartnersPage</div>;
 };
 
-export default Profile;
+export default DiscoverPartnersPage;

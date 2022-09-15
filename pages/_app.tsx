@@ -3,7 +3,7 @@ import { SessionProvider } from 'next-auth/react';
 import type { AppProps } from 'next/app';
 import type { NextPage } from 'next';
 import type { ReactElement, ReactNode, FC } from 'react';
-import { ThemeProvider } from '@mui/material';
+import { Box, ThemeProvider } from '@mui/material';
 import { theme } from '../theme';
 import { RootLayout } from '../components/layouts/root-layout/RootLayout';
 import { withTRPC } from '@trpc/next';
@@ -12,6 +12,7 @@ import { SSRContext } from '../util/trpc';
 import { httpBatchLink } from '@trpc/client/links/httpBatchLink';
 import { loggerLink } from '@trpc/client/links/loggerLink';
 import superjson from 'superjson';
+import { ProfileLayout } from '../components/layouts/profile-layout/ProfileLayout';
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -21,9 +22,22 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
-const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps }) => {
+const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps, router }) => {
   // Use the layout defined at the page level, if available
-  const getLayout = Component.getLayout ?? ((page) => page);
+  const getLayout =
+    Component.getLayout ??
+    ((page) =>
+      router.pathname.startsWith('/profile') ? (
+        <ProfileLayout page={page} />
+      ) : (
+        <Box
+          component="main"
+          id="main"
+          sx={{ flex: '1 0 auto' }}
+        >
+          {page}
+        </Box>
+      ));
 
   return (
     <SessionProvider session={pageProps.session}>

@@ -17,15 +17,15 @@ export const Footer: FC = () => {
     >
       <Grid
         container
-        alignItems="center"
+        alignItems={{ xs: 'flex-start', sm: 'center' }}
         justifyContent="space-between"
         spacing={1}
+        direction={{ xs: 'column', sm: 'row' }}
       >
         <Grid item>
           <Typography
             paragraph
             sx={{ mb: 0 }}
-            align="center"
             variant="content"
             color="text.secondary"
           >
