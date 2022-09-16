@@ -32,7 +32,7 @@ export const RegisterForm: FC = () => {
     isError,
     error,
     data,
-  } = trpc.useMutation('authRegister', {
+  } = trpc.useMutation('auth.register', {
     onSuccess() {
       reset();
     },

@@ -1,6 +1,8 @@
+import { Gender } from '@prisma/client';
+
 export const GENDER_OPTIONS: {
   label: string;
-  value: string;
+  value: Gender;
 }[] = [
   { label: 'Male', value: 'MALE' },
   { label: 'Female', value: 'FEMALE' },

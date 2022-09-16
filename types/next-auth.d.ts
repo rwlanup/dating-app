@@ -5,7 +5,6 @@ interface _User {
   id: string;
   fullName: string;
   username: string;
-  profilePicture: Buffer | null;
 }
 
 declare module 'next-auth' {

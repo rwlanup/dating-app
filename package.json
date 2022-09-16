@@ -28,6 +28,7 @@
     "dayjs": "^1.11.5",
     "next": "12.2.5",
     "next-auth": "^4.10.3",
+    "notistack": "^2.0.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-focus-lock": "^2.9.1",

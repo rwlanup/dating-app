@@ -13,6 +13,7 @@ import { httpBatchLink } from '@trpc/client/links/httpBatchLink';
 import { loggerLink } from '@trpc/client/links/loggerLink';
 import superjson from 'superjson';
 import { ProfileLayout } from '../components/layouts/profile-layout/ProfileLayout';
+import { SnackbarProvider } from 'notistack';
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -42,7 +43,12 @@ const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps, router }) => {
   return (
     <SessionProvider session={pageProps.session}>
       <ThemeProvider theme={theme}>
-        <RootLayout>{getLayout(<Component {...pageProps} />)}</RootLayout>
+        <SnackbarProvider
+          autoHideDuration={3000}
+          maxSnack={3}
+        >
+          <RootLayout>{getLayout(<Component {...pageProps} />)}</RootLayout>
+        </SnackbarProvider>
       </ThemeProvider>
     </SessionProvider>
   );

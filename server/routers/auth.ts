@@ -5,7 +5,7 @@ import { createRouter } from '../createRouter';
 import { DataWithSuccessMessage } from '../../types/server';
 import { User } from '@prisma/client';
 
-export const authRouter = createRouter().mutation('authRegister', {
+export const authRouter = createRouter().mutation('register', {
   input: registerSchema,
   resolve: async ({ ctx: { prisma }, input }): Promise<DataWithSuccessMessage<{ user: User }>> => {
     const { fullName, password, username } = input;

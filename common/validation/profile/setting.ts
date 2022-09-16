@@ -1,6 +1,6 @@
+import { Gender } from '@prisma/client';
 import dayjs from 'dayjs';
 import * as z from 'zod';
-import { GENDER_OPTIONS } from '../../config/selectOption';
 
 export const profileSettingSchema = z.object({
   fullName: z
@@ -24,10 +24,7 @@ export const profileSettingSchema = z.object({
       required_error: 'Please select your gender',
       invalid_type_error: 'Please select a valid gender',
     })
-    .refine(
-      (value) => GENDER_OPTIONS.findIndex((option) => option.value === value) !== -1,
-      'Please select a valid gender'
-    ),
+    .refine((value) => value in Gender, 'Please select a valid gender'),
   dob: z
     .date({
       invalid_type_error: 'Please provide a valid date',
@@ -51,12 +48,25 @@ export const profileSettingSchema = z.object({
     .trim()
     .min(1, 'Please enter the city you live in')
     .max(255, 'City name cannot be longer than 255 characters'),
-  profilePicture: (typeof window === 'undefined' ? z.any() : z.instanceof(File, 'Please upload a profile picture'))
-    .refine((value: File) => value.type.startsWith('image/'), 'Please upload an image')
-    .refine(
-      (value: File) => value.size <= 2097152, // 2097152 = 1024 * 1024 * 2 = 2MB
-      'Please upload an image'
-    ),
+  profilePicture:
+    typeof window === 'undefined'
+      ? z.any().refine((value) => {
+          console.log(value);
+          return true;
+        })
+      : z
+          .instanceof(File, 'Please upload a profile picture')
+          .refine((value: File) => value.type.startsWith('image/'), 'Please upload an image')
+          .refine(
+            (value: File) => value.size <= 2097152, // 2097152 = 1024 * 1024 * 2 = 2MB
+            'Please upload an image'
+          ),
+  bio: z
+    .string({
+      invalid_type_error: 'Please enter a valid bio',
+      required_error: 'Please enter your bio',
+    })
+    .min(20, 'Bio cannot be less than 20 characters'),
 });
 
 export type ProfileSettingInputs = z.infer<typeof profileSettingSchema>;
