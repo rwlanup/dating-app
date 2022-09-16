@@ -1,23 +1,71 @@
-import { Box, Button, Grid, InputLabel, MenuItem, Select, TextField, TextFieldProps, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  FormHelperText,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  TextFieldProps,
+  Typography,
+} from '@mui/material';
 import { NextPage } from 'next';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import UploadTwoTone from '@mui/icons-material/UploadTwoTone';
+import { GENDER_OPTIONS } from '../../common/config/selectOption';
+import { Controller, useForm } from 'react-hook-form';
+import { ProfileSettingInputs, profileSettingSchema } from '../../common/validation/profile/setting';
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { ChangeEvent } from 'react';
+import dayjs, { Dayjs } from 'dayjs';
 
-const GENDER_OPTIONS: {
-  label: string;
-  value: string;
-}[] = [
-  { label: 'Male', value: 'MALE' },
-  { label: 'Female', value: 'FEMALE' },
-  { label: 'Other (looking for Male)', value: 'MALE_OTHER' },
-  { label: 'Other (looking for Female)', value: 'FEMALE_OTHER' },
-];
+const ProfileSettingDefaultValues: Partial<ProfileSettingInputs> = {
+  city: '',
+  country: '',
+  fullName: '',
+  gender: '',
+  profession: '',
+};
 
 const ProfileSettingsPage: NextPage = () => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ProfileSettingInputs>({
+    resolver: zodResolver(profileSettingSchema),
+    defaultValues: ProfileSettingDefaultValues,
+  });
+
+  const onSubmit = handleSubmit((data) => {
+    console.log(data);
+  });
+
+  const handleFileInputChange = (
+    event: ChangeEvent<HTMLInputElement>,
+    changeHandler: (...args: unknown[]) => void
+  ): void => {
+    if (event.target.files?.length) {
+      changeHandler(event.target.files.item(0));
+    }
+  };
+
+  const handleDateInputChange = (value: Dayjs | null, changeHandler: (...args: unknown[]) => void): void => {
+    if (value) {
+      changeHandler(value.toDate());
+    } else {
+      changeHandler(null);
+    }
+  };
+
   return (
-    <Box component="form">
+    <Box
+      component="form"
+      onSubmit={onSubmit}
+    >
       <Typography
         variant="h3"
         component="h1"
@@ -34,117 +82,173 @@ const ProfileSettingsPage: NextPage = () => {
           item
           xs={12}
           lg={6}
+          xl={4}
         >
           <InputLabel htmlFor="profile-form-name-field">Full name</InputLabel>
-          <TextField
-            placeholder="Eg. John Doe"
-            required
+          <Controller
+            control={control}
             name="fullName"
-            id="profile-form-name-field"
+            render={({ field }) => (
+              <TextField
+                {...field}
+                placeholder="Eg. John Doe"
+                required
+                id="profile-form-name-field"
+                error={Boolean(errors.fullName?.message)}
+                helperText={errors.fullName?.message}
+              />
+            )}
           />
         </Grid>
         <Grid
           item
           xs={12}
           lg={6}
+          xl={4}
         >
           <InputLabel htmlFor="profile-form-profession-field">Profession</InputLabel>
-          <TextField
-            placeholder="Eg. Doctor"
-            required
+          <Controller
+            control={control}
             name="profession"
-            id="profile-form-profession-field"
+            render={({ field }) => (
+              <TextField
+                {...field}
+                placeholder="Eg. Doctor"
+                required
+                id="profile-form-profession-field"
+                error={Boolean(errors.profession?.message)}
+                helperText={errors.profession?.message}
+              />
+            )}
           />
         </Grid>
         <Grid
           item
           xs={12}
           lg={6}
+          xl={4}
         >
           <InputLabel htmlFor="profile-form-gender-field">Gender</InputLabel>
-          <Select
-            id="profile-form-gender-field"
-            required
+          <Controller
+            control={control}
             name="gender"
-            defaultValue=""
-            displayEmpty
-            renderValue={(selected: string | undefined) => {
-              const option = GENDER_OPTIONS.find((option) => option.value === selected);
-              if (!option) {
-                return (
-                  <Box
-                    component="span"
-                    sx={{ color: 'text.disabled' }}
-                  >
-                    Select a gender
-                  </Box>
-                );
-              }
-              return option.label;
-            }}
-          >
-            <MenuItem
-              disabled
-              value=""
-            >
-              Select a gender
-            </MenuItem>
-            {GENDER_OPTIONS.map((option) => (
-              <MenuItem
-                key={option.value}
-                value={option.value}
+            render={({ field }) => (
+              <Select
+                {...field}
+                id="profile-form-gender-field"
+                required
+                displayEmpty
+                error={Boolean(errors.gender?.message)}
+                renderValue={(selected: string | undefined) => {
+                  const option = GENDER_OPTIONS.find((option) => option.value === selected);
+                  if (!option) {
+                    return (
+                      <Box
+                        component="span"
+                        sx={{ color: 'text.disabled' }}
+                      >
+                        Select a gender
+                      </Box>
+                    );
+                  }
+                  return option.label;
+                }}
               >
-                {option.label}
-              </MenuItem>
-            ))}
-          </Select>
+                <MenuItem
+                  disabled
+                  value=""
+                >
+                  Select a gender
+                </MenuItem>
+                {GENDER_OPTIONS.map((option) => (
+                  <MenuItem
+                    key={option.value}
+                    value={option.value}
+                  >
+                    {option.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            )}
+          />
+          {errors.gender?.message && <FormHelperText error>{errors.gender?.message}</FormHelperText>}
         </Grid>
         <Grid
           item
           xs={12}
           lg={6}
+          xl={4}
         >
           <InputLabel htmlFor="profile-form-dob-field">Date of Birth</InputLabel>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              value=""
-              openTo="year"
-              onChange={(value) => console.log(value)}
-              renderInput={(params: TextFieldProps) => (
-                <TextField
-                  {...params}
-                  id="profile-form-dob-field"
-                  name="dob"
-                  error={false}
+          <Controller
+            control={control}
+            name="dob"
+            render={({ field }) => (
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  {...field}
+                  minDate={dayjs().add(-90, 'years')}
+                  maxDate={dayjs().add(-13, 'years')}
+                  value={field.value || null}
+                  onChange={(value) => handleDateInputChange(value as unknown as Dayjs, field.onChange)}
+                  disableFuture
+                  openTo="year"
+                  renderInput={(params: TextFieldProps) => (
+                    <TextField
+                      {...params}
+                      id="profile-form-dob-field"
+                      name={field.name}
+                      error={Boolean(errors.dob?.message)}
+                      helperText={errors.dob?.message as string}
+                    />
+                  )}
                 />
-              )}
-            />
-          </LocalizationProvider>
-        </Grid>
-        <Grid
-          item
-          xs={12}
-          lg={6}
-        >
-          <InputLabel htmlFor="profile-form-country-field">Country</InputLabel>
-          <TextField
-            placeholder="Eg. United States"
-            required
-            name="country"
-            id="profile-form-country-field"
+              </LocalizationProvider>
+            )}
           />
         </Grid>
         <Grid
           item
           xs={12}
           lg={6}
+          xl={4}
+        >
+          <InputLabel htmlFor="profile-form-country-field">Country</InputLabel>
+          <Controller
+            control={control}
+            name="country"
+            render={({ field }) => (
+              <TextField
+                {...field}
+                placeholder="Eg. United States"
+                required
+                id="profile-form-country-field"
+                error={Boolean(errors.country?.message)}
+                helperText={errors.country?.message}
+              />
+            )}
+          />
+        </Grid>
+        <Grid
+          item
+          xs={12}
+          lg={6}
+          xl={4}
         >
           <InputLabel htmlFor="profile-form-city-field">City</InputLabel>
-          <TextField
-            placeholder="Eg. New York"
-            required
+          <Controller
+            control={control}
             name="city"
-            id="profile-form-city-field"
+            render={({ field }) => (
+              <TextField
+                {...field}
+                placeholder="Eg. New York"
+                required
+                id="profile-form-city-field"
+                error={Boolean(errors.city?.message)}
+                helperText={errors.city?.message}
+              />
+            )}
           />
         </Grid>
         <Grid
@@ -161,18 +265,38 @@ const ProfileSettingsPage: NextPage = () => {
               borderRadius: `${theme.shape.borderRadius}px`,
             })}
             variant="outlined"
+            size="small"
           >
             Upload photo
-            <Box
-              component="input"
-              type="file"
-              accept="image/*"
-              sx={{ display: 'none' }}
+            <Controller
+              control={control}
+              name="profilePicture"
+              render={({ field }) => (
+                <Box
+                  ref={field.ref}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  onChange={(event) => handleFileInputChange(event, field.onChange)}
+                  id="profile-form-profilePicture-field"
+                  component="input"
+                  type="file"
+                  accept="image/*"
+                  sx={{ display: 'none' }}
+                />
+              )}
             />
           </Button>
+          {errors.profilePicture?.message && (
+            <FormHelperText error>{errors.profilePicture.message as string}</FormHelperText>
+          )}
         </Grid>
       </Grid>
-      <Button type="submit">Update profile</Button>
+      <Button
+        size="large"
+        type="submit"
+      >
+        Update profile
+      </Button>
     </Box>
   );
 };

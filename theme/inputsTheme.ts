@@ -53,8 +53,16 @@ export const inputsTheme = (theme: Theme): ThemeOptions => {
           variant: 'contained',
         },
         styleOverrides: {
-          root: {
+          sizeSmall: {
+            padding: theme.spacing(0.75, 3),
+          },
+          sizeMedium: {
             padding: theme.spacing(1, 4),
+          },
+          sizeLarge: {
+            padding: theme.spacing(1.5, 6),
+          },
+          root: {
             borderRadius: 9999,
           },
         },
