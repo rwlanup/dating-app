@@ -10,6 +10,12 @@ export const inputsTheme = (theme: Theme): ThemeOptions => {
         },
       },
 
+      MuiSelect: {
+        defaultProps: {
+          fullWidth: true,
+        },
+      },
+
       MuiInputLabel: {
         styleOverrides: {
           root: {

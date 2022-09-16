@@ -9,5 +9,15 @@ export const navigationTheme = (theme: Theme): ThemeOptions => ({
         fontWeight: theme.typography.fontWeightMedium,
       },
     },
+
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          '&:focus': {
+            boxShadow: 'none !important',
+          },
+        },
+      },
+    },
   },
 });
