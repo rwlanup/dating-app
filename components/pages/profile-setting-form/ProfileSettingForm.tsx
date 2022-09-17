@@ -21,9 +21,10 @@ import { ProfileSettingInputs, profileSettingSchema } from '../../../common/vali
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ChangeEvent } from 'react';
 import dayjs, { Dayjs } from 'dayjs';
+import { NullPartial } from '../../../types/utils';
 
 interface ProfileSettingFormProps {
-  defaultValues?: Partial<ProfileSettingInputs>;
+  defaultValues?: NullPartial<ProfileSettingInputs>;
   onSubmit: (data: ProfileSettingInputs) => void;
 }
 
@@ -34,7 +35,7 @@ export const ProfileSettingForm: FC<ProfileSettingFormProps> = ({ defaultValues,
     formState: { errors },
   } = useForm<ProfileSettingInputs>({
     resolver: zodResolver(profileSettingSchema),
-    defaultValues,
+    defaultValues: defaultValues as unknown as ProfileSettingInputs,
   });
 
   const _onSubmit = handleSubmit((data) => {

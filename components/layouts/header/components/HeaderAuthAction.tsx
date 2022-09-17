@@ -2,9 +2,17 @@ import { Avatar, Box, Button, Grid, IconButton, Skeleton, Theme, useMediaQuery }
 import { useSession } from 'next-auth/react';
 import { FC, useState } from 'react';
 import { toggleProfileDrawerOnMobileVisible } from '../../../../store/layoutUIStore';
+import { resolveBase64ImageUrl } from '../../../../util/string';
+import { trpc } from '../../../../util/trpc';
 import { AuthActions, AuthDialog } from '../../../pages/auth-dialog/AuthDialog';
 
 export const HeaderAuthAction: FC = () => {
+  const { data: profilePicture } = trpc.useQuery(['profile.me'], {
+    ssr: false,
+    select(data) {
+      return data.profilePicture;
+    },
+  });
   const session = useSession();
 
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
@@ -33,6 +41,7 @@ export const HeaderAuthAction: FC = () => {
   }
 
   if (session.status === 'authenticated') {
+    const url = resolveBase64ImageUrl(profilePicture);
     if (isTablet) {
       return (
         <Box>
@@ -40,7 +49,10 @@ export const HeaderAuthAction: FC = () => {
             onClick={toggleProfileDrawerOnMobileVisible}
             aria-label="Open profile menu"
           >
-            <Avatar alt={session.data.user.fullName}></Avatar>
+            <Avatar
+              alt={session.data.user.fullName}
+              src={url}
+            ></Avatar>
           </IconButton>
         </Box>
       );
@@ -48,7 +60,10 @@ export const HeaderAuthAction: FC = () => {
 
     return (
       <Box>
-        <Avatar alt={session.data.user.fullName}></Avatar>
+        <Avatar
+          src={url}
+          alt={session.data.user.fullName}
+        ></Avatar>
       </Box>
     );
   }

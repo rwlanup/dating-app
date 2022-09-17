@@ -26,7 +26,7 @@ export const profileRouter = createRouter()
         data: {
           ...input,
           gender: input.gender as Gender,
-          profilePicture: Buffer.from(input.profilePicture, 'base64url'),
+          profilePicture: Buffer.from(input.profilePicture, 'base64'),
         },
       });
 
@@ -67,7 +67,7 @@ export const profileRouter = createRouter()
 
       const responseUser = user as OnlyRequiredByKeys<User, 'id' | 'username' | 'fullName'>;
       delete responseUser.password;
-      const profilePicture = user?.profilePicture?.toString('base64url');
+      const profilePicture = user?.profilePicture?.toString('base64');
 
       return {
         ...responseUser,

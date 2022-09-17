@@ -24,3 +24,12 @@ export type OnlyRequiredByKeys<T, K extends keyof T> = RequiredByKeys<
   PartialByKeys<T>,
   Extract<keyof PartialByKeys<T>, K>
 >;
+
+export type NullPartial<T, K extends keyof T = keyof T> = SimplifyObjs<
+  {
+    [P in keyof T as P extends K ? P : never]?: T[P] | null;
+  },
+  {
+    [P in keyof T as P extends K ? never : P]: T[P];
+  }
+>;
