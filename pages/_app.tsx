@@ -14,6 +14,7 @@ import { loggerLink } from '@trpc/client/links/loggerLink';
 import superjson from 'superjson';
 import { ProfileLayout } from '../components/layouts/profile-layout/ProfileLayout';
 import { SnackbarProvider } from 'notistack';
+import { ReactQueryDevtools } from 'react-query/devtools';
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -41,16 +42,22 @@ const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps, router }) => {
       ));
 
   return (
-    <SessionProvider session={pageProps.session}>
-      <ThemeProvider theme={theme}>
-        <SnackbarProvider
-          autoHideDuration={3000}
-          maxSnack={3}
-        >
-          <RootLayout>{getLayout(<Component {...pageProps} />)}</RootLayout>
-        </SnackbarProvider>
-      </ThemeProvider>
-    </SessionProvider>
+    <>
+      <SessionProvider session={pageProps.session}>
+        <ThemeProvider theme={theme}>
+          <SnackbarProvider
+            autoHideDuration={3000}
+            maxSnack={3}
+          >
+            <RootLayout>{getLayout(<Component {...pageProps} />)}</RootLayout>
+          </SnackbarProvider>
+        </ThemeProvider>
+      </SessionProvider>
+      <ReactQueryDevtools
+        initialIsOpen={false}
+        position="bottom-right"
+      />
+    </>
   );
 };
 

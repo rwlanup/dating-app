@@ -13,6 +13,7 @@ CREATE TABLE "users" (
     "profession" VARCHAR(50),
     "dob" DATE,
     "gender" "Gender",
+    "profilePictureMime" VARCHAR(100),
     "profilePicture" BYTEA,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

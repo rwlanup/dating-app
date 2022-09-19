@@ -21,6 +21,7 @@ export const ProfileSettingForm: FC<ProfileSettingFormProps> = ({ defaultValues,
     control,
     handleSubmit,
     formState: { errors },
+    getValues,
   } = useForm<ProfileSettingInputs>({
     resolver: zodResolver(profileSettingSchema),
     defaultValues: defaultValues as unknown as ProfileSettingInputs,
@@ -30,13 +31,15 @@ export const ProfileSettingForm: FC<ProfileSettingFormProps> = ({ defaultValues,
     const reader = new FileReader();
     if (data.profilePicture instanceof File) {
       reader.readAsDataURL(data.profilePicture);
+      reader.onloadend = () => {
+        onSubmit({
+          ...data,
+          profilePicture: reader.result as string,
+        });
+      };
+    } else {
+      onSubmit(data);
     }
-    reader.onloadend = () => {
-      onSubmit({
-        ...data,
-        profilePicture: reader.result,
-      });
-    };
   });
 
   return (
@@ -184,7 +187,7 @@ export const ProfileSettingForm: FC<ProfileSettingFormProps> = ({ defaultValues,
             control={control}
             name="profilePicture"
             error={errors.profilePicture?.message as string}
-            helperText="Only image under 2MB is supported"
+            helperText="Only image with .jpg, .jpeg or .png format under 2MB is supported"
           />
         </Grid>
       </Grid>

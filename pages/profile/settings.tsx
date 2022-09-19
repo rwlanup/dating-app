@@ -8,15 +8,18 @@ import { useMemo } from 'react';
 import { NullPartial } from '../../types/utils';
 
 const ProfileSettingsPage: NextPage = () => {
+  const utils = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
-  const { data, isError, error, isLoading } = trpc.useQuery(['profile.me'], {
-    ssr: false,
+  const { data, status } = trpc.useQuery(['profile.me'], {
+    enabled: false,
   });
-  const { mutate } = trpc.useMutation('profile.update', {
+
+  const { mutate } = trpc.useMutation(['profile.update'], {
     onError(error) {
       enqueueSnackbar(error.message, { variant: 'error' });
     },
     onSuccess(data) {
+      utils.invalidateQueries(['profile.me']);
       enqueueSnackbar(data.message, { variant: 'success' });
     },
   });
@@ -31,12 +34,13 @@ const ProfileSettingsPage: NextPage = () => {
         country: data.country ?? '',
         city: data.city ?? '',
         bio: data.bio ?? '',
+        profilePicture: data.profilePicture,
       };
     }
     return {};
   }, [data]);
 
-  if (isLoading) {
+  if (status === 'loading' || status === 'idle') {
     return <ProfileSettingSkeleton />;
   }
 

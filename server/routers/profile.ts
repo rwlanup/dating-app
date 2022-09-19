@@ -3,6 +3,7 @@ import { TRPCError } from '@trpc/server';
 import { profileSettingSchema } from '../../common/validation/profile/setting';
 import { DataWithSuccessMessage } from '../../types/server';
 import { OnlyRequiredByKeys } from '../../types/utils';
+import { decryptBase64URL, resolveBase64ImageUrl } from '../../util/string';
 import { createRouter } from '../createRouter';
 
 export const profileRouter = createRouter()
@@ -16,6 +17,8 @@ export const profileRouter = createRouter()
         });
       }
 
+      const decryptedProfilePictureData = decryptBase64URL(input.profilePicture as string);
+
       await prisma.user.update({
         where: {
           id: session.user.id,
@@ -26,7 +29,10 @@ export const profileRouter = createRouter()
         data: {
           ...input,
           gender: input.gender as Gender,
-          profilePicture: Buffer.from(input.profilePicture, 'base64'),
+          profilePictureMime: decryptedProfilePictureData?.mimeType || null,
+          profilePicture: decryptedProfilePictureData?.data
+            ? Buffer.from(decryptedProfilePictureData.data, 'base64')
+            : null,
         },
       });
 
@@ -42,7 +48,7 @@ export const profileRouter = createRouter()
       ctx: { prisma, session },
     }): Promise<
       Omit<OnlyRequiredByKeys<User, 'id' | 'username' | 'fullName'>, 'profilePicture'> & {
-        profilePicture?: string | null;
+        profilePicture?: string;
       }
     > => {
       if (!session) {
@@ -66,12 +72,9 @@ export const profileRouter = createRouter()
       }
 
       const responseUser = user as OnlyRequiredByKeys<User, 'id' | 'username' | 'fullName'>;
-      delete responseUser.password;
-      const profilePicture = user?.profilePicture?.toString('base64');
-
       return {
         ...responseUser,
-        profilePicture,
+        profilePicture: resolveBase64ImageUrl(responseUser.profilePictureMime, responseUser.profilePicture),
       };
     },
   });
