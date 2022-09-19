@@ -19,20 +19,21 @@ enum Gender {
 }
 
 model User {
-  id             String    @id @default(cuid())
-  fullName       String
-  username       String    @unique @db.VarChar(20)
-  password       String    @db.VarChar(255)
-  bio            String?   @db.Text
-  country        String?   @db.VarChar(255)
-  city           String?   @db.VarChar(255)
-  profession     String?   @db.VarChar(255)
-  dob            DateTime? @db.Date
-  gender         Gender?
-  profilePicture Bytes?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  deletedAt      DateTime?
+  id                 String    @id @default(cuid())
+  fullName           String    @db.VarChar(150)
+  username           String    @unique @db.VarChar(20)
+  password           String    @db.VarChar(255)
+  bio                String?   @db.Text
+  country            String?   @db.VarChar(60)
+  city               String?   @db.VarChar(255)
+  profession         String?   @db.VarChar(50)
+  dob                DateTime? @db.Date
+  gender             Gender?
+  profilePictureMime String?   @db.VarChar(100)
+  profilePicture     Bytes?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
 
   @@map("users")
 }

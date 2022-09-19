@@ -31,7 +31,6 @@ export const nextAuthOptions: NextAuthOptions = {
             id: user.id,
             fullName: user.fullName,
             username: user.username,
-            profilePicture: user.profilePicture,
           };
         }
 
@@ -45,7 +44,6 @@ export const nextAuthOptions: NextAuthOptions = {
         token.fullName = user.fullName;
         token.id = user.id;
         token.username = user.username;
-        token.profilePicture = user.profilePicture;
       }
 
       return token;
@@ -56,7 +54,6 @@ export const nextAuthOptions: NextAuthOptions = {
         session.user.username = token.username as string;
         session.user.fullName = token.fullName;
         session.user.id = token.id;
-        session.user.profilePicture = token.profilePicture;
       }
       return session;
     },

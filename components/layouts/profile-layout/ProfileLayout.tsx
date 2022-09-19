@@ -85,7 +85,7 @@ export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
     <Box sx={{ display: 'flex', flex: 1, position: 'relative' }}>
       <Box
         component="aside"
-        sx={{ maxHeight: 'calc(100vh - 105px)', overflowY: 'auto' }}
+        sx={{ minHeight: 'calc(100vh - 105px)', overflowY: 'auto' }}
       >
         <Drawer
           ModalProps={{ keepMounted: true }}
@@ -130,6 +130,7 @@ export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
         </Drawer>
       </Box>
       <Box
+        sx={{ p: { xs: 2, md: 3 }, flex: 1 }}
         id="main"
         component="main"
       >
