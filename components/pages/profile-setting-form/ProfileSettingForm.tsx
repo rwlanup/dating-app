@@ -10,18 +10,19 @@ import { AppTextField } from '../../ui/app-text-field/AppTextField';
 import { AppSelect } from '../../ui/app-select/AppSelect';
 import { AppDatePicker } from '../../ui/app-date-picker/AppDatePicker';
 import { AppImageInput } from '../../ui/app-image-input/AppImageInput';
+import LoadingButton from '@mui/lab/LoadingButton';
 
 interface ProfileSettingFormProps {
   defaultValues?: NullPartial<ProfileSettingInputs>;
   onSubmit: (data: ProfileSettingInputs) => void;
+  isLoading?: boolean;
 }
 
-export const ProfileSettingForm: FC<ProfileSettingFormProps> = ({ defaultValues, onSubmit }) => {
+export const ProfileSettingForm: FC<ProfileSettingFormProps> = ({ defaultValues, onSubmit, isLoading }) => {
   const {
     control,
     handleSubmit,
     formState: { errors },
-    getValues,
   } = useForm<ProfileSettingInputs>({
     resolver: zodResolver(profileSettingSchema),
     defaultValues: defaultValues as unknown as ProfileSettingInputs,
@@ -191,12 +192,13 @@ export const ProfileSettingForm: FC<ProfileSettingFormProps> = ({ defaultValues,
           />
         </Grid>
       </Grid>
-      <Button
+      <LoadingButton
         size="large"
+        disabled={isLoading}
         type="submit"
       >
         Update profile
-      </Button>
+      </LoadingButton>
     </Box>
   );
 };
