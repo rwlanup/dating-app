@@ -7,6 +7,7 @@ import { authRouter } from './auth';
 import { ZodError } from 'zod';
 import { profileRouter } from './profile';
 import { interestsRouter } from './interests';
+import { friendsRouter } from './friends';
 
 /**
  * Create your application's root router
@@ -19,6 +20,7 @@ export const appRouter = createRouter()
   .merge('auth.', authRouter)
   .merge('profile.', profileRouter)
   .merge('interests.', interestsRouter)
+  .merge('friends.', friendsRouter)
   .formatError(({ shape, error }) => {
     return {
       ...shape,
