@@ -19,21 +19,40 @@ enum Gender {
 }
 
 model User {
-  id                 String    @id @default(cuid())
-  fullName           String    @db.VarChar(150)
-  username           String    @unique @db.VarChar(20)
-  password           String    @db.VarChar(255)
-  bio                String?   @db.Text
-  country            String?   @db.VarChar(60)
-  city               String?   @db.VarChar(255)
-  profession         String?   @db.VarChar(50)
-  dob                DateTime? @db.Date
+  id                 String             @id @default(cuid())
+  fullName           String             @db.VarChar(150)
+  username           String             @unique @db.VarChar(20)
+  password           String             @db.VarChar(255)
+  bio                String?            @db.Text
+  country            String?            @db.VarChar(60)
+  city               String?            @db.VarChar(255)
+  profession         String?            @db.VarChar(50)
+  dob                DateTime?          @db.Date
   gender             Gender?
-  profilePictureMime String?   @db.VarChar(100)
+  profilePictureMime String?            @db.VarChar(100)
   profilePicture     Bytes?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
   deletedAt          DateTime?
+  interests          InterestsOnUsers[]
 
   @@map("users")
+}
+
+model Interest {
+  id    String             @id @default(cuid())
+  name  String             @unique @db.VarChar(50)
+  users InterestsOnUsers[]
+
+  @@map("interests")
+}
+
+model InterestsOnUsers {
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interest   Interest @relation(fields: [interestId], references: [id], onDelete: Cascade)
+  userId     String
+  interestId String
+
+  @@id([userId, interestId])
+  @@map("usersinterests")
 }

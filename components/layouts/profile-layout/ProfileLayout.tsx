@@ -6,6 +6,7 @@ import ChatTwoToneIcon from '@mui/icons-material/ChatTwoTone';
 import Diversity1TwoToneIcon from '@mui/icons-material/Diversity1TwoTone';
 import ManageAccountsTwoToneIcon from '@mui/icons-material/ManageAccountsTwoTone';
 import LogoutTwoToneIcon from '@mui/icons-material/LogoutTwoTone';
+import InterestsTwoToneIcon from '@mui/icons-material/InterestsTwoTone';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useStore } from '../../../hooks/useStore';
@@ -47,6 +48,7 @@ export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
     { label: 'Chats', icon: <ChatTwoToneIcon />, url: '/profile/chats' },
     { label: 'Friends', icon: <Diversity1TwoToneIcon />, url: '/profile/friends' },
     { label: 'Profile settings', icon: <ManageAccountsTwoToneIcon />, url: '/profile/settings' },
+    { label: 'Interests', icon: <InterestsTwoToneIcon />, url: '/profile/interests' },
     {
       label: 'Log out',
       icon: <LogoutTwoToneIcon />,

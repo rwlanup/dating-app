@@ -14,7 +14,7 @@ const ProfileSettingsPage: NextPage = () => {
     enabled: false,
   });
 
-  const { mutate } = trpc.useMutation(['profile.update'], {
+  const { mutate, isLoading } = trpc.useMutation(['profile.update'], {
     onError(error) {
       enqueueSnackbar(error.message, { variant: 'error' });
     },
@@ -48,6 +48,7 @@ const ProfileSettingsPage: NextPage = () => {
     <ProfileSettingForm
       defaultValues={formDefaultValues}
       onSubmit={mutate}
+      isLoading={isLoading}
     />
   );
 };

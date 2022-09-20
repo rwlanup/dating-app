@@ -6,6 +6,7 @@ import superjson from 'superjson';
 import { authRouter } from './auth';
 import { ZodError } from 'zod';
 import { profileRouter } from './profile';
+import { interestsRouter } from './interests';
 
 /**
  * Create your application's root router
@@ -17,6 +18,7 @@ export const appRouter = createRouter()
   .transformer(superjson)
   .merge('auth.', authRouter)
   .merge('profile.', profileRouter)
+  .merge('interests.', interestsRouter)
   .formatError(({ shape, error }) => {
     return {
       ...shape,
