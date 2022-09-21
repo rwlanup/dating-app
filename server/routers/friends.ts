@@ -1,13 +1,14 @@
 import type { Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
+import { ITEMS_PER_REQUEST } from '../../common/config/support';
 import { paginationSchema } from '../../common/validation/pagination/pagination';
-import { ProfileListItem } from '../../types/profile';
+import { PaginatedProfile } from '../../types/profile';
 import { resolveBase64ImageUrl } from '../../util/string';
 import { createRouter } from '../createRouter';
 
 export const friendsRouter = createRouter().query('discover', {
   input: paginationSchema,
-  resolve: async ({ input, ctx: { prisma, session } }): Promise<ProfileListItem[]> => {
+  resolve: async ({ input, ctx: { prisma, session } }): Promise<PaginatedProfile> => {
     if (!session) {
       throw new TRPCError({
         code: 'UNAUTHORIZED',
@@ -15,7 +16,6 @@ export const friendsRouter = createRouter().query('discover', {
       });
     }
 
-    const page = input?.page || 1;
     const search = input?.search || '';
 
     const currentUserInterests = await prisma.interest.findMany({
@@ -38,9 +38,33 @@ export const friendsRouter = createRouter().query('discover', {
       mode: 'insensitive',
     };
 
+    const userWhereInput: Prisma.UserWhereInput = {
+      id: {
+        not: session.user.id,
+      },
+      profilePicture: {
+        not: null,
+      },
+      profilePictureMime: {
+        not: null,
+      },
+      OR: [{ fullName: filter }, { city: filter }, { country: filter }, { profession: filter }, { username: filter }],
+      interests: {
+        some: {
+          interestId: {
+            in: currentUserInterestIds,
+          },
+        },
+      },
+    };
+
     const users = await prisma.user.findMany({
-      skip: (page - 1) * 10,
-      take: 10,
+      cursor: input?.cursor
+        ? {
+            id: input.cursor,
+          }
+        : undefined,
+      take: ITEMS_PER_REQUEST + 1,
       select: {
         fullName: true,
         bio: true,
@@ -54,36 +78,34 @@ export const friendsRouter = createRouter().query('discover', {
         profilePictureMime: true,
         username: true,
       },
-      where: {
-        id: {
-          not: session.user.id,
+      where: userWhereInput,
+      orderBy: [
+        {
+          id: 'desc',
         },
-        profilePicture: {
-          not: null,
-        },
-        profilePictureMime: {
-          not: null,
-        },
-        OR: [{ fullName: filter }, { city: filter }, { country: filter }, { profession: filter }, { username: filter }],
-        interests: {
-          some: {
-            interestId: {
-              in: currentUserInterestIds,
-            },
+        {
+          interests: {
+            _count: 'desc',
           },
         },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      ],
     });
 
-    return users.map((user) => {
-      return {
-        ...user,
-        address: user.country && user.city && `${user.city}, ${user.country}`,
-        profilePicture: resolveBase64ImageUrl(user.profilePictureMime, user.profilePicture) as string,
-      };
-    });
+    let nextCursor: string | undefined = undefined;
+    if (users.length > ITEMS_PER_REQUEST) {
+      nextCursor = users.pop()?.id;
+    }
+
+    return {
+      items: users.map((user) => {
+        return {
+          ...user,
+          id: Math.random().toString(),
+          address: user.country && user.city && `${user.city}, ${user.country}`,
+          profilePicture: resolveBase64ImageUrl(user.profilePictureMime, user.profilePicture) as string,
+        };
+      }),
+      nextCursor,
+    };
   },
 });

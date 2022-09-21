@@ -8,9 +8,7 @@ import { theme } from '../theme';
 import { RootLayout } from '../components/layouts/root-layout/RootLayout';
 import { withTRPC } from '@trpc/next';
 import { AppRouter } from '../server/routers/_app';
-import { SSRContext } from '../util/trpc';
 import { httpBatchLink } from '@trpc/client/links/httpBatchLink';
-import { loggerLink } from '@trpc/client/links/loggerLink';
 import superjson from 'superjson';
 import { ProfileLayout } from '../components/layouts/profile-layout/ProfileLayout';
 import { SnackbarProvider } from 'notistack';
@@ -72,11 +70,6 @@ export default withTRPC<AppRouter>({
        * @link https://trpc.io/docs/links
        */
       links: [
-        // adds pretty logs to your console in development and logs errors in production
-        loggerLink({
-          enabled: (opts) =>
-            process.env.NODE_ENV === 'development' || (opts.direction === 'down' && opts.result instanceof Error),
-        }),
         httpBatchLink({
           url: '/api/trpc',
         }),

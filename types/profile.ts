@@ -1,4 +1,5 @@
 import type { User } from '@prisma/client';
+import { PaginatedResult } from './server';
 import { OmitByKeys } from './utils';
 
 export type ProfileListItem = OmitByKeys<
@@ -8,3 +9,5 @@ export type ProfileListItem = OmitByKeys<
   address?: string | null;
   profilePicture: string;
 };
+
+export type PaginatedProfile = PaginatedResult<ProfileListItem>;
