@@ -1,4 +1,4 @@
-import { InputLabel, FormHelperText, Button, Box, BoxProps } from '@mui/material';
+import { InputLabel, FormHelperText, Button, Box, BoxProps, Grid } from '@mui/material';
 import { Controller, FieldValues, Path, UseControllerProps } from 'react-hook-form';
 import UploadTwoTone from '@mui/icons-material/UploadTwoTone';
 import { ChangeEvent, InputHTMLAttributes, useState } from 'react';
@@ -60,46 +60,59 @@ export const AppImageInput = <
         rules={rules}
         shouldUnregister={shouldUnregister}
         render={({ field }) => (
-          <>
-            <Button
-              startIcon={<UploadTwoTone />}
-              component="label"
-              sx={(theme) => ({
-                borderRadius: `${theme.shape.borderRadius}px`,
-              })}
-              variant="outlined"
-              size="small"
-            >
-              {uploadBtnLabel}
-              <Box
-                ref={field.ref}
-                onBlur={field.onBlur}
-                name={field.name}
-                onChange={(event: ChangeEvent<HTMLInputElement>) => handleFileInputChange(event, field.onChange)}
-                id={id}
-                required={required}
-                component="input"
-                type="file"
-                accept={SUPPORTED_IMAGE_MIME_TYPES.join(',')}
-                sx={{ display: 'none' }}
-                {...InputProps}
-              />
-            </Button>
+          <Grid
+            container
+            spacing={1}
+          >
+            <Grid item>
+              <Button
+                startIcon={<UploadTwoTone />}
+                component="label"
+                sx={(theme) => ({
+                  borderRadius: `${theme.shape.borderRadius}px`,
+                })}
+                variant="outlined"
+                size="small"
+              >
+                {uploadBtnLabel}
+                <Box
+                  ref={field.ref}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  onChange={(event: ChangeEvent<HTMLInputElement>) => handleFileInputChange(event, field.onChange)}
+                  id={id}
+                  required={required}
+                  component="input"
+                  type="file"
+                  accept={SUPPORTED_IMAGE_MIME_TYPES.join(',')}
+                  sx={{ display: 'none' }}
+                  {...InputProps}
+                />
+              </Button>
+            </Grid>
             {(previewURL || typeof field.value === 'string') && (
-              <Box>
-                <Box sx={{ mt: 1, bgcolor: 'grey.50', display: 'inline-block', borderRadius: 1 }}>
+              <Grid item>
+                <Box
+                  sx={{
+                    bgcolor: 'grey.50',
+                    display: 'inline-block',
+                    borderRadius: 1,
+                    overflow: 'hidden',
+                    span: { display: 'block!important' },
+                  }}
+                >
                   <Image
-                    width={200}
-                    height={200}
+                    width={160}
+                    height={160}
                     objectFit="contain"
                     objectPosition="center"
                     src={previewURL || field.value}
                     alt="Your profile picture preview"
                   />
                 </Box>
-              </Box>
+              </Grid>
             )}
-          </>
+          </Grid>
         )}
       />
 
