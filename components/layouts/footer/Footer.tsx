@@ -43,7 +43,7 @@ export const Footer: FC = () => {
         <Grid item>
           <Link
             underline="always"
-            href="https://github.com/anuprawal"
+            href="https://github.com/rwlanup"
             target="_blank"
           >
             Built by: Anup Rawal
