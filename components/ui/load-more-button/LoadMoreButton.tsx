@@ -30,7 +30,7 @@ export const LoadMoreButton: FC<LoadMoreButtonProps> = ({ onClick, loading, ...p
   }, [btnRef, observer]);
 
   useEffect(() => {
-    if (isInView && btnRef.current) {
+    if (isInView && btnRef.current && !btnRef.current.disabled) {
       btnRef.current.click();
     }
   }, [isInView]);

@@ -5,15 +5,16 @@ import type { FC } from 'react';
 interface ErrorScreenProps {
   title: string;
   message?: string;
+  hideBtn?: boolean;
 }
 
-export const ErrorScreen: FC<ErrorScreenProps> = ({ title, message }) => {
+export const ErrorScreen: FC<ErrorScreenProps> = ({ title, message, hideBtn }) => {
   return (
     <Container sx={{ py: 5 }}>
       <Box
         sx={{
           display: 'flex',
-          minHeight: '80vh',
+          minHeight: '75vh',
           flexDirection: 'column',
           alignItems: 'center',
           height: 1,
@@ -32,14 +33,16 @@ export const ErrorScreen: FC<ErrorScreenProps> = ({ title, message }) => {
             {message}
           </Typography>
         )}
-        <Box sx={{ mt: 2 }}>
-          <Link
-            href="/"
-            passHref
-          >
-            <Button>Go to home</Button>
-          </Link>
-        </Box>
+        {!hideBtn && (
+          <Box sx={{ mt: 2 }}>
+            <Link
+              href="/"
+              passHref
+            >
+              <Button>Go to home</Button>
+            </Link>
+          </Box>
+        )}
       </Box>
     </Container>
   );

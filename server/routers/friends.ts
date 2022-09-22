@@ -38,26 +38,6 @@ export const friendsRouter = createRouter().query('discover', {
       mode: 'insensitive',
     };
 
-    const userWhereInput: Prisma.UserWhereInput = {
-      id: {
-        not: session.user.id,
-      },
-      profilePicture: {
-        not: null,
-      },
-      profilePictureMime: {
-        not: null,
-      },
-      OR: [{ fullName: filter }, { city: filter }, { country: filter }, { profession: filter }, { username: filter }],
-      interests: {
-        some: {
-          interestId: {
-            in: currentUserInterestIds,
-          },
-        },
-      },
-    };
-
     const users = await prisma.user.findMany({
       cursor: input?.cursor
         ? {
@@ -78,7 +58,25 @@ export const friendsRouter = createRouter().query('discover', {
         profilePictureMime: true,
         username: true,
       },
-      where: userWhereInput,
+      where: {
+        id: {
+          not: session.user.id,
+        },
+        profilePicture: {
+          not: null,
+        },
+        profilePictureMime: {
+          not: null,
+        },
+        OR: [{ fullName: filter }, { city: filter }, { country: filter }, { profession: filter }, { username: filter }],
+        interests: {
+          some: {
+            interestId: {
+              in: currentUserInterestIds,
+            },
+          },
+        },
+      },
       orderBy: [
         {
           id: 'desc',
