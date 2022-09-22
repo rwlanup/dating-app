@@ -1,8 +1,10 @@
 import { Box, Grid, alpha } from '@mui/material';
 import type { FC } from 'react';
 import { ProfileListItem as TProfileListItem } from '../../../types/profile';
+import { ErrorScreen } from '../error-screen/ErrorScreen';
 import { ProfileListItem } from '../profile-list-item/ProfileListItem';
 import { ProfileListSkeleton } from './ProfileListSkeleton';
+import SearchOffTwoToneIcon from '@mui/icons-material/SearchOffTwoTone';
 
 interface ProfileListProps {
   profiles?: TProfileListItem[];
@@ -12,6 +14,16 @@ interface ProfileListProps {
 export const ProfileList: FC<ProfileListProps> = ({ profiles, isLoading }) => {
   if (isLoading || !profiles) {
     return <ProfileListSkeleton />;
+  }
+
+  if (profiles.length === 0) {
+    return (
+      <ErrorScreen
+        icon={<SearchOffTwoToneIcon sx={{ height: 120, width: 120 }} />}
+        title="Oops, no partners found"
+        hideBtn
+      />
+    );
   }
 
   return (

@@ -1,27 +1,34 @@
 import { Box, Button, Container, Typography } from '@mui/material';
 import Link from 'next/link';
-import type { FC } from 'react';
+import type { FC, ReactElement } from 'react';
 
 interface ErrorScreenProps {
   title: string;
   message?: string;
   hideBtn?: boolean;
+  icon?: ReactElement;
 }
 
-export const ErrorScreen: FC<ErrorScreenProps> = ({ title, message, hideBtn }) => {
+export const ErrorScreen: FC<ErrorScreenProps> = ({ title, message, hideBtn, icon }) => {
   return (
     <Container sx={{ py: 5 }}>
       <Box
         sx={{
           display: 'flex',
-          minHeight: '75vh',
+          minHeight: '55vh',
           flexDirection: 'column',
           alignItems: 'center',
           height: 1,
           justifyContent: 'center',
         }}
       >
-        <Typography variant="h1">{title}</Typography>
+        {icon}
+        <Typography
+          align="center"
+          variant="h1"
+        >
+          {title}
+        </Typography>
         {message && (
           <Typography
             variant="body"
