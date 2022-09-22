@@ -33,3 +33,5 @@ export type NullPartial<T, K extends keyof T = keyof T> = SimplifyObjs<
     [P in keyof T as P extends K ? never : P]: T[P];
   }
 >;
+
+export type OmitByKeys<T, K extends keyof T = keyof T> = Omit<T, K>;

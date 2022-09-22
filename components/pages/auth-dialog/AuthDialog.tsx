@@ -18,7 +18,7 @@ export const AuthDialog: FC<AuthDialogProps> = ({ isOpen, onClose, authAction })
   const router = useRouter();
   const action = router.query.action as typeof AuthActions[number];
 
-  const _isOpen = isOpen ? isOpen : AuthActions.includes(action);
+  const _isOpen = isOpen || AuthActions.includes(action);
 
   const _onClose = (): void => {
     onClose && onClose();

@@ -7,6 +7,8 @@ import { authRouter } from './auth';
 import { ZodError } from 'zod';
 import { profileRouter } from './profile';
 import { interestsRouter } from './interests';
+import { friendsRouter } from './friends';
+import { isPrismaError } from '../../util/prisma';
 
 /**
  * Create your application's root router
@@ -19,9 +21,11 @@ export const appRouter = createRouter()
   .merge('auth.', authRouter)
   .merge('profile.', profileRouter)
   .merge('interests.', interestsRouter)
+  .merge('friends.', friendsRouter)
   .formatError(({ shape, error }) => {
     return {
       ...shape,
+      message: isPrismaError(error.cause) ? 'Something went wrong, please try again later😟' : shape.message,
       zodError: error.code === 'BAD_REQUEST' && error.cause instanceof ZodError ? error.cause.flatten() : null,
     };
   });
