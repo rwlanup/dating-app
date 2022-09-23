@@ -1,4 +1,4 @@
-import { Box, Button, Container, Typography } from '@mui/material';
+import { Box, Button, Container, Typography, TypographyProps } from '@mui/material';
 import Link from 'next/link';
 import type { FC, ReactElement } from 'react';
 
@@ -7,9 +7,10 @@ interface ErrorScreenProps {
   message?: string;
   hideBtn?: boolean;
   icon?: ReactElement;
+  HeadingProps?: TypographyProps;
 }
 
-export const ErrorScreen: FC<ErrorScreenProps> = ({ title, message, hideBtn, icon }) => {
+export const ErrorScreen: FC<ErrorScreenProps> = ({ title, message, hideBtn, icon, HeadingProps }) => {
   return (
     <Container sx={{ py: 5 }}>
       <Box
@@ -26,6 +27,7 @@ export const ErrorScreen: FC<ErrorScreenProps> = ({ title, message, hideBtn, ico
         <Typography
           align="center"
           variant="h1"
+          {...HeadingProps}
         >
           {title}
         </Typography>

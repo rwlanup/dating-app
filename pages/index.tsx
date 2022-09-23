@@ -1,9 +1,23 @@
 import type { NextPage } from 'next';
+import { useSession } from 'next-auth/react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
 import { Hero } from '../components/pages/hero/Hero';
 import { Process } from '../components/pages/process/Process';
 
 const Home: NextPage = () => {
+  const { status: sessionStatus } = useSession();
+  const router = useRouter();
+
+  // Redirect to home page in case of unauthentication
+  useEffect(() => {
+    if (sessionStatus === 'authenticated') {
+      const url: string = typeof router.query.callbackUrl === 'string' ? router.query.callbackUrl : '/profile';
+      router.replace(url);
+    }
+  }, [sessionStatus, router]);
+
   return (
     <>
       <Head>

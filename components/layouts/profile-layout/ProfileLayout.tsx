@@ -7,7 +7,7 @@ import Diversity1TwoToneIcon from '@mui/icons-material/Diversity1TwoTone';
 import ManageAccountsTwoToneIcon from '@mui/icons-material/ManageAccountsTwoTone';
 import LogoutTwoToneIcon from '@mui/icons-material/LogoutTwoTone';
 import InterestsTwoToneIcon from '@mui/icons-material/InterestsTwoTone';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useStore } from '../../../hooks/useStore';
 import {
@@ -28,6 +28,7 @@ interface MenuItem {
 }
 
 export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
+  const { status: sessionStatus } = useSession();
   const router = useRouter();
   const pathname = router.pathname;
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
@@ -37,6 +38,13 @@ export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
     (state) => state.isProfileDrawerOnMobileVisible,
     () => false
   );
+
+  // Redirect to home page in case of unauthentication
+  useEffect(() => {
+    if (sessionStatus === 'unauthenticated') {
+      router.replace('/');
+    }
+  }, [sessionStatus, router]);
 
   // Close drawer on navigation
   useEffect(() => {
@@ -87,7 +95,7 @@ export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
     <Box sx={{ display: 'flex', flex: 1, position: 'relative' }}>
       <Box
         component="aside"
-        sx={{ minHeight: 'calc(100vh - 105px)', overflowY: 'auto' }}
+        sx={{ overflowY: 'auto' }}
       >
         <Drawer
           ModalProps={{ keepMounted: true }}

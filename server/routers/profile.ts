@@ -1,27 +1,24 @@
 import { Gender, User } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
+import { Session } from 'next-auth';
 import { profileSettingSchema } from '../../common/validation/profile/setting';
+import { authMiddleware } from '../../middleware/auth';
 import { DataWithSuccessMessage } from '../../types/server';
 import { OnlyRequiredByKeys } from '../../types/utils';
 import { decryptBase64URL, resolveBase64ImageUrl } from '../../util/string';
 import { createRouter } from '../createRouter';
 
 export const profileRouter = createRouter()
+  .middleware(authMiddleware)
   .mutation('update', {
     input: profileSettingSchema,
     resolve: async ({ input, ctx: { prisma, session } }): Promise<DataWithSuccessMessage> => {
-      if (!session) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'You are not logged in, please log in to update your profile.',
-        });
-      }
-
+      const _session = session as Session;
       const decryptedProfilePictureData = decryptBase64URL(input.profilePicture as string);
 
       await prisma.user.update({
         where: {
-          id: session.user.id,
+          id: _session.user.id,
         },
         select: {
           id: true,
@@ -51,16 +48,10 @@ export const profileRouter = createRouter()
         profilePicture?: string;
       }
     > => {
-      if (!session) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'You are not logged in, please log in to your account',
-        });
-      }
-
+      const _session = session as Session;
       const user = await prisma.user.findUnique({
         where: {
-          id: session.user.id,
+          id: _session.user.id,
         },
       });
 

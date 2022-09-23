@@ -52,8 +52,6 @@ export const LoginForm: FC = () => {
           isError: true,
           error: 'Your username or password does not match',
         }));
-      } else {
-        router.replace('/profile');
       }
     } catch (error) {
       setFormUIState((prevState) => ({
