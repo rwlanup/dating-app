@@ -19,9 +19,15 @@ export const ProfileList: FC<ProfileListProps> = ({ profiles, isLoading }) => {
   if (profiles.length === 0) {
     return (
       <ErrorScreen
-        icon={<SearchOffTwoToneIcon sx={{ height: 120, width: 120 }} />}
+        icon={
+          <SearchOffTwoToneIcon
+            color="error"
+            sx={{ height: 120, width: 120 }}
+          />
+        }
         title="Oops, no partners found"
         hideBtn
+        HeadingProps={{ variant: 'h3' }}
       />
     );
   }
