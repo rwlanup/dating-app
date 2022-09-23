@@ -1,27 +1,49 @@
 import { Interest } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
+import { Session } from 'next-auth';
 import { popularInterestSchema } from '../../common/validation/interests/popular';
 import { updateInterestsSchema } from '../../common/validation/interests/update';
+import { authMiddleware } from '../../middleware/auth';
 import { DataWithSuccessMessage } from '../../types/server';
 import { createRouter } from '../createRouter';
 
 export const interestsRouter = createRouter()
+  .query('popular', {
+    input: popularInterestSchema,
+    resolve: async ({ input, ctx: { prisma } }): Promise<Interest[]> => {
+      return await prisma.interest.findMany({
+        where: {
+          name: {
+            contains: input || '',
+            mode: 'insensitive',
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+        take: 10,
+        orderBy: {
+          users: {
+            _count: 'desc',
+          },
+        },
+      });
+    },
+  })
+
+  .middleware(authMiddleware)
   .mutation('update', {
     input: updateInterestsSchema,
     resolve: async ({ input, ctx: { prisma, session } }): Promise<DataWithSuccessMessage> => {
-      if (!session) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'You are not logged in, please log in to update your profile.',
-        });
-      }
+      const _session = session as Session;
 
       await prisma.user.update({
         select: {
           id: true,
         },
         where: {
-          id: session.user.id,
+          id: _session.user.id,
         },
         data: {
           interests: {
@@ -49,44 +71,14 @@ export const interestsRouter = createRouter()
     },
   })
 
-  .query('popular', {
-    input: popularInterestSchema,
-    resolve: async ({ input, ctx: { prisma } }): Promise<Interest[]> => {
-      return await prisma.interest.findMany({
-        where: {
-          name: {
-            contains: input || '',
-            mode: 'insensitive',
-          },
-        },
-        select: {
-          id: true,
-          name: true,
-        },
-        take: 10,
-        orderBy: {
-          users: {
-            _count: 'desc',
-          },
-        },
-      });
-    },
-  })
-
   .query('mine', {
     resolve: async ({ ctx: { prisma, session } }): Promise<Interest[]> => {
-      if (!session) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'You are not logged in, please log in to update your profile.',
-        });
-      }
-
+      const _session = session as Session;
       return await prisma.interest.findMany({
         where: {
           users: {
             some: {
-              userId: session.user.id,
+              userId: _session.user.id,
             },
           },
         },
