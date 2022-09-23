@@ -13,7 +13,8 @@ const Home: NextPage = () => {
   // Redirect to home page in case of unauthentication
   useEffect(() => {
     if (sessionStatus === 'authenticated') {
-      router.replace('/profile');
+      const url: string = typeof router.query.callbackUrl === 'string' ? router.query.callbackUrl : '/profile';
+      router.replace(url);
     }
   }, [sessionStatus, router]);
 
