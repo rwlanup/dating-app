@@ -1,4 +1,4 @@
-import { Box, Drawer, Button, Grid, Typography, useMediaQuery, Theme } from '@mui/material';
+import { Box, Drawer, Button, Grid, useMediaQuery, Theme } from '@mui/material';
 import Link from 'next/link';
 import { FC, MouseEventHandler, ReactElement, ReactNode, useEffect } from 'react';
 import FavoriteTwoToneIcon from '@mui/icons-material/FavoriteTwoTone';
