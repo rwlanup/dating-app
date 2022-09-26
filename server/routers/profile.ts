@@ -1,8 +1,10 @@
 import { Gender, User } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { Session } from 'next-auth';
+import { profileByUsernameSchema } from '../../common/validation/profile/byUsername';
 import { profileSettingSchema } from '../../common/validation/profile/setting';
 import { authMiddleware } from '../../middleware/auth';
+import { UserProfile } from '../../types/profile';
 import { DataWithSuccessMessage } from '../../types/server';
 import { OnlyRequiredByKeys } from '../../types/utils';
 import { decryptBase64URL, resolveBase64ImageUrl } from '../../util/string';
@@ -66,6 +68,42 @@ export const profileRouter = createRouter()
       return {
         ...responseUser,
         profilePicture: resolveBase64ImageUrl(responseUser.profilePictureMime, responseUser.profilePicture),
+      };
+    },
+  })
+
+  .query('byUsername', {
+    input: profileByUsernameSchema,
+    resolve: async ({ ctx: { prisma }, input: username }): Promise<UserProfile> => {
+      const user = await prisma.user.findUnique({
+        where: {
+          username,
+        },
+        include: {
+          interests: {
+            include: {
+              interest: true,
+            },
+          },
+        },
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'User profile not found for a given username, maybe a profile has been deleted',
+        });
+      }
+
+      delete (user as Partial<User>).password;
+
+      return {
+        ...user,
+        profilePicture: resolveBase64ImageUrl(user.profilePictureMime, user.profilePicture),
+        address: user.country && user.city && `${user.city}, ${user.country}`,
+        interests: user.interests.map((interest) => {
+          return interest.interest;
+        }),
       };
     },
   });
