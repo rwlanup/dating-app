@@ -1,4 +1,4 @@
-import { alpha, Box, Tab, Typography } from '@mui/material';
+import { Box, Tab, Typography } from '@mui/material';
 import type { NextPage } from 'next';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
@@ -7,6 +7,8 @@ import { SyntheticEvent, useState } from 'react';
 import { useFriendsList } from '../../hooks/useFriendsList';
 import { FriendsList } from '../../components/pages/friends-list/FriendsList';
 import { FriendWithProfile } from '../../types/friend';
+import { ErrorScreen } from '../../components/pages/error-screen/ErrorScreen';
+import { FriendsPageSkeleton } from '../../components/pages/friends-page-skeleton/FriendsPageSkeleton';
 
 export type FRIENDS_TYPE = 'FRIENDS' | 'SENT_REQUESTS' | 'RECEIVED_REQUESTS';
 
@@ -19,8 +21,16 @@ const TABS: { label: string; value: FRIENDS_TYPE }[] = [
 const FriendsPage: NextPage = () => {
   const [currentTab, setCurrentTab] = useState<FRIENDS_TYPE>('FRIENDS');
   const { isLoading, isError, errorMessage, friends, receivedFriendRequests, sentFriendRequests } = useFriendsList();
+  if (isError) {
+    return (
+      <ErrorScreen
+        title="500 server error"
+        message={errorMessage}
+      />
+    );
+  }
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <FriendsPageSkeleton />;
 
   const handleChange = (_event: SyntheticEvent, newValue: FRIENDS_TYPE) => {
     setCurrentTab(newValue);

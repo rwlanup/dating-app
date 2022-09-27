@@ -44,6 +44,7 @@ export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, i
           <FriendRequestButton
             size="small"
             friendId={profile.id}
+            sx={{ maxWidth: { sm: '15rem' } }}
           />
         );
       case 'RECEIVED_REQUESTS':
@@ -55,6 +56,7 @@ export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, i
               loading={respondingToRequest}
               size="small"
               onClick={denyRequest}
+              sx={{ maxWidth: { sm: '10rem' } }}
             >
               Deny
             </LoadingButton>
@@ -63,6 +65,7 @@ export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, i
               size="small"
               loading={respondingToRequest}
               onClick={acceptRequest}
+              sx={{ maxWidth: { sm: '10rem' } }}
             >
               Accept
             </LoadingButton>
@@ -73,6 +76,7 @@ export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, i
           <FriendRequestButton
             size="small"
             friendId={profile.id}
+            sx={{ maxWidth: { sm: '15rem' } }}
           />
         );
     }
@@ -82,7 +86,7 @@ export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, i
     <Box
       sx={(theme) => ({
         display: 'flex',
-        alignItems: 'center',
+        alignItems: { md: 'center' },
         justifyContent: 'space-between',
         gap: 2,
         mb: 2,
@@ -90,6 +94,7 @@ export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, i
         flexWrap: 'wrap',
         bgcolor: alpha(theme.palette.primary[50], 0.5),
         borderRadius: 2,
+        flexDirection: { xs: 'column', md: 'row' },
       })}
     >
       <Link
@@ -105,9 +110,13 @@ export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, i
             color: 'common.black',
             flexWrap: 'wrap',
             gap: 2,
+            flexDirection: { xs: 'column', sm: 'row', md: 'column', lg: 'row' },
           }}
         >
-          <ListItem sx={{ minWidth: 'calc(50% - 16px)', width: 'auto', p: 0 }}>
+          <ListItem
+            component="div"
+            sx={{ minWidth: { md: 'calc(50% - 16px)' }, width: 'auto', p: 0, flex: 'auto' }}
+          >
             <ListItemAvatar>
               <Avatar
                 sx={{ height: 56, width: 56 }}
@@ -138,7 +147,10 @@ export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, i
             />
           </ListItem>
           {profile.address && profile.dob && (
-            <ListItem sx={{ minWidth: 'calc(50% - 16px)', width: 'auto', p: 0 }}>
+            <ListItem
+              component="div"
+              sx={{ minWidth: { md: 'calc(50% - 16px)' }, width: 'auto', p: 0, flex: 'auto' }}
+            >
               <ListItemText
                 primary={<Typography fontWeight="Medium">From: {profile.address}</Typography>}
                 secondary={
@@ -156,7 +168,8 @@ export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, i
           display: 'flex',
           gap: 1,
           flex: { xs: 'auto', sm: '0' },
-          alignSelf: 'flex-end',
+          justifyContent: 'flex-end',
+          alignSelf: { xs: 'stretch', md: 'flex-end' },
           pb: 0.75,
         }}
       >
