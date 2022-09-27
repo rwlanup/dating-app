@@ -167,7 +167,7 @@ export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, i
         sx={{
           display: 'flex',
           gap: 1,
-          flex: { xs: 'auto', sm: '0' },
+          flex: { xs: 'auto', sm: '0 0 auto' },
           justifyContent: 'flex-end',
           alignSelf: { xs: 'stretch', md: 'flex-end' },
           pb: 0.75,
