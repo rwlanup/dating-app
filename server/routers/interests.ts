@@ -1,6 +1,5 @@
 import { Interest } from '@prisma/client';
-import { TRPCError } from '@trpc/server';
-import { Session } from 'next-auth';
+import type { Session } from 'next-auth';
 import { popularInterestSchema } from '../../common/validation/interests/popular';
 import { updateInterestsSchema } from '../../common/validation/interests/update';
 import { authMiddleware } from '../../middleware/auth';

@@ -1,6 +1,6 @@
 import { Gender, User } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
-import { Session } from 'next-auth';
+import type { Session } from 'next-auth';
 import { profileByUsernameSchema } from '../../common/validation/profile/byUsername';
 import { profileSettingSchema } from '../../common/validation/profile/setting';
 import { authMiddleware } from '../../middleware/auth';

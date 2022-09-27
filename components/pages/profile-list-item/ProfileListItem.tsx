@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { FC } from 'react';
 import { ProfileListItem as TProfileListItem } from '../../../types/profile';
 import { getFormattedDate, getYearsBetweenDate } from '../../../util/date';
+import { FriendRequestButton } from '../../others/friend-request-button/FriendRequestButton';
 
 interface ProfileListItemProps {
   data: TProfileListItem;
@@ -93,7 +94,7 @@ export const ProfileListItem: FC<ProfileListItemProps> = ({ data }) => {
                   item
                   flex="1 0 auto"
                 >
-                  <LoadingButton fullWidth>Send friend request</LoadingButton>
+                  <FriendRequestButton friendId={data.id} />
                 </Grid>
                 <Grid
                   item

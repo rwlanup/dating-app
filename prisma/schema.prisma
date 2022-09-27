@@ -35,6 +35,8 @@ model User {
   updatedAt          DateTime           @updatedAt
   deletedAt          DateTime?
   interests          InterestsOnUsers[]
+  RequestedFriends   Friends[]          @relation("RequestedFriends")
+  ReceivedFriends    Friends[]          @relation("ReceiverFriends")
 
   @@map("users")
 }
@@ -55,4 +57,17 @@ model InterestsOnUsers {
 
   @@id([userId, interestId])
   @@map("usersinterests")
+}
+
+model Friends {
+  id              String    @id @default(cuid())
+  requestedAt     DateTime  @default(now())
+  approvedAt      DateTime?
+  requestedUser   User      @relation("RequestedFriends", fields: [requestedUserId], references: [id])
+  receiverUser    User      @relation("ReceiverFriends", fields: [receiverUserId], references: [id])
+  requestedUserId String
+  receiverUserId  String
+
+  @@unique([requestedUserId, receiverUserId])
+  @@map("friends")
 }
