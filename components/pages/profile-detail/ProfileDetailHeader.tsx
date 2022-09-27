@@ -6,9 +6,13 @@ import WcTwoToneIcon from '@mui/icons-material/WcTwoTone';
 import PlaceTwoToneIcon from '@mui/icons-material/PlaceTwoTone';
 import AccountBoxTwoToneIcon from '@mui/icons-material/AccountBoxTwoTone';
 import { getFormattedDate, getYearsBetweenDate } from '../../../util/date';
+import { FriendRequestButton } from '../../others/friend-request-button/FriendRequestButton';
 
 interface ProfileDetailHeaderProps {
-  profile: Pick<UserProfile, 'address' | 'fullName' | 'profilePicture' | 'profession' | 'username' | 'dob' | 'gender'>;
+  profile: Pick<
+    UserProfile,
+    'address' | 'fullName' | 'profilePicture' | 'profession' | 'username' | 'dob' | 'gender' | 'id'
+  >;
 }
 
 export const ProfileDetailHeader: FC<ProfileDetailHeaderProps> = ({ profile }) => {
@@ -77,7 +81,7 @@ export const ProfileDetailHeader: FC<ProfileDetailHeaderProps> = ({ profile }) =
                   alignSelf={{ xs: 'stretch', sm: 'center' }}
                 >
                   <Box sx={{ maxWidth: '25rem', mx: 'auto' }}>
-                    <Button fullWidth>Send friend request</Button>
+                    <FriendRequestButton friendId={profile.id} />
                   </Box>
                 </Grid>
               </Grid>

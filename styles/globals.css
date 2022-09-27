@@ -15,3 +15,11 @@ img {
     Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   font-weight: 600;
 }
+
+.hidden {
+  opacity: 0;
+}
+
+.MuiSkeleton-root .hidden::before {
+  content: 'Loading';
+}

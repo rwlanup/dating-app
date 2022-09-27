@@ -56,7 +56,6 @@ export const ProfileDetailSkeleton: FC = () => {
                     <Typography
                       align="center"
                       variant="h3"
-                      component="h1"
                       fontWeight="Regular"
                       width={240}
                       sx={{ textAlign: { xs: 'center', sm: 'left' } }}

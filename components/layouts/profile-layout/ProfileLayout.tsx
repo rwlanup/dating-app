@@ -15,6 +15,7 @@ import {
   layoutUIStore,
   toggleProfileDrawerOnMobileVisible,
 } from '../../../store/layoutUIStore';
+import { trpc } from '../../../util/trpc';
 
 interface ProfileLayoutProps {
   page: ReactElement;
@@ -29,6 +30,7 @@ interface MenuItem {
 
 export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
   const { status: sessionStatus } = useSession();
+  const utils = trpc.useContext();
   const router = useRouter();
   const pathname = router.pathname;
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
@@ -62,6 +64,7 @@ export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
       icon: <LogoutTwoToneIcon />,
       onClick: async (event) => {
         event.preventDefault();
+        utils.queryClient.clear();
         const response = await signOut({
           redirect: false,
         });

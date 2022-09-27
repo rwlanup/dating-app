@@ -7,6 +7,7 @@ import { SearchForm } from '../../components/others/search-form/SearchForm';
 import { ErrorScreen } from '../../components/pages/error-screen/ErrorScreen';
 import { ProfileList } from '../../components/pages/profile-list/ProfileList';
 import { LoadMoreButton } from '../../components/ui/load-more-button/LoadMoreButton';
+import { useFriendsList } from '../../hooks/useFriendsList';
 import { ProfileListItem } from '../../types/profile';
 import { trpc } from '../../util/trpc';
 const DiscoverPartnersPage: NextPage = () => {
@@ -15,6 +16,12 @@ const DiscoverPartnersPage: NextPage = () => {
     cursor: undefined,
     search: '',
   });
+
+  const {
+    isLoading: friendsListLoading,
+    isError: friendsListError,
+    errorMessage: friendsListErrorMessage,
+  } = useFriendsList();
 
   const { data, isLoading, fetchNextPage, isFetchingNextPage, hasNextPage, isError, error } = trpc.useInfiniteQuery(
     ['friends.discover', paginationData],
@@ -48,31 +55,33 @@ const DiscoverPartnersPage: NextPage = () => {
     }, []);
   };
 
-  if (isError && !data) {
+  if ((isError && !data) || friendsListError) {
     return (
       <ErrorScreen
         title="500 Server error"
-        message={error.message}
+        message={error?.message || friendsListErrorMessage}
         hideBtn
       />
     );
   }
 
+  const loading = isLoading || friendsListLoading;
+
   return (
     <>
       <SearchForm
         onSubmit={onSearchChange}
-        isLoading={isLoading || isFetchingNextPage}
+        isLoading={loading || isFetchingNextPage}
       />
       <ProfileList
         profiles={profiles()}
-        isLoading={isLoading}
+        isLoading={loading}
       />
       {hasNextPage && (
         <Box sx={{ display: 'flex', mt: 3, justifyContent: 'center' }}>
           <LoadMoreButton
             onClick={onFetchNextPage}
-            loading={isLoading || isFetchingNextPage}
+            loading={loading || isFetchingNextPage}
           />
         </Box>
       )}

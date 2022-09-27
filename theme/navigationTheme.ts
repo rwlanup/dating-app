@@ -19,5 +19,26 @@ export const navigationTheme = (theme: Theme): ThemeOptions => ({
         },
       },
     },
+
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          minHeight: 'auto',
+        },
+      },
+    },
+
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          minHeight: 'auto',
+          borderTopLeftRadius: theme.shape.borderRadius,
+          borderTopRightRadius: theme.shape.borderRadius,
+          '&:focus': {
+            boxShadow: 'none !important',
+          },
+        },
+      },
+    },
   },
 });
