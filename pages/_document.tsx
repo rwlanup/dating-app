@@ -6,6 +6,10 @@ class MyDocument extends Document {
       <Html>
         <Head>
           <link
+            rel="icon"
+            href="/favicon.ico"
+          />
+          <link
             rel="preconnect"
             href="https://fonts.googleapis.com"
           />

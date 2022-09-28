@@ -110,6 +110,14 @@ export const dataDisplayTheme = (theme: Theme): ThemeOptions => {
           },
         },
       },
+
+      MuiTooltip: {
+        styleOverrides: {
+          tooltip: {
+            fontSize: '0.8125rem',
+          },
+        },
+      },
     },
   };
 };
