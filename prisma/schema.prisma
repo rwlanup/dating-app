@@ -33,10 +33,12 @@ model User {
   profilePicture     Bytes?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
-  deletedAt          DateTime?
+  lastChatReadAt     DateTime?
   interests          InterestsOnUsers[]
   RequestedFriends   Friends[]          @relation("RequestedFriends")
   ReceivedFriends    Friends[]          @relation("ReceiverFriends")
+  SentChats          Chats[]            @relation("SentChats")
+  ReceivedChats      Chats[]            @relation("ReceivedChats")
 
   @@map("users")
 }
@@ -63,11 +65,30 @@ model Friends {
   id              String    @id @default(cuid())
   requestedAt     DateTime  @default(now())
   approvedAt      DateTime?
-  requestedUser   User      @relation("RequestedFriends", fields: [requestedUserId], references: [id])
-  receiverUser    User      @relation("ReceiverFriends", fields: [receiverUserId], references: [id])
+  requestedUser   User      @relation("RequestedFriends", fields: [requestedUserId], references: [id], onDelete: Cascade)
+  receiverUser    User      @relation("ReceiverFriends", fields: [receiverUserId], references: [id], onDelete: Cascade)
   requestedUserId String
   receiverUserId  String
 
   @@unique([requestedUserId, receiverUserId])
   @@map("friends")
+}
+
+enum ChatType {
+  CALL
+  MESSAGE
+}
+
+model Chats {
+  id         String   @id @default(cuid())
+  receiver   User     @relation("ReceivedChats", fields: [receiverId], references: [id])
+  sender     User     @relation("SentChats", fields: [senderId], references: [id])
+  message    String?
+  sentAt     DateTime @default(now())
+  type       ChatType @default(MESSAGE)
+  isRead     Boolean  @default(false)
+  receiverId String
+  senderId   String
+
+  @@map("chats")
 }
