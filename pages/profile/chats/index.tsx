@@ -56,6 +56,7 @@ const ChatsPage: NextPage = () => {
                 top: 0,
                 left: 0,
                 width: 1,
+                height: 1,
                 maxHeight: 1,
                 overflowY: 'auto',
               }}
