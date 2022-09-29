@@ -37,7 +37,7 @@ export const Footer: FC = () => {
             >
               Important:
             </Typography>{' '}
-            This is just a hobby project and not intended to be used for production
+            This is just a hobby project and not intended to be used for real dating
           </Typography>
         </Grid>
         <Grid item>

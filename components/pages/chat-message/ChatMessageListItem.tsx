@@ -9,13 +9,14 @@ export const ChatMessageListItem: FC<ChatMessageListItemProps> = ({ variant, sx 
   const isSent = variant === 'SENT';
   const bgcolor: string = isSent ? 'secondary.200' : 'secondary.main';
   const color: string = isSent ? 'secondary.900' : 'secondary.contrastText';
-  const justifyContent: string = isSent ? 'flex-end' : 'flex-start';
+  const alignItems: string = isSent ? 'flex-end' : 'flex-start';
 
   return (
     <Box
       sx={{
         display: 'flex',
-        justifyContent,
+        flexDirection: 'column',
+        alignItems,
       }}
     >
       <Box
@@ -39,6 +40,14 @@ export const ChatMessageListItem: FC<ChatMessageListItemProps> = ({ variant, sx 
           Can you say I love you to me?
         </Typography>
       </Box>
+      <Typography
+        component="span"
+        fontWeight="Medium"
+        sx={{ fontSize: '0.75rem', mt: 0.25 }}
+        color="text.secondary"
+      >
+        08:31 PM
+      </Typography>
     </Box>
   );
 };

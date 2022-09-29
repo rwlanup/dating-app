@@ -30,6 +30,7 @@ export const ChatMessageBox: FC = () => {
             InputProps={{ sx: { fontSize: '0.875rem' } }}
             placeholder="Your message..."
             multiline
+            maxRows={6}
           />
         </Grid>
         <Grid item>
