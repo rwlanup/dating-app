@@ -101,6 +101,7 @@ export const FriendRequestButton: FC<FriendRequestButtonProps> = ({ friendId, ..
   return (
     <LoadingButton
       fullWidth
+      variant={isFriend ? 'outlined' : 'contained'}
       {...otherProps}
       loading={sendingRequest || respondingToRequest || removingFriend}
       onClick={handleClick}

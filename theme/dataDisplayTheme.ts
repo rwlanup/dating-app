@@ -118,6 +118,26 @@ export const dataDisplayTheme = (theme: Theme): ThemeOptions => {
           },
         },
       },
+
+      MuiBadge: {
+        defaultProps: {
+          anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
+          color: 'success',
+        },
+        styleOverrides: {
+          dot: {
+            minWidth: '16px',
+            height: '16px',
+            borderRadius: '50%',
+            border: 2,
+            borderStyle: 'solid',
+            borderColor: theme.palette.common.white,
+          },
+          colorSuccess: {
+            backgroundColor: theme.palette.success[500],
+          },
+        },
+      },
     },
   };
 };

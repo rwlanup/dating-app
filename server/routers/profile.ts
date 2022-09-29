@@ -44,7 +44,7 @@ export const profileRouter = createRouter()
 
   .query('me', {
     resolve: async ({
-      ctx: { prisma, session },
+      ctx: { prisma, session, pusher },
     }): Promise<
       Omit<OnlyRequiredByKeys<User, 'id' | 'username' | 'fullName'>, 'profilePicture'> & {
         profilePicture?: string;
@@ -55,6 +55,28 @@ export const profileRouter = createRouter()
         where: {
           id: _session.user.id,
         },
+        include: {
+          ReceivedFriends: {
+            where: {
+              approvedAt: {
+                not: null,
+              },
+            },
+            select: {
+              requestedUserId: true,
+            },
+          },
+          RequestedFriends: {
+            where: {
+              approvedAt: {
+                not: null,
+              },
+            },
+            select: {
+              receiverUserId: true,
+            },
+          },
+        },
       });
 
       if (!user) {
@@ -64,7 +86,16 @@ export const profileRouter = createRouter()
         });
       }
 
-      const responseUser = user as OnlyRequiredByKeys<User, 'id' | 'username' | 'fullName'>;
+      const responseUser = user as OnlyRequiredByKeys<typeof user, 'id' | 'username' | 'fullName'>;
+
+      const friendIds = [
+        ...(responseUser.ReceivedFriends || []).map((friend) => friend.requestedUserId),
+        ...(responseUser.RequestedFriends || []).map((friend) => friend.receiverUserId),
+      ];
+
+      delete responseUser.ReceivedFriends;
+      delete responseUser.RequestedFriends;
+
       return {
         ...responseUser,
         profilePicture: resolveBase64ImageUrl(responseUser.profilePictureMime, responseUser.profilePicture),

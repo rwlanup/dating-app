@@ -1,9 +1,11 @@
 import LoadingButton from '@mui/lab/LoadingButton';
-import { alpha, Avatar, Box, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
+import { alpha, Avatar, Badge, Box, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
 import Link from 'next/link';
 import { useSnackbar } from 'notistack';
 import type { FC, ReactNode } from 'react';
+import { useStore } from '../../../hooks/useStore';
 import { FRIENDS_TYPE } from '../../../pages/profile/friends';
+import { onlineUsersStore } from '../../../store/onlineUsersStore';
 import { FriendWithProfile } from '../../../types/friend';
 import { getFormattedDate, getYearsBetweenDate } from '../../../util/date';
 import { trpc } from '../../../util/trpc';
@@ -14,6 +16,12 @@ interface FriendsListItemProps {
   type: FRIENDS_TYPE;
 }
 export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, id }, type }) => {
+  const isOnline = useStore(
+    onlineUsersStore,
+    (state) => state.members.has(profile.id),
+    () => false
+  );
+
   const utils = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
   const { mutate: respondToRequest, isLoading: respondingToRequest } = trpc.useMutation('friends.respond-request', {
@@ -118,11 +126,17 @@ export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, i
             sx={{ minWidth: { md: 'calc(50% - 16px)' }, width: 'auto', p: 0, flex: 'auto' }}
           >
             <ListItemAvatar>
-              <Avatar
-                sx={{ height: 56, width: 56 }}
-                alt={profile.fullName}
-                src={profile.profilePicture}
-              />
+              <Badge
+                invisible={!isOnline}
+                variant="dot"
+                overlap="circular"
+              >
+                <Avatar
+                  sx={{ height: 56, width: 56 }}
+                  alt={profile.fullName}
+                  src={profile.profilePicture}
+                />
+              </Badge>
             </ListItemAvatar>
             <ListItemText
               sx={{ ml: 2 }}
