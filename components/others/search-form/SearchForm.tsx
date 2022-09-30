@@ -8,13 +8,20 @@ interface SearchFormProps extends Omit<BoxProps<'form'>, 'onSubmit'> {
   onSubmit: (value: string) => void;
   isLoading?: boolean;
   TextFieldProps?: TextFieldProps;
+  submitOnChange?: boolean;
 }
 
 interface SearchFormInputs {
   search: string;
 }
 
-export const SearchForm: FC<SearchFormProps> = ({ onSubmit, isLoading, TextFieldProps = {}, ...otherProps }) => {
+export const SearchForm: FC<SearchFormProps> = ({
+  onSubmit,
+  isLoading,
+  TextFieldProps = {},
+  submitOnChange,
+  ...otherProps
+}) => {
   const { handleSubmit, control } = useForm<SearchFormInputs>({
     defaultValues: {
       search: '',
@@ -29,6 +36,7 @@ export const SearchForm: FC<SearchFormProps> = ({ onSubmit, isLoading, TextField
       {...otherProps}
       component="form"
       onSubmit={_onSubmit}
+      onChange={submitOnChange ? _onSubmit : undefined}
     >
       <AppTextField
         control={control}

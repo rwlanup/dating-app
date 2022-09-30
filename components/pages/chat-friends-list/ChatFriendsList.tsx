@@ -1,4 +1,4 @@
-import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
+import { Box, List, Typography } from '@mui/material';
 import { FC, useMemo, useState } from 'react';
 import { trpc } from '../../../util/trpc';
 import { SearchForm } from '../../others/search-form/SearchForm';
@@ -47,6 +47,7 @@ export const ChatFriendsList: FC = () => {
           Chat with your friends
         </Typography>
         <SearchForm
+          submitOnChange
           onSubmit={setSearch}
           sx={{ mb: 0 }}
           TextFieldProps={{ placeholder: 'Search friends' }}

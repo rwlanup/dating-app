@@ -29,7 +29,7 @@ const ChatsPage: NextPage = () => {
         >
           <Box
             sx={{
-              position: 'absolute',
+              position: { lg: 'absolute' },
               left: 0,
               top: 0,
               bottom: 0,
