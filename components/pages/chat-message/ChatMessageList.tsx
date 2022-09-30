@@ -1,9 +1,15 @@
 import { Grid } from '@mui/material';
+import type { Chats } from '@prisma/client';
 import type { FC } from 'react';
 import { ChatMessageInfo } from './ChatMessageInfo';
 import { ChatMessageListItem } from './ChatMessageListItem';
 
-export const ChatMessageList: FC = () => {
+interface ChatMessageListProps {
+  chatMessages: Chats[];
+  friendName: string;
+}
+
+export const ChatMessageList: FC<ChatMessageListProps> = ({ chatMessages, friendName }) => {
   return (
     <Grid
       container
@@ -11,48 +17,16 @@ export const ChatMessageList: FC = () => {
       spacing={0.5}
       flexWrap="nowrap"
     >
-      <Grid
-        item
-        xs
-      >
-        <ChatMessageListItem variant="RECEIVED" />
-      </Grid>
-      <Grid
-        item
-        xs
-      >
-        <ChatMessageInfo>You were in call with Sarah Conner</ChatMessageInfo>
-      </Grid>
-      <Grid
-        item
-        xs
-      >
-        <ChatMessageListItem variant="RECEIVED" />
-      </Grid>
-      <Grid
-        item
-        xs
-      >
-        <ChatMessageListItem variant="RECEIVED" />
-      </Grid>
-      <Grid
-        item
-        xs
-      >
-        <ChatMessageInfo>Today 24 September, 2022</ChatMessageInfo>
-      </Grid>
-      <Grid
-        item
-        xs
-      >
-        <ChatMessageListItem variant="SENT" />
-      </Grid>
-      <Grid
-        item
-        xs
-      >
-        <ChatMessageListItem variant="SENT" />
-      </Grid>
+      {chatMessages.map((message) => (
+        <Grid
+          key={message.id}
+          item
+          xs
+        >
+          {message.type === 'MESSAGE' && <ChatMessageListItem message={message} />}
+          {message.type === 'CALL' && <ChatMessageInfo>You were in call with {friendName}</ChatMessageInfo>}
+        </Grid>
+      ))}
     </Grid>
   );
 };

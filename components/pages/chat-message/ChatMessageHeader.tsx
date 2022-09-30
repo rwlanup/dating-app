@@ -12,8 +12,13 @@ import {
 import CallTwoToneIcon from '@mui/icons-material/CallTwoTone';
 import VisibilityOffTwoToneIcon from '@mui/icons-material/VisibilityOffTwoTone';
 import type { FC } from 'react';
+import { FriendWithFirstChat } from '../../../types/chat';
 
-export const ChatMessageHeader: FC = () => {
+interface ChatMessageHeaderProps {
+  friendInfo: Pick<FriendWithFirstChat, 'id' | 'fullName' | 'profession' | 'profilePicture'>;
+}
+
+export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendInfo }) => {
   return (
     <Box
       sx={{
@@ -33,14 +38,14 @@ export const ChatMessageHeader: FC = () => {
       >
         <ListItemAvatar>
           <Avatar
-            alt="Sarah Conner"
-            src="https://images.unsplash.com/photo-1520810627419-35e362c5dc07?ixlib=rb-1.2.1&q=80&fm=jpg&crop=faces&fit=crop&h=200&w=200&ixid=eyJhcHBfaWQiOjE3Nzg0fQ"
+            alt={friendInfo.fullName}
+            src={friendInfo.profilePicture}
           />
         </ListItemAvatar>
         <ListItemText
           primaryTypographyProps={{ fontWeight: 'Medium' }}
-          primary="Sarah Conner"
-          secondary="Fashion Designer"
+          primary={friendInfo.fullName}
+          secondary={friendInfo.profession}
           secondaryTypographyProps={{ color: 'secondary' }}
         />
         <Grid

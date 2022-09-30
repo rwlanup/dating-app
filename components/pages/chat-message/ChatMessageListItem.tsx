@@ -1,12 +1,18 @@
 import { Box, BoxProps, Typography } from '@mui/material';
+import { Chats } from '@prisma/client';
+import { useSession } from 'next-auth/react';
 import type { FC } from 'react';
+import { getRelativeTime } from '../../../util/date';
 
 interface ChatMessageListItemProps extends BoxProps {
-  variant: 'SENT' | 'RECEIVED';
+  message: Chats;
 }
 
-export const ChatMessageListItem: FC<ChatMessageListItemProps> = ({ variant, sx = {}, ...otherProps }) => {
-  const isSent = variant === 'SENT';
+export const ChatMessageListItem: FC<ChatMessageListItemProps> = ({ message, sx = {}, ...otherProps }) => {
+  const session = useSession();
+  const loggedInUserId = session.data?.user.id;
+
+  const isSent = message.senderId === loggedInUserId;
   const bgcolor: string = isSent ? 'secondary.200' : 'secondary.main';
   const color: string = isSent ? 'secondary.900' : 'secondary.contrastText';
   const alignItems: string = isSent ? 'flex-end' : 'flex-start';
@@ -37,7 +43,7 @@ export const ChatMessageListItem: FC<ChatMessageListItemProps> = ({ variant, sx 
           component="span"
           color={color}
         >
-          Can you say I love you to me?
+          {message.message}
         </Typography>
       </Box>
       <Typography
@@ -46,7 +52,7 @@ export const ChatMessageListItem: FC<ChatMessageListItemProps> = ({ variant, sx 
         sx={{ fontSize: '0.75rem', mt: 0.25 }}
         color="text.secondary"
       >
-        08:31 PM
+        {getRelativeTime(message.sentAt)}
       </Typography>
     </Box>
   );

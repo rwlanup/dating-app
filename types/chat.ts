@@ -1,4 +1,5 @@
 import { Chats, User } from '@prisma/client';
+import { PaginatedResult } from './server';
 import { OmitByKeys } from './utils';
 
 export type FriendWithFirstChat = OmitByKeys<
@@ -19,3 +20,5 @@ export type FriendWithFirstChat = OmitByKeys<
   approvedAt: Date;
   friendId: string;
 };
+
+export type PaginatedChat = PaginatedResult<Chats>;
