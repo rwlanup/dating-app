@@ -56,19 +56,7 @@ const ChatsPage: NextPage = () => {
             lg={8}
             sx={{ position: 'relative' }}
           >
-            <Box
-              sx={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: 1,
-                height: 1,
-                maxHeight: 1,
-                overflowY: 'auto',
-              }}
-            >
-              <ChatMessage />
-            </Box>
+            <ChatMessage />
           </Grid>
         )}
       </Grid>

@@ -49,7 +49,7 @@ export const ChatFriendListItem: FC<ChatFriendListItemProps> = ({ friend }) => {
             primary={friend.fullName}
             secondary={friend.chat?.message || `Say hi to ${friend.fullName}`}
             secondaryTypographyProps={
-              friend.chat && friend.chat.isRead ? { color: 'common.black', fontWeight: 'Medium' } : undefined
+              friend.chat && !friend.chat.isRead ? { color: 'common.black', fontWeight: 'Medium' } : undefined
             }
           />
         </ListItemButton>

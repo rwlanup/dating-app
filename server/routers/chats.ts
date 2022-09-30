@@ -147,9 +147,9 @@ export const chatsRouter = createRouter()
               id: input.cursor,
             }
           : undefined,
-        take: 21,
+        take: ITEMS_PER_REQUEST + 1,
         orderBy: {
-          sentAt: 'asc',
+          sentAt: 'desc',
         },
       });
 
@@ -159,7 +159,7 @@ export const chatsRouter = createRouter()
       }
 
       return {
-        items: chats,
+        items: chats.reverse(),
         nextCursor,
       };
     },
@@ -167,7 +167,7 @@ export const chatsRouter = createRouter()
 
   .mutation('sendMessage', {
     input: chatSchema,
-    resolve: async ({ ctx: { prisma, session }, input: { friendId, type, message } }): Promise<void> => {
+    resolve: async ({ ctx: { prisma, session, pusher }, input: { friendId, type, message } }): Promise<void> => {
       const _session = session as Session;
       const friend = await prisma.friends.findUnique({
         where: { id: friendId },
@@ -192,7 +192,7 @@ export const chatsRouter = createRouter()
 
       const receiverId = _session.user.id === friend.receiverUserId ? friend.requestedUserId : friend.receiverUserId;
 
-      await prisma.chats.create({
+      const chat = await prisma.chats.create({
         data: {
           message,
           type,
@@ -201,5 +201,7 @@ export const chatsRouter = createRouter()
           friendsId: friend.id,
         },
       });
+
+      pusher.trigger(`private-${friend.id}`, 'message', chat);
     },
   });
