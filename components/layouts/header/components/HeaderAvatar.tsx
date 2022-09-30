@@ -1,4 +1,5 @@
 import { Avatar, Box, Grid, IconButton, Skeleton, Theme, Typography, useMediaQuery } from '@mui/material';
+import { signOut } from 'next-auth/react';
 import { FC, useEffect } from 'react';
 import { CHANNEL_NAMES } from '../../../../common/config/pusher';
 import { toggleProfileDrawerOnMobileVisible } from '../../../../store/layoutUIStore';
@@ -28,6 +29,9 @@ export const HeaderAvatar: FC = () => {
   const { isLoading, data, isIdle } = trpc.useQuery(['profile.me'], {
     ssr: false,
     refetchOnWindowFocus: false,
+    onError: () => {
+      signOut();
+    },
   });
 
   if (isIdle || isLoading || !data) {

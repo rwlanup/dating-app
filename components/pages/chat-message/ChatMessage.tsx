@@ -49,7 +49,7 @@ export const ChatMessage: FC = () => {
         />
       </Box>
 
-      <ChatMessageBox />
+      <ChatMessageBox friendId={friendInfo.friendId} />
     </Box>
   );
 };

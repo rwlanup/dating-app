@@ -1,8 +1,34 @@
-import { Box, Grid, IconButton, TextField } from '@mui/material';
-import type { FC } from 'react';
+import { Box, CircularProgress, Grid, IconButton, TextField } from '@mui/material';
+import { ChangeEvent, FC, FormEvent, useState } from 'react';
 import SendTwoToneIcon from '@mui/icons-material/SendTwoTone';
+import { trpc } from '../../../util/trpc';
 
-export const ChatMessageBox: FC = () => {
+interface ChatMessageBoxProps {
+  friendId: string;
+}
+
+export const ChatMessageBox: FC<ChatMessageBoxProps> = ({ friendId }) => {
+  const [message, setMessage] = useState('');
+  const { mutate, isError, error, isLoading } = trpc.useMutation('chats.sendMessage', {
+    onSuccess: () => {
+      setMessage('');
+    },
+  });
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setMessage(event.target.value);
+  };
+
+  const sendMessage = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (message.trim().length !== 0) {
+      mutate({
+        friendId,
+        message,
+        type: 'MESSAGE',
+      });
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -21,6 +47,7 @@ export const ChatMessageBox: FC = () => {
         component="form"
         alignItems="flex-end"
         flexWrap="nowrap"
+        onSubmit={sendMessage}
       >
         <Grid
           item
@@ -30,6 +57,8 @@ export const ChatMessageBox: FC = () => {
             InputProps={{ sx: { fontSize: '0.875rem' } }}
             placeholder="Your message..."
             multiline
+            value={message}
+            onChange={handleChange}
             maxRows={6}
           />
         </Grid>
@@ -38,8 +67,17 @@ export const ChatMessageBox: FC = () => {
             type="submit"
             color="primary"
             size="large"
+            disabled={isLoading}
+            sx={{ position: 'relative' }}
           >
-            <SendTwoToneIcon />
+            {isLoading && (
+              <CircularProgress
+                sx={{ position: 'absolute' }}
+                size="1rem"
+                color="secondary"
+              />
+            )}
+            <SendTwoToneIcon sx={{ opacity: isLoading ? 0 : 1 }} />
           </IconButton>
         </Grid>
       </Grid>
