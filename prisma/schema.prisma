@@ -69,6 +69,7 @@ model Friends {
   receiverUser    User      @relation("ReceiverFriends", fields: [receiverUserId], references: [id], onDelete: Cascade)
   requestedUserId String
   receiverUserId  String
+  Chats           Chats[]
 
   @@unique([requestedUserId, receiverUserId])
   @@map("friends")
@@ -81,14 +82,16 @@ enum ChatType {
 
 model Chats {
   id         String   @id @default(cuid())
-  receiver   User     @relation("ReceivedChats", fields: [receiverId], references: [id])
-  sender     User     @relation("SentChats", fields: [senderId], references: [id])
+  receiver   User     @relation("ReceivedChats", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User     @relation("SentChats", fields: [senderId], references: [id], onDelete: Cascade)
   message    String?
   sentAt     DateTime @default(now())
   type       ChatType @default(MESSAGE)
   isRead     Boolean  @default(false)
   receiverId String
   senderId   String
+  friend     Friends  @relation(fields: [friendsId], references: [id], onDelete: Cascade)
+  friendsId  String
 
   @@map("chats")
 }

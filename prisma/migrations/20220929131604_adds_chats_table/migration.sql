@@ -26,6 +26,7 @@ CREATE TABLE "chats" (
     "isRead" BOOLEAN NOT NULL DEFAULT false,
     "receiverId" TEXT NOT NULL,
     "senderId" TEXT NOT NULL,
+    "friendsId" TEXT NOT NULL,
 
     CONSTRAINT "chats_pkey" PRIMARY KEY ("id")
 );
@@ -37,7 +38,10 @@ ALTER TABLE "friends" ADD CONSTRAINT "friends_requestedUserId_fkey" FOREIGN KEY 
 ALTER TABLE "friends" ADD CONSTRAINT "friends_receiverUserId_fkey" FOREIGN KEY ("receiverUserId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "chats" ADD CONSTRAINT "chats_receiverId_fkey" FOREIGN KEY ("receiverId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "chats" ADD CONSTRAINT "chats_receiverId_fkey" FOREIGN KEY ("receiverId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "chats" ADD CONSTRAINT "chats_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "chats" ADD CONSTRAINT "chats_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "chats" ADD CONSTRAINT "chats_friendsId_fkey" FOREIGN KEY ("friendsId") REFERENCES "friends"("id") ON DELETE CASCADE ON UPDATE CASCADE;

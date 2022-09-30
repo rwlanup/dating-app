@@ -138,6 +138,16 @@ export const dataDisplayTheme = (theme: Theme): ThemeOptions => {
           },
         },
       },
+
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            '&:focus': {
+              boxShadow: 'none !important',
+            },
+          },
+        },
+      },
     },
   };
 };
