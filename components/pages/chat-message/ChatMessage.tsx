@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { Chats } from '@prisma/client';
 import { useRouter } from 'next/router';
 import { FC, useEffect, useRef } from 'react';
@@ -48,12 +48,12 @@ export const ChatMessage: FC = () => {
   useEffect(() => {
     const element = containerRef.current;
     if (element && hasData && !hasAttachedEventToContainer.current) {
-      const handler = throttle(() => {
+      const handler = throttle(fetchNextPage);
+      element.addEventListener('scroll', () => {
         if (element.scrollTop < 100 && !isFetchingNextPage) {
-          fetchNextPage();
+          handler();
         }
       });
-      element.addEventListener('scroll', handler);
       hasAttachedEventToContainer.current = true;
     }
   }, [fetchNextPage, hasData, isFetchingNextPage]);
@@ -89,6 +89,17 @@ export const ChatMessage: FC = () => {
       >
         <ChatMessageHeader friendInfo={friendInfo} />
         <Box sx={{ px: { xs: 2, xl: 3 } }}>
+          {isFetchingNextPage && (
+            <Typography
+              align="center"
+              sx={{ mb: 2, display: 'block' }}
+              variant="content"
+              color="text.secondary"
+              fontWeight="Medium"
+            >
+              Getting previous messages...
+            </Typography>
+          )}
           <ChatMessageList
             friendName={friendInfo.fullName}
             chatMessages={chatMessages}
