@@ -27,6 +27,7 @@ export const ChatFriendListItem: FC<ChatFriendListItemProps> = ({ friend }) => {
       <Link
         passHref
         href={{ query: { id: friend.friendId } }}
+        shallow
       >
         <ListItemButton
           selected={query.id === friend.friendId}

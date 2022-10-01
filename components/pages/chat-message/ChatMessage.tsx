@@ -3,7 +3,7 @@ import { Chats } from '@prisma/client';
 import { useRouter } from 'next/router';
 import { FC, useEffect, useRef } from 'react';
 import { useStore } from '../../../hooks/useStore';
-import { chatUIStore, disableChatScroll } from '../../../store/chatUIStore';
+import { chatUIStore, disableChatScroll, enableChatScroll } from '../../../store/chatUIStore';
 import { throttle } from '../../../util/callback';
 import { trpc } from '../../../util/trpc';
 import { ChatMessageBox } from './ChatMessageBox';
@@ -18,7 +18,6 @@ export const ChatMessage: FC = () => {
     () => true
   );
   const containerRef = useRef<HTMLDivElement>();
-  const hasAttachedEventToContainer = useRef(false);
   const hasFriendId = typeof query.id === 'string';
   const { data: friends } = trpc.useQuery(['chats.friends'], {
     enabled: false,
@@ -42,21 +41,13 @@ export const ChatMessage: FC = () => {
       disableChatScroll();
     }
   }, [data, shouldScroll]);
-  const hasData = Boolean(data);
 
-  // Handling fetching previous messages
   useEffect(() => {
-    const element = containerRef.current;
-    if (element && hasData && !hasAttachedEventToContainer.current) {
-      const handler = throttle(fetchNextPage);
-      element.addEventListener('scroll', () => {
-        if (element.scrollTop < 100 && !isFetchingNextPage) {
-          handler();
-        }
-      });
-      hasAttachedEventToContainer.current = true;
-    }
-  }, [fetchNextPage, hasData, isFetchingNextPage]);
+    enableChatScroll();
+    return () => {
+      enableChatScroll();
+    };
+  }, [query.id]);
 
   if (!hasFriendId || !friendInfo) return null;
 
@@ -64,6 +55,16 @@ export const ChatMessage: FC = () => {
   const chatMessages = data.pages.reduce<Chats[]>((prevChats, page) => {
     return [...page.items, ...prevChats];
   }, []);
+
+  const scrollHandler = (): void => {
+    const element = containerRef.current;
+    const handler = throttle(fetchNextPage);
+    if (element) {
+      if (element.scrollTop < 100 && !isFetchingNextPage) {
+        handler();
+      }
+    }
+  };
 
   return (
     <Box
@@ -76,6 +77,7 @@ export const ChatMessage: FC = () => {
         maxHeight: 1,
         overflowY: 'auto',
       }}
+      onScroll={scrollHandler}
       ref={containerRef}
     >
       <Box

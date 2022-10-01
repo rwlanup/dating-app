@@ -58,6 +58,7 @@ export const HeaderAvatar: FC = () => {
               friendId: chat.friendsId,
             },
           ]);
+          utils.invalidateQueries(['chats.friends']);
         });
       });
     },
