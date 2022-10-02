@@ -6,12 +6,21 @@ import { ChatMessage } from '../../../components/pages/chat-message/ChatMessage'
 import { ErrorScreen } from '../../../components/pages/error-screen/ErrorScreen';
 import { useFriendsList } from '../../../hooks/useFriendsList';
 import Diversity1TwoToneIcon from '@mui/icons-material/Diversity1TwoTone';
+import { trpc } from '../../../util/trpc';
+import { useEffect } from 'react';
 
 const ChatsPage: NextPage = () => {
   const isDesktop = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'));
   const { query } = useRouter();
   const hasFriendId = typeof query.id === 'string';
-  const { isError, errorMessage, friends } = useFriendsList();
+  const { isError, errorMessage, friends, isSuccess } = useFriendsList();
+  const { mutate } = trpc.useMutation('profile.updateLastChatRead');
+
+  useEffect(() => {
+    if (isSuccess) {
+      mutate();
+    }
+  }, [isSuccess, mutate]);
 
   if (isError) {
     return (

@@ -1,6 +1,7 @@
 import { Chats } from '@prisma/client';
 import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import { enableChatScroll } from '../store/chatUIStore';
 import type { ApprovedFriendWithFirstChat, FriendRequest } from '../types/friend';
 import { pusher } from '../util/pusher';
@@ -9,6 +10,7 @@ import { trpc } from '../util/trpc';
 interface UseFriendsListReturns {
   isLoading: boolean;
   isError: boolean;
+  isSuccess: boolean;
   errorMessage?: string;
   friends?: ApprovedFriendWithFirstChat[];
   receivedFriendRequests?: FriendRequest[];
@@ -16,10 +18,12 @@ interface UseFriendsListReturns {
 }
 
 export const useFriendsList = (enabled: boolean = true, subscribeToPusher: boolean = false): UseFriendsListReturns => {
+  const { pathname } = useRouter();
   const { data: _sessionData } = useSession();
   const utils = trpc.useContext();
   const sessionData = _sessionData as Session;
-  const { data, isLoading, isError, error } = trpc.useQuery(['friends.list'], {
+  const { mutate: updateLastChatRead } = trpc.useMutation('profile.updateLastChatRead');
+  const { data, isLoading, isError, error, isSuccess } = trpc.useQuery(['friends.list'], {
     enabled,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
@@ -28,15 +32,20 @@ export const useFriendsList = (enabled: boolean = true, subscribeToPusher: boole
         const friends = data.filter((friend) => Boolean(friend.approvedAt));
         friends.forEach((friend) => {
           const friendChannel = pusher.subscribe(`private-${friend.id}`);
-          friendChannel.bind('message', (chat: Chats) => {
-            enableChatScroll();
+          friendChannel.bind('message', async (chat: Chats) => {
             utils.invalidateQueries([
               'chats.messagesByFriendId',
               {
                 friendId: chat.friendsId,
               },
             ]);
-            utils.invalidateQueries(['friends.list']);
+            await utils.invalidateQueries(['friends.list']);
+            enableChatScroll();
+
+            // Update last chat page visits
+            if (pathname === '/profile/chats') {
+              updateLastChatRead();
+            }
           });
         });
       }
@@ -83,5 +92,6 @@ export const useFriendsList = (enabled: boolean = true, subscribeToPusher: boole
     friends,
     receivedFriendRequests,
     sentFriendRequests,
+    isSuccess,
   };
 };

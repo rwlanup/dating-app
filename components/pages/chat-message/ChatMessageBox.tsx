@@ -9,13 +9,11 @@ interface ChatMessageBoxProps {
 }
 
 export const ChatMessageBox: FC<ChatMessageBoxProps> = ({ friendId }) => {
-  const utils = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
   const [message, setMessage] = useState('');
   const { mutate, isLoading } = trpc.useMutation('chats.sendMessage', {
     onSuccess: () => {
       setMessage('');
-      utils.invalidateQueries(['friends.list']);
     },
     onError(error) {
       enqueueSnackbar(error.message, { variant: 'error' });

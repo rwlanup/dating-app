@@ -107,4 +107,18 @@ export const profileRouter = createRouter()
         }),
       };
     },
+  })
+
+  .mutation('updateLastChatRead', {
+    resolve: async ({ ctx: { prisma, session } }): Promise<void> => {
+      const _session = session as Session;
+      await prisma.user.update({
+        where: {
+          id: _session.user.id,
+        },
+        data: {
+          lastChatReadAt: new Date(),
+        },
+      });
+    },
   });
