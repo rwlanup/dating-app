@@ -1,15 +1,31 @@
 import { Grid } from '@mui/material';
 import type { Chats } from '@prisma/client';
-import type { FC } from 'react';
+import { FC, useEffect } from 'react';
+import { trpc } from '../../../util/trpc';
 import { ChatMessageInfo } from './ChatMessageInfo';
 import { ChatMessageListItem } from './ChatMessageListItem';
 
 interface ChatMessageListProps {
   chatMessages: Chats[];
   friendName: string;
+  friendId: string;
 }
 
-export const ChatMessageList: FC<ChatMessageListProps> = ({ chatMessages, friendName }) => {
+export const ChatMessageList: FC<ChatMessageListProps> = ({ chatMessages, friendName, friendId }) => {
+  const isLastChatRead = chatMessages.length > 0 ? chatMessages[chatMessages.length - 1].isRead : true;
+  const utils = trpc.useContext();
+  const { mutate } = trpc.useMutation('chats.updateChatRead', {
+    onSuccess() {
+      utils.invalidateQueries(['friends.list']);
+    },
+  });
+
+  useEffect(() => {
+    if (!isLastChatRead) {
+      mutate(friendId);
+    }
+  }, [isLastChatRead, friendId, mutate]);
+
   return (
     <Grid
       container

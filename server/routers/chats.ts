@@ -1,9 +1,10 @@
-import { TRPCError } from '@trpc/server';
 import type { Session } from 'next-auth';
 import { ITEMS_PER_REQUEST } from '../../common/config/support';
 import { chatSchema } from '../../common/validation/chats/chat';
 import { messageByFriendIdSchema } from '../../common/validation/chats/messageByFriendId';
+import { friendIdSchema } from '../../common/validation/friends/request';
 import { authMiddleware } from '../../middleware/auth';
+import { checkIfAuthorizedFriendId } from '../../middleware/authFriendId';
 import { PaginatedChat } from '../../types/chat';
 import { createRouter } from '../createRouter';
 
@@ -15,27 +16,7 @@ export const chatsRouter = createRouter()
     resolve: async ({ input, ctx: { prisma, session } }): Promise<PaginatedChat> => {
       const _session = session as Session;
 
-      const friend = await prisma.friends.findUnique({
-        where: {
-          id: input.friendId,
-        },
-        select: {
-          receiverUserId: true,
-          requestedUserId: true,
-          approvedAt: true,
-        },
-      });
-
-      if (
-        !friend ||
-        !friend.approvedAt ||
-        !(friend.receiverUserId === _session.user.id || friend.requestedUserId === _session.user.id)
-      ) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'You are not allowed to access this chat messages',
-        });
-      }
+      await checkIfAuthorizedFriendId(_session, input.friendId);
 
       const chats = await prisma.chats.findMany({
         where: {
@@ -68,26 +49,7 @@ export const chatsRouter = createRouter()
     input: chatSchema,
     resolve: async ({ ctx: { prisma, session, pusher }, input: { friendId, type, message } }): Promise<void> => {
       const _session = session as Session;
-      const friend = await prisma.friends.findUnique({
-        where: { id: friendId },
-        select: {
-          id: true,
-          receiverUserId: true,
-          requestedUserId: true,
-          approvedAt: true,
-        },
-      });
-
-      if (
-        !friend ||
-        !friend.approvedAt ||
-        !(friend.receiverUserId === _session.user.id || friend.requestedUserId === _session.user.id)
-      ) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'You are not allowed to access this chat messages',
-        });
-      }
+      const friend = await checkIfAuthorizedFriendId(_session, friendId);
 
       const receiverId = _session.user.id === friend.receiverUserId ? friend.requestedUserId : friend.receiverUserId;
 
@@ -102,5 +64,22 @@ export const chatsRouter = createRouter()
       });
 
       pusher.trigger(`private-${friend.id}`, 'message', chat);
+    },
+  })
+
+  .mutation('updateChatRead', {
+    input: friendIdSchema,
+    resolve: async ({ ctx: { prisma, session }, input }): Promise<void> => {
+      const _session = session as Session;
+      await checkIfAuthorizedFriendId(_session, input);
+
+      await prisma.chats.updateMany({
+        where: {
+          friendsId: input,
+        },
+        data: {
+          isRead: true,
+        },
+      });
     },
   });

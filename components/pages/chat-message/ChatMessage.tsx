@@ -125,6 +125,7 @@ export const ChatMessage: FC = () => {
           <ChatMessageList
             friendName={friend.profile.fullName}
             chatMessages={chatMessages}
+            friendId={friend.id}
           />
         </Box>
 
