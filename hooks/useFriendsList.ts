@@ -1,6 +1,9 @@
+import { Chats } from '@prisma/client';
 import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
+import { enableChatScroll } from '../store/chatUIStore';
 import type { ApprovedFriendWithFirstChat, FriendRequest } from '../types/friend';
+import { pusher } from '../util/pusher';
 import { trpc } from '../util/trpc';
 
 interface UseFriendsListReturns {
@@ -12,13 +15,32 @@ interface UseFriendsListReturns {
   sentFriendRequests?: FriendRequest[];
 }
 
-export const useFriendsList = (enabled: boolean = true): UseFriendsListReturns => {
+export const useFriendsList = (enabled: boolean = true, subscribeToPusher: boolean = false): UseFriendsListReturns => {
   const { data: _sessionData } = useSession();
+  const utils = trpc.useContext();
   const sessionData = _sessionData as Session;
   const { data, isLoading, isError, error } = trpc.useQuery(['friends.list'], {
     enabled,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
+    onSuccess(data) {
+      if (subscribeToPusher) {
+        const friends = data.filter((friend) => Boolean(friend.approvedAt));
+        friends.forEach((friend) => {
+          const friendChannel = pusher.subscribe(`private-${friend.id}`);
+          friendChannel.bind('message', (chat: Chats) => {
+            enableChatScroll();
+            utils.invalidateQueries([
+              'chats.messagesByFriendId',
+              {
+                friendId: chat.friendsId,
+              },
+            ]);
+            utils.invalidateQueries(['friends.list']);
+          });
+        });
+      }
+    },
   });
 
   const friends = data?.filter((friend) => Boolean(friend.approvedAt)) as ApprovedFriendWithFirstChat[] | undefined;
