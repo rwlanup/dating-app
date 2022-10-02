@@ -3,6 +3,7 @@ import { FC, useMemo, useState } from 'react';
 import { trpc } from '../../../util/trpc';
 import { SearchForm } from '../../others/search-form/SearchForm';
 import { ChatFriendListItem } from './ChatFriendListItem';
+import { ChatFriendsListSkeleton } from './ChatFriendsListSkeleton';
 
 export const ChatFriendsList: FC = () => {
   const { data: friends, isLoading, isError } = trpc.useQuery(['chats.friends']);
@@ -16,7 +17,7 @@ export const ChatFriendsList: FC = () => {
   }, [search, friends]);
 
   if (isError) return <div>Error...</div>;
-  if (isLoading || !friends) return <div>Loading...</div>;
+  if (isLoading || !friends) return <ChatFriendsListSkeleton />;
 
   if (friends.length === 0) return <div>Empty list..</div>;
 

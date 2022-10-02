@@ -20,7 +20,6 @@ export const ChatFriendListItem: FC<ChatFriendListItemProps> = ({ friend }) => {
 
   return (
     <ListItem
-      key={friend.id}
       alignItems="flex-start"
       disablePadding
     >

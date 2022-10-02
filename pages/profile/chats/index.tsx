@@ -6,9 +6,8 @@ import { ChatMessage } from '../../../components/pages/chat-message/ChatMessage'
 
 const ChatsPage: NextPage = () => {
   const { query } = useRouter();
-  const friendId = typeof query.id === 'string' ? query.id : undefined;
+  const hasFriendId = typeof query.id === 'string';
   const isDesktop = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'));
-
   return (
     <Box
       sx={{
@@ -24,7 +23,7 @@ const ChatsPage: NextPage = () => {
         container
         sx={{ height: 1 }}
       >
-        {!(!isDesktop && friendId) && (
+        {!(!isDesktop && hasFriendId) && (
           <Grid
             item
             xs={12}
@@ -49,7 +48,7 @@ const ChatsPage: NextPage = () => {
             </Box>
           </Grid>
         )}
-        {(isDesktop || friendId) && (
+        {(isDesktop || hasFriendId) && (
           <Grid
             item
             xs={12}
