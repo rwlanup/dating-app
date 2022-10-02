@@ -6,7 +6,7 @@ import { friendRequestSchema } from '../../common/validation/friends/request';
 import { respondFriendSchema } from '../../common/validation/friends/respond';
 import { paginationSchema } from '../../common/validation/pagination/pagination';
 import { authMiddleware } from '../../middleware/auth';
-import { FriendWithProfile, RawFriendWithProfile } from '../../types/friend';
+import { FriendWithProfileAndFirstChat } from '../../types/friend';
 import { PaginatedProfile } from '../../types/profile';
 import { DataWithSuccessMessage } from '../../types/server';
 import { resolveBase64ImageUrl } from '../../util/string';
@@ -116,146 +116,96 @@ export const friendsRouter = createRouter()
   })
 
   .query('list', {
-    resolve: async ({ ctx: { prisma, session } }): Promise<FriendWithProfile[]> => {
+    resolve: async ({ ctx: { prisma, session } }): Promise<FriendWithProfileAndFirstChat[]> => {
       const _session = session as Session;
-      const user = await prisma.user.findUnique({
+      const friendsFromReceivedRequest = await prisma.friends.findMany({
         where: {
-          id: _session.user.id,
+          receiverUserId: _session.user.id,
         },
         select: {
-          RequestedFriends: {
-            where: {
-              approvedAt: {
-                not: null,
-              },
-            },
-            include: {
-              receiverUser: true,
+          id: true,
+          approvedAt: true,
+          requestedAt: true,
+          receiverUserId: true,
+          requestedUserId: true,
+          requestedUser: {
+            select: {
+              id: true,
+              fullName: true,
+              profession: true,
+              profilePicture: true,
+              profilePictureMime: true,
+              username: true,
+              gender: true,
+              city: true,
+              country: true,
+              dob: true,
             },
           },
-          ReceivedFriends: {
-            where: {
-              approvedAt: {
-                not: null,
-              },
-            },
-            include: {
-              requestedUser: true,
+          Chats: {
+            take: 1,
+            orderBy: {
+              sentAt: 'desc',
             },
           },
         },
       });
 
-      const friends: FriendWithProfile[] = [];
-      if (user) {
-        [...(user.ReceivedFriends || []), ...(user.RequestedFriends || [])].map((friend) => {
-          const user = 'requestedUser' in friend ? friend.requestedUser : friend.receiverUser;
-          delete (user as Partial<User>).password;
-
-          const newFriend: RawFriendWithProfile = {
-            ...friend,
-            profile: {
-              ...user,
-              profilePicture: resolveBase64ImageUrl(user.profilePictureMime, user.profilePicture),
-              address: user.country && user.city && `${user.city}, ${user.country}`,
-            },
-          };
-          if (newFriend.requestedUser) {
-            delete newFriend.requestedUser;
-          }
-          if (newFriend.receiverUser) {
-            delete newFriend.receiverUser;
-          }
-          friends.push(newFriend);
-        });
-      }
-      return friends;
-    },
-  })
-
-  .query('list-received-requests', {
-    resolve: async ({ ctx: { prisma, session } }): Promise<FriendWithProfile[]> => {
-      const _session = session as Session;
-      const user = await prisma.user.findUnique({
+      const friendsFromSentRequest = await prisma.friends.findMany({
         where: {
-          id: _session.user.id,
+          requestedUserId: _session.user.id,
         },
         select: {
-          ReceivedFriends: {
-            where: {
-              approvedAt: null,
+          id: true,
+          approvedAt: true,
+          requestedAt: true,
+          receiverUserId: true,
+          requestedUserId: true,
+          receiverUser: {
+            select: {
+              id: true,
+              fullName: true,
+              profession: true,
+              profilePicture: true,
+              profilePictureMime: true,
+              username: true,
+              gender: true,
+              city: true,
+              country: true,
+              dob: true,
             },
-            include: {
-              requestedUser: true,
+          },
+          Chats: {
+            take: 1,
+            orderBy: {
+              sentAt: 'desc',
             },
           },
         },
       });
 
-      const friends: FriendWithProfile[] = [];
-      if (user) {
-        user.ReceivedFriends.map((friend) => {
-          const user = friend.requestedUser;
-          delete (user as Partial<User>).password;
-
-          const newFriend: RawFriendWithProfile = {
-            ...friend,
-            profile: {
-              ...user,
-              profilePicture: resolveBase64ImageUrl(user.profilePictureMime, user.profilePicture),
-              address: user.country && user.city && `${user.city}, ${user.country}`,
-            },
-          };
-          if (newFriend.requestedUser) {
-            delete newFriend.requestedUser;
-          }
-          friends.push(newFriend);
-        });
-      }
-      return friends;
-    },
-  })
-
-  .query('list-sent-requests', {
-    resolve: async ({ ctx: { prisma, session } }): Promise<FriendWithProfile[]> => {
-      const _session = session as Session;
-      const user = await prisma.user.findUnique({
-        where: {
-          id: _session.user.id,
-        },
-        select: {
-          RequestedFriends: {
-            where: {
-              approvedAt: null,
-            },
-            include: {
-              receiverUser: true,
-            },
+      const friendsWithFirstChat: FriendWithProfileAndFirstChat[] = [];
+      friendsFromReceivedRequest.forEach(({ Chats, requestedUser, ...otherInfo }) => {
+        friendsWithFirstChat.push({
+          ...otherInfo,
+          profile: {
+            ...requestedUser,
+            profilePicture: resolveBase64ImageUrl(requestedUser.profilePictureMime, requestedUser.profilePicture),
           },
-        },
-      });
-
-      const friends: FriendWithProfile[] = [];
-      if (user) {
-        user.RequestedFriends.map((friend) => {
-          const user = friend.receiverUser;
-          delete (user as Partial<User>).password;
-
-          const newFriend: RawFriendWithProfile = {
-            ...friend,
-            profile: {
-              ...user,
-              profilePicture: resolveBase64ImageUrl(user.profilePictureMime, user.profilePicture),
-              address: user.country && user.city && `${user.city}, ${user.country}`,
-            },
-          };
-          if (newFriend.receiverUser) {
-            delete newFriend.receiverUser;
-          }
-          friends.push(newFriend);
+          chat: Chats.length > 0 ? Chats[0] : undefined,
         });
-      }
-      return friends;
+      });
+      friendsFromSentRequest.forEach(({ Chats, receiverUser, ...otherInfo }) => {
+        friendsWithFirstChat.push({
+          ...otherInfo,
+          profile: {
+            ...receiverUser,
+            profilePicture: resolveBase64ImageUrl(receiverUser.profilePictureMime, receiverUser.profilePicture),
+          },
+          chat: Chats.length > 0 ? Chats[0] : undefined,
+        });
+      });
+      return friendsWithFirstChat;
     },
   })
 

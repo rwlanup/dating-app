@@ -4,17 +4,17 @@ import { useRouter } from 'next/router';
 import type { FC } from 'react';
 import { useStore } from '../../../hooks/useStore';
 import { onlineUsersStore } from '../../../store/onlineUsersStore';
-import { FriendWithFirstChat } from '../../../types/chat';
+import { ApprovedFriendWithFirstChat } from '../../../types/friend';
 
 interface ChatFriendListItemProps {
-  friend: FriendWithFirstChat;
+  friend: ApprovedFriendWithFirstChat;
 }
 
 export const ChatFriendListItem: FC<ChatFriendListItemProps> = ({ friend }) => {
   const { query } = useRouter();
   const isOnline = useStore(
     onlineUsersStore,
-    (state) => state.members.has(friend.id),
+    (state) => state.members.has(friend.profile.id),
     () => false
   );
 
@@ -25,11 +25,11 @@ export const ChatFriendListItem: FC<ChatFriendListItemProps> = ({ friend }) => {
     >
       <Link
         passHref
-        href={{ query: { id: friend.friendId } }}
+        href={{ query: { id: friend.id } }}
         shallow
       >
         <ListItemButton
-          selected={query.id === friend.friendId}
+          selected={query.id === friend.id}
           sx={{ px: { xs: 2, xl: 3 }, py: 1 }}
         >
           <ListItemAvatar>
@@ -39,15 +39,15 @@ export const ChatFriendListItem: FC<ChatFriendListItemProps> = ({ friend }) => {
               invisible={!isOnline}
             >
               <Avatar
-                alt={friend.fullName}
-                src={friend.profilePicture}
+                alt={friend.profile.fullName}
+                src={friend.profile.profilePicture}
               />
             </Badge>
           </ListItemAvatar>
           <ListItemText
             primaryTypographyProps={{ fontWeight: 'Medium' }}
-            primary={friend.fullName}
-            secondary={friend.chat?.message || `Say hi to ${friend.fullName}`}
+            primary={friend.profile.fullName}
+            secondary={friend.chat?.message || `Say hi to ${friend.profile.fullName}`}
             secondaryTypographyProps={
               friend.chat && !friend.chat.isRead ? { color: 'common.black', fontWeight: 'Medium' } : undefined
             }

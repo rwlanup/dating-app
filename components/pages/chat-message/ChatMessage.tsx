@@ -2,6 +2,7 @@ import { Box, Typography } from '@mui/material';
 import { Chats } from '@prisma/client';
 import { useRouter } from 'next/router';
 import { FC, useEffect, useRef } from 'react';
+import { useFriendsList } from '../../../hooks/useFriendsList';
 import { useStore } from '../../../hooks/useStore';
 import { chatUIStore, disableChatScroll, enableChatScroll } from '../../../store/chatUIStore';
 import { throttle } from '../../../util/callback';
@@ -19,15 +20,13 @@ export const ChatMessage: FC = () => {
   );
   const containerRef = useRef<HTMLDivElement>();
   const hasFriendId = typeof query.id === 'string';
-  const { data: friends } = trpc.useQuery(['chats.friends'], {
-    enabled: false,
-  });
+  const { friends } = useFriendsList(false);
 
-  const friendInfo = friends?.find((friend) => friend.friendId === (query.id as string));
+  const friend = friends?.find((friend) => friend.id === (query.id as string));
 
   const { isLoading, data, hasNextPage, isError, error, fetchNextPage, isSuccess, isFetchingNextPage } =
     trpc.useInfiniteQuery(['chats.messagesByFriendId', { friendId: query.id as string }], {
-      enabled: Boolean(hasFriendId && friendInfo),
+      enabled: Boolean(hasFriendId && friend),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     });
 
@@ -49,7 +48,7 @@ export const ChatMessage: FC = () => {
     };
   }, [query.id]);
 
-  if (!hasFriendId || !friendInfo) return null;
+  if (!hasFriendId || !friend) return null;
 
   if (!data) return <div>No data</div>;
   const chatMessages = data.pages.reduce<Chats[]>((prevChats, page) => {
@@ -89,7 +88,7 @@ export const ChatMessage: FC = () => {
           flexDirection: 'column',
         }}
       >
-        <ChatMessageHeader friendInfo={friendInfo} />
+        <ChatMessageHeader friendProfile={friend.profile} />
         <Box sx={{ px: { xs: 2, xl: 3 } }}>
           {isFetchingNextPage && (
             <Typography
@@ -103,12 +102,12 @@ export const ChatMessage: FC = () => {
             </Typography>
           )}
           <ChatMessageList
-            friendName={friendInfo.fullName}
+            friendName={friend.profile.fullName}
             chatMessages={chatMessages}
           />
         </Box>
 
-        <ChatMessageBox friendId={friendInfo.friendId} />
+        <ChatMessageBox friendId={friend.id} />
       </Box>
     </Box>
   );

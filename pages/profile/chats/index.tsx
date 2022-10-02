@@ -3,11 +3,12 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { ChatFriendsList } from '../../../components/pages/chat-friends-list/ChatFriendsList';
 import { ChatMessage } from '../../../components/pages/chat-message/ChatMessage';
+import { useFriendsList } from '../../../hooks/useFriendsList';
 
 const ChatsPage: NextPage = () => {
+  const isDesktop = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'));
   const { query } = useRouter();
   const hasFriendId = typeof query.id === 'string';
-  const isDesktop = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'));
   return (
     <Box
       sx={{

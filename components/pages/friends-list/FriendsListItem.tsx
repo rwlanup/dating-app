@@ -6,13 +6,13 @@ import type { FC, ReactNode } from 'react';
 import { useStore } from '../../../hooks/useStore';
 import { FRIENDS_TYPE } from '../../../pages/profile/friends';
 import { onlineUsersStore } from '../../../store/onlineUsersStore';
-import { FriendWithProfile } from '../../../types/friend';
+import { FriendOrRequest } from '../../../types/friend';
 import { getFormattedDate, getYearsBetweenDate } from '../../../util/date';
 import { trpc } from '../../../util/trpc';
 import { FriendRequestButton } from '../../others/friend-request-button/FriendRequestButton';
 
 interface FriendsListItemProps {
-  friend: FriendWithProfile;
+  friend: FriendOrRequest;
   type: FRIENDS_TYPE;
 }
 export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, id }, type }) => {
@@ -30,11 +30,7 @@ export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, i
     },
     onSuccess(data, { response }) {
       enqueueSnackbar(data.message, { variant: 'success' });
-      utils.invalidateQueries(['friends.list-received-requests']);
-
-      if (response === 'ACCEPT') {
-        utils.invalidateQueries(['friends.list']);
-      }
+      utils.invalidateQueries(['friends.list']);
     },
   });
 

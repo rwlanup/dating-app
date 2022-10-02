@@ -12,13 +12,13 @@ import {
 import CallTwoToneIcon from '@mui/icons-material/CallTwoTone';
 import VisibilityOffTwoToneIcon from '@mui/icons-material/VisibilityOffTwoTone';
 import type { FC } from 'react';
-import { FriendWithFirstChat } from '../../../types/chat';
+import { ApprovedFriendWithFirstChat } from '../../../types/friend';
 
 interface ChatMessageHeaderProps {
-  friendInfo: Pick<FriendWithFirstChat, 'id' | 'fullName' | 'profession' | 'profilePicture'>;
+  friendProfile: ApprovedFriendWithFirstChat['profile'];
 }
 
-export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendInfo }) => {
+export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile }) => {
   return (
     <Box
       sx={{
@@ -38,14 +38,14 @@ export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendInfo }) =>
       >
         <ListItemAvatar>
           <Avatar
-            alt={friendInfo.fullName}
-            src={friendInfo.profilePicture}
+            alt={friendProfile.fullName}
+            src={friendProfile.profilePicture}
           />
         </ListItemAvatar>
         <ListItemText
           primaryTypographyProps={{ fontWeight: 'Medium' }}
-          primary={friendInfo.fullName}
-          secondary={friendInfo.profession}
+          primary={friendProfile.fullName}
+          secondary={friendProfile.profession}
           secondaryTypographyProps={{ color: 'secondary' }}
         />
         <Grid

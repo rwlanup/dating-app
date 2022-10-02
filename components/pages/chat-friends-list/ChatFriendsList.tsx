@@ -1,22 +1,24 @@
 import { Box, List, Typography } from '@mui/material';
 import { FC, useMemo, useState } from 'react';
-import { trpc } from '../../../util/trpc';
+import { useFriendsList } from '../../../hooks/useFriendsList';
 import { SearchForm } from '../../others/search-form/SearchForm';
 import { ChatFriendListItem } from './ChatFriendListItem';
 import { ChatFriendsListSkeleton } from './ChatFriendsListSkeleton';
 
 export const ChatFriendsList: FC = () => {
-  const { data: friends, isLoading, isError } = trpc.useQuery(['chats.friends']);
+  const { friends, isLoading } = useFriendsList(false);
   const [search, setSearch] = useState('');
   const filteredFriends = useMemo(() => {
     if (!friends) return [];
     const _searchText = search.toLowerCase();
     return friends.filter((friend) => {
-      return friend.fullName.toLowerCase().includes(_searchText) || friend.username.toLowerCase().includes(_searchText);
+      return (
+        friend.profile.fullName.toLowerCase().includes(_searchText) ||
+        friend.profile.username.toLowerCase().includes(_searchText)
+      );
     });
   }, [search, friends]);
 
-  if (isError) return <div>Error...</div>;
   if (isLoading || !friends) return <ChatFriendsListSkeleton />;
 
   if (friends.length === 0) return <div>Empty list..</div>;
