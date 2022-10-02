@@ -1,11 +1,11 @@
 import { Box, DialogContent, DialogTitle, InputLabel, Link, TextField, Grid, Alert } from '@mui/material';
 import type { FC } from 'react';
-import NextLink from 'next/link';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RegisterInputs, registerSchema } from '../../../../common/validation/auth/register';
 import { trpc } from '../../../../util/trpc';
 import LoadingButton from '@mui/lab/LoadingButton';
+import { showLoginFormInAuthDialog } from '../../../../store/authDialogUIStore';
 
 const FORM_DEFAULT_VALUES: RegisterInputs = {
   fullName: '',
@@ -160,12 +160,12 @@ export const RegisterForm: FC = () => {
             Create account
           </LoadingButton>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, mb: 1 }}>
-            <NextLink
-              href="?action=login"
-              passHref
+            <Link
+              component="button"
+              onClick={showLoginFormInAuthDialog}
             >
-              <Link>Already a member? Log in</Link>
-            </NextLink>
+              Already a member? Log in
+            </Link>
           </Box>
         </Box>
       </DialogContent>

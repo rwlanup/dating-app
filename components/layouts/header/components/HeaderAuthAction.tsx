@@ -1,24 +1,13 @@
 import { Button, Grid, Skeleton, Theme, useMediaQuery } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import { FC, useState } from 'react';
+import { showLoginFormInAuthDialog, showRegisterFormInAuthDialog } from '../../../../store/authDialogUIStore';
 import { AuthActions, AuthDialog } from '../../../pages/auth-dialog/AuthDialog';
 import { HeaderAvatar } from './HeaderAvatar';
 
 export const HeaderAuthAction: FC = () => {
   const session = useSession();
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
-
-  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
-  const [authAction, setAuthAction] = useState<typeof AuthActions[number]>('login');
-  const closeAuthDialog = (): void => {
-    setIsAuthDialogOpen(false);
-  };
-  const openAuthDialog = (authAction?: typeof AuthActions[number]): void => {
-    setIsAuthDialogOpen(true);
-    if (authAction) {
-      setAuthAction(authAction);
-    }
-  };
 
   if (session.status === 'authenticated') return <HeaderAvatar />;
 
@@ -34,7 +23,7 @@ export const HeaderAuthAction: FC = () => {
   return (
     <>
       {isMobile ? (
-        <Button onClick={openAuthDialog.bind(null, 'login')}>Log in</Button>
+        <Button onClick={showLoginFormInAuthDialog}>Log in</Button>
       ) : (
         <Grid
           container
@@ -43,22 +32,17 @@ export const HeaderAuthAction: FC = () => {
           <Grid item>
             <Button
               variant="outlined"
-              onClick={openAuthDialog.bind(null, 'login')}
+              onClick={showLoginFormInAuthDialog}
             >
               Log in
             </Button>
           </Grid>
           <Grid item>
-            <Button onClick={openAuthDialog.bind(null, 'register')}>Create account</Button>
+            <Button onClick={showRegisterFormInAuthDialog}>Create account</Button>
           </Grid>
         </Grid>
       )}
-      <AuthDialog
-        isOpen={isAuthDialogOpen}
-        onClose={closeAuthDialog}
-        authAction={authAction}
-        setAuthAction={setAuthAction}
-      />
+      <AuthDialog />
     </>
   );
 };

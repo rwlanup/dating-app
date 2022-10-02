@@ -1,12 +1,11 @@
 import { Alert, Box, DialogContent, DialogTitle, InputLabel, Link, TextField } from '@mui/material';
 import { FC, useState } from 'react';
-import NextLink from 'next/link';
 import { Controller, useForm } from 'react-hook-form';
 import { LoginInputs, loginSchema } from '../../../../common/validation/auth/login';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { useRouter } from 'next/router';
+import { showRegisterFormInAuthDialog } from '../../../../store/authDialogUIStore';
 
 const FORM_DEFAULT_VALUES: LoginInputs = {
   username: '',
@@ -20,7 +19,6 @@ interface FormUIState {
 }
 
 export const LoginForm: FC = () => {
-  const router = useRouter();
   const {
     control,
     formState: { errors },
@@ -128,12 +126,12 @@ export const LoginForm: FC = () => {
             Log in
           </LoadingButton>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, mb: 1 }}>
-            <NextLink
-              href="?action=register"
-              passHref
+            <Link
+              component="button"
+              onClick={showRegisterFormInAuthDialog}
             >
-              <Link>Not a member? Create account</Link>
-            </NextLink>
+              Not a member? Create account
+            </Link>
           </Box>
         </Box>
       </DialogContent>
