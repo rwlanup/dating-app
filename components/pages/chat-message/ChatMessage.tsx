@@ -37,7 +37,6 @@ export const ChatMessage: FC = () => {
   // Handling scroll to bottom of the message container
   useEffect(() => {
     const pageLength = data?.pages.length || 0;
-    console.log(containerRef.current, shouldScroll, pageLength);
     if (pageLength === 1 && containerRef.current && shouldScroll) {
       containerRef.current.scrollTo({
         top: containerRef.current.scrollHeight,
