@@ -7,12 +7,14 @@ import { useStore } from '../../../hooks/useStore';
 import { chatUIStore, disableChatScroll, enableChatScroll } from '../../../store/chatUIStore';
 import { throttle } from '../../../util/callback';
 import { trpc } from '../../../util/trpc';
+import { ErrorScreen } from '../error-screen/ErrorScreen';
 import { ChatMessageBox } from './ChatMessageBox';
 import { ChatMessageHeader } from './ChatMessageHeader';
 import { ChatMessageList } from './ChatMessageList';
+import { ChatMessageSkeleton } from './ChatMessageSkeleton';
 
 export const ChatMessage: FC = () => {
-  const { query } = useRouter();
+  const { query, isReady } = useRouter();
   const shouldScroll = useStore(
     chatUIStore,
     (state) => state.shouldScroll,
@@ -20,15 +22,17 @@ export const ChatMessage: FC = () => {
   );
   const containerRef = useRef<HTMLDivElement>();
   const hasFriendId = typeof query.id === 'string';
-  const { friends } = useFriendsList(false);
+  const { friends, isLoading: friendsListLoading } = useFriendsList(false);
 
   const friend = friends?.find((friend) => friend.id === (query.id as string));
 
-  const { isLoading, data, hasNextPage, isError, error, fetchNextPage, isSuccess, isFetchingNextPage } =
-    trpc.useInfiniteQuery(['chats.messagesByFriendId', { friendId: query.id as string }], {
+  const { isLoading, data, isError, error, fetchNextPage, isFetchingNextPage, isIdle } = trpc.useInfiniteQuery(
+    ['chats.messagesByFriendId', { friendId: query.id as string }],
+    {
       enabled: Boolean(hasFriendId && friend),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
-    });
+    }
+  );
 
   // Handling scroll to bottom of the message container
   useEffect(() => {
@@ -48,9 +52,26 @@ export const ChatMessage: FC = () => {
     };
   }, [query.id]);
 
-  if (!hasFriendId || !friend) return null;
+  // Handle error state
+  if (isError) {
+    return (
+      <ErrorScreen
+        title="500 server error"
+        message={error?.message}
+        hideBtn
+      />
+    );
+  }
 
-  if (!data) return <div>No data</div>;
+  // Loading state of UI
+  if (friendsListLoading || isLoading || !isReady) return <ChatMessageSkeleton />;
+
+  // In friend id supplied to URL
+  if (isIdle || !hasFriendId || !friend) return null;
+
+  // Handling loading state of data
+  if (!data) return <ChatMessageSkeleton />;
+
   const chatMessages = data.pages.reduce<Chats[]>((prevChats, page) => {
     return [...page.items, ...prevChats];
   }, []);

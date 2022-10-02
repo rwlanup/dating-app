@@ -43,12 +43,12 @@ export const ChatMessageSkeleton: FC = () => {
             />
             <Box>
               <Skeleton
-                width={200}
+                width={100}
                 height="1.5rem"
                 sx={{ mb: 0.125 }}
               />
               <Skeleton
-                width={300}
+                width={50}
                 height="1.25rem"
               />
             </Box>

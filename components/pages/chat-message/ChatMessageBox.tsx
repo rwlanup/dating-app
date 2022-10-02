@@ -2,16 +2,21 @@ import { Box, CircularProgress, Grid, IconButton, TextField } from '@mui/materia
 import { ChangeEvent, FC, FormEvent, useState } from 'react';
 import SendTwoToneIcon from '@mui/icons-material/SendTwoTone';
 import { trpc } from '../../../util/trpc';
+import { useSnackbar } from 'notistack';
 
 interface ChatMessageBoxProps {
   friendId: string;
 }
 
 export const ChatMessageBox: FC<ChatMessageBoxProps> = ({ friendId }) => {
+  const { enqueueSnackbar } = useSnackbar();
   const [message, setMessage] = useState('');
   const { mutate, isError, error, isLoading } = trpc.useMutation('chats.sendMessage', {
     onSuccess: () => {
       setMessage('');
+    },
+    onError(error) {
+      enqueueSnackbar(error.message, { variant: 'error' });
     },
   });
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {

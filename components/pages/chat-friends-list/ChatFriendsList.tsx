@@ -21,8 +21,6 @@ export const ChatFriendsList: FC = () => {
 
   if (isLoading || !friends) return <ChatFriendsListSkeleton />;
 
-  if (friends.length === 0) return <div>Empty list..</div>;
-
   return (
     <Box
       component="aside"
