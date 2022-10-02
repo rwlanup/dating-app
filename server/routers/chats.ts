@@ -67,7 +67,7 @@ export const chatsRouter = createRouter()
         },
       });
 
-      pusher.trigger(`private-${friend.id}`, 'message', chat);
+      await pusher.trigger(`private-${friend.id}`, 'message', chat);
       return {
         message: 'Your message has been sent successfully',
         status: 201,
