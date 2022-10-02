@@ -110,7 +110,7 @@ export const profileRouter = createRouter()
   })
 
   .mutation('updateLastChatRead', {
-    resolve: async ({ ctx: { prisma, session } }): Promise<void> => {
+    resolve: async ({ ctx: { prisma, session } }): Promise<DataWithSuccessMessage> => {
       const _session = session as Session;
       await prisma.user.update({
         where: {
@@ -120,5 +120,9 @@ export const profileRouter = createRouter()
           lastChatReadAt: new Date(),
         },
       });
+      return {
+        message: 'Your chat status has been updated successfully',
+        status: 200,
+      };
     },
   });

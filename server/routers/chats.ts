@@ -6,6 +6,7 @@ import { friendIdSchema } from '../../common/validation/friends/request';
 import { authMiddleware } from '../../middleware/auth';
 import { checkIfAuthorizedFriendId } from '../../middleware/authFriendId';
 import { PaginatedChat } from '../../types/chat';
+import { DataWithSuccessMessage } from '../../types/server';
 import { createRouter } from '../createRouter';
 
 export const chatsRouter = createRouter()
@@ -47,7 +48,10 @@ export const chatsRouter = createRouter()
 
   .mutation('sendMessage', {
     input: chatSchema,
-    resolve: async ({ ctx: { prisma, session, pusher }, input: { friendId, type, message } }): Promise<void> => {
+    resolve: async ({
+      ctx: { prisma, session, pusher },
+      input: { friendId, type, message },
+    }): Promise<DataWithSuccessMessage> => {
       const _session = session as Session;
       const friend = await checkIfAuthorizedFriendId(_session, friendId);
 
@@ -64,12 +68,16 @@ export const chatsRouter = createRouter()
       });
 
       pusher.trigger(`private-${friend.id}`, 'message', chat);
+      return {
+        message: 'Your message has been sent successfully',
+        status: 201,
+      };
     },
   })
 
   .mutation('updateChatRead', {
     input: friendIdSchema,
-    resolve: async ({ ctx: { prisma, session }, input }): Promise<void> => {
+    resolve: async ({ ctx: { prisma, session }, input }): Promise<DataWithSuccessMessage> => {
       const _session = session as Session;
       await checkIfAuthorizedFriendId(_session, input);
 
@@ -81,5 +89,9 @@ export const chatsRouter = createRouter()
           isRead: true,
         },
       });
+      return {
+        message: 'Your chat status has been updated successfully',
+        status: 200,
+      };
     },
   });
