@@ -103,7 +103,7 @@ export const FriendsListItem: FC<FriendsListItemProps> = ({ friend: { profile, i
     >
       <Link
         passHref
-        href={`/profile/${profile.username}`}
+        href={`/profile/user/${profile.username}`}
       >
         <Box
           component="a"

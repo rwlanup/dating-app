@@ -1,11 +1,11 @@
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { ErrorScreen } from '../../components/pages/error-screen/ErrorScreen';
-import { ProfileDetailHeader } from '../../components/pages/profile-detail/ProfileDetailHeader';
-import { ProfileDetailInterests } from '../../components/pages/profile-detail/ProfileDetailInterests';
-import { ProfileDetailSkeleton } from '../../components/pages/profile-detail/ProfileDetailSkeleton';
-import { useFriendsList } from '../../hooks/useFriendsList';
-import { trpc } from '../../util/trpc';
+import { ErrorScreen } from '../../../components/pages/error-screen/ErrorScreen';
+import { ProfileDetailHeader } from '../../../components/pages/profile-detail/ProfileDetailHeader';
+import { ProfileDetailInterests } from '../../../components/pages/profile-detail/ProfileDetailInterests';
+import { ProfileDetailSkeleton } from '../../../components/pages/profile-detail/ProfileDetailSkeleton';
+import { useFriendsList } from '../../../hooks/useFriendsList';
+import { trpc } from '../../../util/trpc';
 
 const ProfileDetailPage: NextPage = () => {
   const router = useRouter();

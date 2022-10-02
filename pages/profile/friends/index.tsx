@@ -4,11 +4,11 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { SyntheticEvent, useState } from 'react';
-import { useFriendsList } from '../../hooks/useFriendsList';
-import { FriendsList } from '../../components/pages/friends-list/FriendsList';
-import { ErrorScreen } from '../../components/pages/error-screen/ErrorScreen';
-import { FriendsPageSkeleton } from '../../components/pages/friends-page-skeleton/FriendsPageSkeleton';
-import { FriendOrRequest } from '../../types/friend';
+import { useFriendsList } from '../../../hooks/useFriendsList';
+import { FriendsList } from '../../../components/pages/friends-list/FriendsList';
+import { ErrorScreen } from '../../../components/pages/error-screen/ErrorScreen';
+import { FriendsPageSkeleton } from '../../../components/pages/friends-page-skeleton/FriendsPageSkeleton';
+import { FriendOrRequest } from '../../../types/friend';
 
 export type FRIENDS_TYPE = 'FRIENDS' | 'SENT_REQUESTS' | 'RECEIVED_REQUESTS';
 

@@ -1,11 +1,11 @@
 import { NextPage } from 'next';
-import { ProfileSettingInputs } from '../../common/validation/profile/setting';
-import { trpc } from '../../util/trpc';
+import { ProfileSettingInputs } from '../../../common/validation/profile/setting';
+import { trpc } from '../../../util/trpc';
 import { useSnackbar } from 'notistack';
-import { ProfileSettingForm } from '../../components/pages/profile-setting-form/ProfileSettingForm';
-import { ProfileSettingSkeleton } from '../../components/pages/profile-setting-skeleton/ProfileSettingSkeleton';
+import { ProfileSettingForm } from '../../../components/pages/profile-setting-form/ProfileSettingForm';
+import { ProfileSettingSkeleton } from '../../../components/pages/profile-setting-skeleton/ProfileSettingSkeleton';
 import { useMemo } from 'react';
-import { NullPartial } from '../../types/utils';
+import { NullPartial } from '../../../types/utils';
 
 const ProfileSettingsPage: NextPage = () => {
   const utils = trpc.useContext();
