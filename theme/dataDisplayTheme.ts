@@ -110,6 +110,44 @@ export const dataDisplayTheme = (theme: Theme): ThemeOptions => {
           },
         },
       },
+
+      MuiTooltip: {
+        styleOverrides: {
+          tooltip: {
+            fontSize: '0.8125rem',
+          },
+        },
+      },
+
+      MuiBadge: {
+        defaultProps: {
+          anchorOrigin: { horizontal: 'right', vertical: 'bottom' },
+          color: 'success',
+        },
+        styleOverrides: {
+          dot: {
+            minWidth: '16px',
+            height: '16px',
+            borderRadius: '50%',
+            border: 2,
+            borderStyle: 'solid',
+            borderColor: theme.palette.common.white,
+          },
+          colorSuccess: {
+            backgroundColor: theme.palette.success[500],
+          },
+        },
+      },
+
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            '&:focus': {
+              boxShadow: 'none !important',
+            },
+          },
+        },
+      },
     },
   };
 };

@@ -1,15 +1,46 @@
 import { Avatar, Box, Grid, IconButton, Skeleton, Theme, Typography, useMediaQuery } from '@mui/material';
-import type { FC } from 'react';
+import { signOut } from 'next-auth/react';
+import { FC, useEffect } from 'react';
+import { CHANNEL_NAMES } from '../../../../common/config/pusher';
+import { useFriendsList } from '../../../../hooks/useFriendsList';
 import { toggleProfileDrawerOnMobileVisible } from '../../../../store/layoutUIStore';
+import { addMember, removeMember, resetFromSubscription } from '../../../../store/onlineUsersStore';
+import { pusher } from '../../../../util/pusher';
 import { trpc } from '../../../../util/trpc';
 
 export const HeaderAvatar: FC = () => {
+  // Authenticating user
+  useEffect(() => {
+    pusher.connect();
+    pusher.user.signin();
+    return () => {
+      pusher.disconnect();
+    };
+  }, []);
+
+  // Authorizing for pusher channels channel
+  useEffect(() => {
+    const presenceChannel = pusher.subscribe(CHANNEL_NAMES.online);
+    presenceChannel.bind('pusher:subscription_succeeded', resetFromSubscription);
+    presenceChannel.bind('pusher:member_added', addMember);
+    presenceChannel.bind('pusher:member_removed', removeMember);
+
+    return () => {
+      presenceChannel.unsubscribe();
+    };
+  }, []);
+
   const isTablet = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
 
   const { isLoading, data, isIdle } = trpc.useQuery(['profile.me'], {
     ssr: false,
     refetchOnWindowFocus: false,
+    onError: () => {
+      signOut();
+    },
   });
+
+  useFriendsList(true, true);
 
   if (isIdle || isLoading || !data) {
     return (

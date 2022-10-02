@@ -102,7 +102,7 @@ export const ProfileListItem: FC<ProfileListItemProps> = ({ data }) => {
                 >
                   <Link
                     passHref
-                    href={`/profile/${data.username}`}
+                    href={`/profile/user/${data.username}`}
                   >
                     <Button
                       variant="outlined"

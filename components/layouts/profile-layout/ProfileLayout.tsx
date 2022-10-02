@@ -64,11 +64,11 @@ export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
       icon: <LogoutTwoToneIcon />,
       onClick: async (event) => {
         event.preventDefault();
-        utils.queryClient.clear();
         const response = await signOut({
           redirect: false,
         });
-        router.replace(response.url);
+        await router.replace(response.url, undefined, { shallow: true });
+        utils.queryClient.clear();
       },
     },
   ];

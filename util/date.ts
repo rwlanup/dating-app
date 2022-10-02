@@ -1,4 +1,6 @@
 import dayjs, { Dayjs } from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
 
 export const getYearsBetweenDate = (startDate: Date | Dayjs, endDate: Date | Dayjs = dayjs()): string => {
   const parsedStartDate = dayjs.isDayjs(startDate) ? startDate : dayjs(startDate);
@@ -15,4 +17,8 @@ export const getYearsBetweenDate = (startDate: Date | Dayjs, endDate: Date | Day
 
 export const getFormattedDate = (date: Date | Dayjs): string => {
   return dayjs(date).format('DD MMMM, YYYY');
+};
+
+export const getRelativeTime = (date: Date | Dayjs): string => {
+  return dayjs(date).fromNow();
 };

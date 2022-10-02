@@ -64,7 +64,8 @@ export const profileRouter = createRouter()
         });
       }
 
-      const responseUser = user as OnlyRequiredByKeys<User, 'id' | 'username' | 'fullName'>;
+      const responseUser = user as OnlyRequiredByKeys<typeof user, 'id' | 'username' | 'fullName'>;
+
       return {
         ...responseUser,
         profilePicture: resolveBase64ImageUrl(responseUser.profilePictureMime, responseUser.profilePicture),
@@ -105,5 +106,19 @@ export const profileRouter = createRouter()
           return interest.interest;
         }),
       };
+    },
+  })
+
+  .mutation('updateLastChatRead', {
+    resolve: async ({ ctx: { prisma, session } }): Promise<void> => {
+      const _session = session as Session;
+      await prisma.user.update({
+        where: {
+          id: _session.user.id,
+        },
+        data: {
+          lastChatReadAt: new Date(),
+        },
+      });
     },
   });

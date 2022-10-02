@@ -21,7 +21,7 @@ export const FriendRequestButton: FC<FriendRequestButtonProps> = ({ friendId, ..
     },
     onSuccess(data) {
       enqueueSnackbar(data.message, { variant: 'success' });
-      utils.invalidateQueries(['friends.list-sent-requests']);
+      utils.invalidateQueries(['friends.list']);
     },
   });
   const { mutate: respondToRequest, isLoading: respondingToRequest } = trpc.useMutation('friends.respond-request', {
@@ -30,11 +30,7 @@ export const FriendRequestButton: FC<FriendRequestButtonProps> = ({ friendId, ..
     },
     onSuccess(data, { response }) {
       enqueueSnackbar(data.message, { variant: 'success' });
-      utils.invalidateQueries(['friends.list-received-requests']);
-
-      if (response === 'ACCEPT') {
-        utils.invalidateQueries(['friends.list']);
-      }
+      utils.invalidateQueries(['friends.list']);
     },
   });
   const { mutate: removeFriend, isLoading: removingFriend } = trpc.useMutation('friends.remove-friend', {
@@ -101,6 +97,7 @@ export const FriendRequestButton: FC<FriendRequestButtonProps> = ({ friendId, ..
   return (
     <LoadingButton
       fullWidth
+      variant={isFriend ? 'outlined' : 'contained'}
       {...otherProps}
       loading={sendingRequest || respondingToRequest || removingFriend}
       onClick={handleClick}

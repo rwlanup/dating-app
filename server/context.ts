@@ -4,12 +4,14 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from './prisma';
 import { Session, unstable_getServerSession } from 'next-auth';
 import { nextAuthOptions } from '../pages/api/auth/[...nextauth]';
+import { pusher } from './pusher';
 
 interface CreateContextOptions {
   session: Session | null;
   req: NextApiRequest;
   res: NextApiResponse;
   prisma: typeof prisma;
+  pusher: typeof pusher;
 }
 
 /**
@@ -35,5 +37,6 @@ export async function createContext({ req, res }: trpcNext.CreateNextContextOpti
     res,
     prisma,
     session,
+    pusher,
   });
 }

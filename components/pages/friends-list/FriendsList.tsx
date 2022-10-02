@@ -1,12 +1,12 @@
 import type { FC } from 'react';
 import { FRIENDS_TYPE } from '../../../pages/profile/friends';
-import { FriendWithProfile } from '../../../types/friend';
 import { ErrorScreen } from '../error-screen/ErrorScreen';
 import { FriendsListItem } from './FriendsListItem';
 import Diversity1TwoToneIcon from '@mui/icons-material/Diversity1TwoTone';
+import { FriendOrRequest } from '../../../types/friend';
 
 interface FriendsListProps {
-  friends: FriendWithProfile[];
+  friends: FriendOrRequest[];
   type: FRIENDS_TYPE;
 }
 

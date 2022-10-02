@@ -9,6 +9,7 @@ import { profileRouter } from './profile';
 import { interestsRouter } from './interests';
 import { friendsRouter } from './friends';
 import { isPrismaError } from '../../util/prisma';
+import { chatsRouter } from './chats';
 
 /**
  * Create your application's root router
@@ -22,6 +23,7 @@ export const appRouter = createRouter()
   .merge('profile.', profileRouter)
   .merge('interests.', interestsRouter)
   .merge('friends.', friendsRouter)
+  .merge('chats.', chatsRouter)
   .formatError(({ shape, error }) => {
     return {
       ...shape,

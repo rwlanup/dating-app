@@ -1,27 +1,26 @@
 import { alpha } from '@mui/material';
 import { useRouter } from 'next/router';
 import type { FC } from 'react';
+import { useStore } from '../../../hooks/useStore';
+import { authDialogUIStore, closeAuthDialog } from '../../../store/authDialogUIStore';
 import { SlideinDialog } from '../../ui/slidein-dialog/SlideinDialog';
 import { LoginForm } from './login-form/LoginForm';
 import { RegisterForm } from './register-form/RegisterForm';
 
 export const AuthActions = ['login', 'register'] as const;
 
-interface AuthDialogProps {
-  isOpen?: boolean;
-  onClose?: () => void;
-  authAction?: typeof AuthActions[number];
-  setAuthAction?: (action: typeof AuthActions[number]) => void;
-}
-
-export const AuthDialog: FC<AuthDialogProps> = ({ isOpen, onClose, authAction }) => {
+export const AuthDialog: FC = () => {
   const router = useRouter();
+  const { form: authAction, isOpen } = useStore(
+    authDialogUIStore,
+    (state) => state,
+    () => ({ form: 'login', isOpen: false })
+  );
   const action = router.query.action as typeof AuthActions[number];
 
   const _isOpen = isOpen || AuthActions.includes(action);
 
   const _onClose = (): void => {
-    onClose && onClose();
     if (AuthActions.includes(action)) {
       const _query = { ...router.query };
       delete _query.action;
@@ -29,6 +28,7 @@ export const AuthDialog: FC<AuthDialogProps> = ({ isOpen, onClose, authAction })
         query: _query,
       });
     }
+    closeAuthDialog();
   };
 
   const _action = action || authAction;

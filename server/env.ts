@@ -4,10 +4,13 @@
  */
 import * as z from 'zod';
 
-/*eslint sort-keys: "error"*/
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   NODE_ENV: z.enum(['development', 'test', 'production']),
+  PUSHER_APP_ID: z.string(),
+  PUSHER_SECRET: z.string(),
+  NEXT_PUBLIC_PUSHER_CLUSTER: z.string(),
+  NEXT_PUBLIC_PUSHER_KEY: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);

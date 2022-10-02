@@ -1,8 +1,9 @@
 import { alpha, Box, Button, Container, Grid, styled, Typography } from '@mui/material';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import Link from 'next/link';
 import type { FC } from 'react';
 import HeroIllustration from '../../../public/images/hero-illustration.svg';
+import { showRegisterFormInAuthDialog } from '../../../store/authDialogUIStore';
 
 const ImageContainer = styled('div')(() => ({
   display: 'flex',
@@ -13,6 +14,7 @@ const ImageContainer = styled('div')(() => ({
 }));
 
 export const Hero: FC = () => {
+  const session = useSession();
   return (
     <Box
       component="section"
@@ -41,12 +43,12 @@ export const Hero: FC = () => {
               Tell us about your interest and find your matching soulmates. It&apos;s never too late to fall in love
               again. Find your real feelings.
             </Typography>
-            <Link
-              passHref
-              href="?action=register"
+            <Button
+              onClick={showRegisterFormInAuthDialog}
+              disabled={session.status === 'loading' || session.status === 'authenticated'}
             >
-              <Button>Create account</Button>
-            </Link>
+              Create account
+            </Button>
           </Grid>
           <Grid
             item

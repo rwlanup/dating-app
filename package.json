@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "lint-fix": "next lint --fix"
+    "lint-fix": "next lint --fix",
+    "ts-check": "tsc --noEmit"
   },
   "dependencies": {
     "@emotion/react": "^11.10.4",
@@ -29,6 +30,8 @@
     "next": "12.2.5",
     "next-auth": "^4.10.3",
     "notistack": "^2.0.5",
+    "pusher": "^5.1.1-beta",
+    "pusher-js": "^7.4.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-focus-lock": "^2.9.1",
