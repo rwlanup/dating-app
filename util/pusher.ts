@@ -7,4 +7,5 @@ export const pusher = new pusherJs(process.env.NEXT_PUBLIC_PUSHER_KEY as string,
     endpoint: '/api/pusher/auth-user',
     transport: 'ajax',
   },
+  forceTLS: true,
 });

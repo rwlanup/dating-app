@@ -16,6 +16,7 @@ export const pusher: Pusher =
     cluster: env.NEXT_PUBLIC_PUSHER_CLUSTER,
     key: env.NEXT_PUBLIC_PUSHER_KEY,
     secret: env.PUSHER_SECRET,
+    useTLS: true,
   });
 
 pusherGlobal.pusher = pusher;
