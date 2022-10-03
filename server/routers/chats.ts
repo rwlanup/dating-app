@@ -1,6 +1,8 @@
+import { Chats } from '@prisma/client';
 import type { Session } from 'next-auth';
 import { ITEMS_PER_REQUEST } from '../../common/config/support';
 import { chatSchema } from '../../common/validation/chats/chat';
+import { callRespondSchema } from '../../common/validation/chats/callRespond';
 import { messageByFriendIdSchema } from '../../common/validation/chats/messageByFriendId';
 import { friendIdSchema } from '../../common/validation/friends/request';
 import { authMiddleware } from '../../middleware/auth';
@@ -93,5 +95,46 @@ export const chatsRouter = createRouter()
         message: 'Your chat status has been updated successfully',
         status: 200,
       };
+    },
+  })
+
+  .mutation('call', {
+    input: friendIdSchema,
+    resolve: async ({ ctx: { prisma, session, pusher }, input }): Promise<Chats> => {
+      const _session = session as Session;
+      const friend = await checkIfAuthorizedFriendId(_session, input);
+      const receiverUserId =
+        _session.user.id === friend.receiverUserId ? friend.requestedUserId : friend.receiverUserId;
+
+      const chat = await prisma.chats.create({
+        data: {
+          type: 'CALL',
+          isRead: false,
+          friendsId: friend.id,
+          senderId: _session.user.id,
+          receiverId: receiverUserId,
+        },
+      });
+      await pusher.sendToUser(receiverUserId, 'call', chat);
+      await pusher.sendToUser(_session.user.id, 'call', chat);
+
+      return chat;
+    },
+  })
+
+  .mutation('respondCall', {
+    input: callRespondSchema,
+    resolve: async ({ ctx: { prisma, pusher }, input }) => {
+      const chat = await prisma.chats.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          isRead: true,
+        },
+      });
+      await pusher.sendToUser(chat.receiverId, 'callRespond', chat);
+      await pusher.sendToUser(chat.senderId, 'callRespond', chat);
+      return chat;
     },
   });

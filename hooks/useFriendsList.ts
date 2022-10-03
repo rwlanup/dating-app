@@ -31,22 +31,24 @@ export const useFriendsList = (enabled: boolean = true, subscribeToPusher: boole
       if (subscribeToPusher) {
         const friends = data.filter((friend) => Boolean(friend.approvedAt));
         friends.forEach((friend) => {
-          const friendChannel = pusher.subscribe(`private-${friend.id}`);
-          friendChannel.bind('message', async (chat: Chats) => {
-            utils.invalidateQueries([
-              'chats.messagesByFriendId',
-              {
-                friendId: chat.friendsId,
-              },
-            ]);
-            await utils.invalidateQueries(['friends.list']);
-            enableChatScroll();
+          if (!pusher.channel(`private-${friend.id}`)) {
+            const friendChannel = pusher.subscribe(`private-${friend.id}`);
+            friendChannel.bind('message', async (chat: Chats) => {
+              utils.invalidateQueries([
+                'chats.messagesByFriendId',
+                {
+                  friendId: chat.friendsId,
+                },
+              ]);
+              await utils.invalidateQueries(['friends.list']);
+              enableChatScroll();
 
-            // Update last chat page visits
-            if (pathname === '/profile/chats') {
-              updateLastChatRead();
-            }
-          });
+              // Update last chat page visits
+              if (pathname === '/profile/chats') {
+                updateLastChatRead();
+              }
+            });
+          }
         });
       }
     },

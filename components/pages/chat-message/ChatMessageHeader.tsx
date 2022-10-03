@@ -9,16 +9,17 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import CallTwoToneIcon from '@mui/icons-material/CallTwoTone';
 import VisibilityOffTwoToneIcon from '@mui/icons-material/VisibilityOffTwoTone';
 import type { FC } from 'react';
 import { ApprovedFriendWithFirstChat } from '../../../types/friend';
+import { CallButton } from '../../others/call-button/CallButton';
 
 interface ChatMessageHeaderProps {
   friendProfile: ApprovedFriendWithFirstChat['profile'];
+  id: string;
 }
 
-export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile }) => {
+export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile, id }) => {
   return (
     <Box
       sx={{
@@ -29,6 +30,7 @@ export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile })
         top: 0,
         left: 0,
         bgcolor: 'common.white',
+        zIndex: 10,
       }}
       component="header"
     >
@@ -73,14 +75,7 @@ export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile })
             </Tooltip>
           </Grid>
           <Grid item>
-            <Tooltip title="Call now">
-              <IconButton
-                color="primary"
-                size="large"
-              >
-                <CallTwoToneIcon />
-              </IconButton>
-            </Tooltip>
+            <CallButton id={id} />
           </Grid>
         </Grid>
       </ListItem>

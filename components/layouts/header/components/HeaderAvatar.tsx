@@ -12,7 +12,10 @@ export const HeaderAvatar: FC = () => {
   // Authenticating user
   useEffect(() => {
     pusher.connect();
-    pusher.user.signin();
+    if (!pusher.user.signin_requested) {
+      pusher.user.signin();
+    }
+
     return () => {
       pusher.disconnect();
     };
@@ -20,14 +23,15 @@ export const HeaderAvatar: FC = () => {
 
   // Authorizing for pusher channels channel
   useEffect(() => {
-    const presenceChannel = pusher.subscribe(CHANNEL_NAMES.online);
-    presenceChannel.bind('pusher:subscription_succeeded', resetFromSubscription);
-    presenceChannel.bind('pusher:member_added', addMember);
-    presenceChannel.bind('pusher:member_removed', removeMember);
-
-    return () => {
-      presenceChannel.unsubscribe();
-    };
+    if (!pusher.channel(CHANNEL_NAMES.online)) {
+      const presenceChannel = pusher.subscribe(CHANNEL_NAMES.online);
+      presenceChannel.bind('pusher:subscription_succeeded', resetFromSubscription);
+      presenceChannel.bind('pusher:member_added', addMember);
+      presenceChannel.bind('pusher:member_removed', removeMember);
+      return () => {
+        presenceChannel.unsubscribe();
+      };
+    }
   }, []);
 
   const isTablet = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
