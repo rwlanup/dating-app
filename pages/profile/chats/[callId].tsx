@@ -1,116 +1,230 @@
-import { Avatar, Box, IconButton, Tooltip, Typography } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
-import CallEndTwoToneIcon from '@mui/icons-material/CallEndTwoTone';
-import VolumeOffTwoToneIcon from '@mui/icons-material/VolumeOffTwoTone';
-import VolumeUpTwoToneIcon from '@mui/icons-material/VolumeUpTwoTone';
-import VideocamTwoToneIcon from '@mui/icons-material/VideocamTwoTone';
-import VideocamOffTwoToneIcon from '@mui/icons-material/VideocamOffTwoTone';
-import { trpc } from '../../../util/trpc';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { pusher } from '../../../util/pusher';
+import { useSession } from 'next-auth/react';
+import { useFriendsList } from '../../../hooks/useFriendsList';
+import { VideoCall } from '../../../components/pages/video-call/VideoCall';
+import { Channel } from 'pusher-js';
+
+const SERVERS = {
+  iceServers: [
+    {
+      urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'],
+    },
+  ],
+  iceCandidatePoolSize: 10,
+};
+
+export type SignalData =
+  | {
+      type: 'answer';
+      answer: RTCSessionDescriptionInit;
+    }
+  | {
+      type: 'offer';
+      offer: RTCSessionDescriptionInit;
+      callId: string;
+      callerId: string;
+    }
+  | {
+      type: 'candidate';
+      candidate: RTCIceCandidate;
+    };
 
 const CallPage: NextPage = () => {
-  const [isFriendVideoOff, setIsFriendVideoOff] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isVideoOff, setIsVideoOff] = useState(false);
+  // URL and User data
   const router = useRouter();
   const callId = router.query.callId;
+  const friendId = router.query.friendId;
+  const callerId = router.query.callerId;
+  const channelRef = useRef<Channel>();
+  const session = useSession();
+  const userId = session.data?.user.id;
+
+  // UI State
+  const { isLoading: friendsListLoading, friends } = useFriendsList();
+  const friend = friends?.find((friend) => friend.id === friendId);
+  const [isLoading, setIsLoading] = useState(true);
+  const userVideoElRef = useRef<HTMLVideoElement>();
+  const friendVideoElRef = useRef<HTMLVideoElement>();
+  const [isMuted, setIsMuted] = useState(false);
+  const [isVideoOff, setIsVideoOff] = useState(false);
+  const [isFriendVideoOff, setIsFriendVideoOff] = useState(false);
+
+  // Peer connection
+  const friendPeerRef = useRef<RTCPeerConnection>();
+  const userPeerRef = useRef<RTCPeerConnection>();
+  const friendStreamRef = useRef<MediaStream>();
+  const userStreamRef = useRef<MediaStream>();
+
+  const createPeerConnection = useCallback(() => {
+    if (friend) {
+      userPeerRef.current = new RTCPeerConnection(SERVERS);
+      friendPeerRef.current = new RTCPeerConnection(SERVERS);
+      friendStreamRef.current = new MediaStream();
+      if (friendVideoElRef.current) {
+        friendVideoElRef.current.srcObject = friendStreamRef.current;
+      }
+
+      // Streaming user video
+      const userStream = userStreamRef.current;
+      if (userStream) {
+        userStream.getTracks().forEach((track) => userPeerRef.current?.addTrack(track, userStream));
+      }
+
+      userPeerRef.current.ontrack = (event) => {
+        event.streams[0].getTracks().forEach((track) => {
+          friendStreamRef.current?.addTrack(track);
+        });
+      };
+
+      userPeerRef.current.onicecandidate = async (event) => {
+        if (event.candidate && channelRef.current) {
+          channelRef.current.trigger(`client-call-${friendId}`, {
+            callId,
+            friendId: friend.id,
+            type: 'candidate',
+            candidate: event.candidate,
+          });
+        }
+      };
+
+      return userPeerRef.current;
+    }
+  }, [callId, friend, friendId]);
+
+  const createOffer = useCallback(async () => {
+    const peer = createPeerConnection();
+    if (peer) {
+      // Creating offer
+      const offer = await peer.createOffer();
+      await peer.setLocalDescription(offer);
+      if (channelRef.current) {
+        channelRef.current.trigger(`client-call-${friendId}`, {
+          type: 'offer',
+          offer,
+          callId,
+          callerId,
+        });
+      }
+    }
+  }, [createPeerConnection, friendId, callId, callerId]);
+
+  const createAnswer = useCallback(
+    async (offer: RTCSessionDescriptionInit) => {
+      const peer = createPeerConnection();
+      if (peer) {
+        await peer.setRemoteDescription(offer);
+        const answer = await peer.createAnswer();
+        await peer.setLocalDescription(answer);
+        if (channelRef.current) {
+          channelRef.current.trigger(`client-call-${friendId}`, {
+            type: 'answer',
+            answer,
+          });
+        }
+      }
+    },
+    [createPeerConnection, friendId]
+  );
+
+  const addAnswer = useCallback(async (answer: RTCSessionDescriptionInit) => {
+    if (!userPeerRef.current) return;
+    if (!userPeerRef.current.currentRemoteDescription) {
+      userPeerRef.current.setRemoteDescription(answer);
+    }
+  }, []);
+
+  useEffect(() => {
+    async function init() {
+      if (friend) {
+        userStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        if (userVideoElRef.current) {
+          userVideoElRef.current.srcObject = userStreamRef.current;
+        }
+        if (typeof callerId === 'string' && userId === callerId) {
+          createOffer();
+        }
+      }
+    }
+    if (friend && userId && callerId) {
+      channelRef.current = pusher.channel(`private-${friend.id}`) || pusher.subscribe(`private-${friend.id}`);
+      channelRef.current.bind(`client-call-${friend.id}`, (data: SignalData) => {
+        switch (data.type) {
+          case 'offer':
+            createAnswer(data.offer);
+            break;
+          case 'answer':
+            addAnswer(data.answer);
+            setIsLoading(false);
+            break;
+          case 'candidate':
+            if (userPeerRef.current && userPeerRef.current.remoteDescription) {
+              userPeerRef.current.addIceCandidate(data.candidate);
+            }
+            break;
+        }
+      });
+      if (channelRef.current.subscribed) {
+        init();
+      } else {
+        channelRef.current.bind('pusher:subscription_succeeded', init);
+      }
+    }
+    return () => {
+      if (userStreamRef.current) {
+        userStreamRef.current.getTracks().forEach((track) => track.stop());
+      }
+      if (channelRef.current && friend) {
+        channelRef.current.unbind(`client-call-${friend.id}`);
+      }
+    };
+  }, [isLoading, friend, createOffer, addAnswer, createAnswer, callerId, userId]);
+
+  if (friendsListLoading || !friend)
+    return (
+      <Box sx={{ height: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress size={100} />
+      </Box>
+    );
 
   const toggleMuted = () => {
-    setIsMuted((prevState) => !prevState);
+    setIsMuted((prevStatus) => {
+      if (userStreamRef.current) {
+        const audioTrack = userStreamRef.current.getTracks().find((track) => track.kind === 'audio');
+        if (audioTrack) {
+          audioTrack.enabled = prevStatus;
+        }
+      }
+      return !prevStatus;
+    });
   };
-  const toggleVideoOff = () => {
-    setIsVideoOff((prevState) => !prevState);
+
+  const toggleVideo = () => {
+    setIsVideoOff((prevStatus) => {
+      if (userStreamRef.current) {
+        const videoTrack = userStreamRef.current.getTracks().find((track) => track.kind === 'video');
+        if (videoTrack) {
+          videoTrack.enabled = prevStatus;
+        }
+      }
+      return !prevStatus;
+    });
   };
 
   return (
-    <Box sx={{ position: 'relative', height: 1 }}>
-      <Box
-        sx={{
-          position: 'absolute',
-          height: 1,
-          width: 1,
-          left: 0,
-          top: 0,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {isFriendVideoOff ? (
-          <Box sx={{ mt: '10vh' }}>
-            <Avatar
-              alt="Anup Rawal"
-              sx={{ height: 200, width: 200, mx: 'auto', mb: 2 }}
-            />
-            <Typography
-              align="center"
-              variant="h4"
-              fontWeight="Bold"
-              component="h1"
-            >
-              Anup Rawal
-            </Typography>
-          </Box>
-        ) : (
-          <Box
-            component="video"
-            sx={{ height: 1, width: 1, position: 'absolute', bgcolor: 'common.black', borderRadius: 3 }}
-          />
-        )}
-        <Box
-          sx={{
-            mt: 'auto',
-            mb: 2,
-            display: 'flex',
-            alignSelf: 'center',
-            gap: 2,
-            justifyContent: 'center',
-            bgcolor: 'common.white',
-            zIndex: 20,
-            borderRadius: 9999,
-          }}
-        >
-          <Tooltip title={isMuted ? 'Unmute' : 'Mute'}>
-            <IconButton
-              sx={{ '&:focus': { boxShadow: 'none!important' } }}
-              onClick={toggleMuted}
-              size="large"
-              color="primary"
-            >
-              {isMuted ? <VolumeOffTwoToneIcon /> : <VolumeUpTwoToneIcon />}
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={isVideoOff ? 'Turn on video' : 'Turn off video'}>
-            <IconButton
-              sx={{ '&:focus': { boxShadow: 'none!important' } }}
-              onClick={toggleVideoOff}
-              size="large"
-              color="primary"
-            >
-              {isVideoOff ? <VideocamOffTwoToneIcon /> : <VideocamTwoToneIcon />}
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="End call">
-            <IconButton
-              sx={{ '&:focus': { boxShadow: 'none!important' } }}
-              size="large"
-              color="primary"
-            >
-              <CallEndTwoToneIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </Box>
-      {!isVideoOff && (
-        <Box sx={{ position: 'absolute', bottom: 16, right: 16 }}>
-          <Box
-            component="video"
-            muted
-            sx={{ height: 120, width: 160, borderRadius: 1, bgcolor: 'common.white', boxShadow: 3 }}
-          />
-        </Box>
-      )}
-    </Box>
+    <VideoCall
+      friendVideoElRef={friendVideoElRef}
+      userVideoElRef={userVideoElRef}
+      isMuted={isMuted}
+      isVideoOff={isVideoOff}
+      isFriendVideoOff={isFriendVideoOff}
+      toggleMuted={toggleMuted}
+      toggleVideo={toggleVideo}
+      friendProfile={friend.profile}
+    />
   );
 };
 

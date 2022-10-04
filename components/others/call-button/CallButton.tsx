@@ -13,7 +13,13 @@ export const CallButton: FC<CallButtonProps> = ({ id }) => {
   const router = useRouter();
   const { mutate, isLoading } = trpc.useMutation('chats.call', {
     onSuccess(chat) {
-      router.push(`/profile/chats/${chat.id}`);
+      router.push({
+        query: {
+          friendId: chat.friendsId,
+          callerId: chat.senderId,
+        },
+        pathname: `/profile/chats/${chat.id}`,
+      });
     },
     onError(error) {
       enqueueSnackbar(error.message, { variant: 'error' });

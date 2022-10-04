@@ -2,6 +2,7 @@ import { Chats } from '@prisma/client';
 import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { SignalData } from '../pages/profile/chats/[callId]';
 import { enableChatScroll } from '../store/chatUIStore';
 import type { ApprovedFriendWithFirstChat, FriendRequest } from '../types/friend';
 import { pusher } from '../util/pusher';
@@ -18,7 +19,7 @@ interface UseFriendsListReturns {
 }
 
 export const useFriendsList = (enabled: boolean = true, subscribeToPusher: boolean = false): UseFriendsListReturns => {
-  const { pathname } = useRouter();
+  const { pathname, push } = useRouter();
   const { data: _sessionData } = useSession();
   const utils = trpc.useContext();
   const sessionData = _sessionData as Session;
@@ -46,6 +47,18 @@ export const useFriendsList = (enabled: boolean = true, subscribeToPusher: boole
               // Update last chat page visits
               if (pathname === '/profile/chats') {
                 updateLastChatRead();
+              }
+            });
+
+            friendChannel.bind(`client-call-${friend.id}`, (signal: SignalData) => {
+              if (signal.type === 'offer') {
+                push({
+                  query: {
+                    friendId: friend.id,
+                    callerId: signal.callerId,
+                  },
+                  pathname: `/profile/chats/${signal.callId}`,
+                });
               }
             });
           }

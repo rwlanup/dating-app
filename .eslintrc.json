@@ -6,6 +6,7 @@
     "no-unused-vars": "off"
   },
   "globals": {
-    "JSX": "readonly"
+    "JSX": "readonly",
+    "RTCSessionDescriptionInit": true
   }
 }

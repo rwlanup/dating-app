@@ -1,4 +1,5 @@
 import { Avatar, Box, Grid, IconButton, Skeleton, Theme, Typography, useMediaQuery } from '@mui/material';
+import { Chats } from '@prisma/client';
 import { signOut } from 'next-auth/react';
 import { FC, useEffect } from 'react';
 import { CHANNEL_NAMES } from '../../../../common/config/pusher';
