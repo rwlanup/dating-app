@@ -1,12 +1,12 @@
 import { Box, CircularProgress } from '@mui/material';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { pusher } from '../../../util/pusher';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useFriendsList } from '../../../hooks/useFriendsList';
 import { VideoCall } from '../../../components/pages/video-call/VideoCall';
 import { Channel } from 'pusher-js';
+import { PusherContext } from '../../../context/pusher';
 
 const SERVERS = {
   iceServers: [
@@ -34,6 +34,7 @@ export type SignalData =
     };
 
 const CallPage: NextPage = () => {
+  const pusher = useContext(PusherContext);
   // URL and User data
   const router = useRouter();
   const callId = router.query.callId;
@@ -149,7 +150,7 @@ const CallPage: NextPage = () => {
         }
       }
     }
-    if (friend && userId && callerId) {
+    if (friend && userId && callerId && pusher) {
       channelRef.current = pusher.channel(`private-${friend.id}`) || pusher.subscribe(`private-${friend.id}`);
       channelRef.current.bind(`client-call-${friend.id}`, (data: SignalData) => {
         switch (data.type) {
@@ -181,7 +182,7 @@ const CallPage: NextPage = () => {
         channelRef.current.unbind(`client-call-${friend.id}`);
       }
     };
-  }, [isLoading, friend, createOffer, addAnswer, createAnswer, callerId, userId]);
+  }, [isLoading, friend, createOffer, addAnswer, createAnswer, callerId, userId, pusher]);
 
   if (friendsListLoading || !friend)
     return (

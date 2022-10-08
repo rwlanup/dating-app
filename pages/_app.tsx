@@ -2,7 +2,7 @@ import '../styles/globals.css';
 import { SessionProvider } from 'next-auth/react';
 import type { AppProps } from 'next/app';
 import type { NextPage } from 'next';
-import type { ReactElement, ReactNode, FC } from 'react';
+import { ReactElement, ReactNode, FC, useRef, useEffect } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import { theme } from '../theme';
 import { RootLayout } from '../components/layouts/root-layout/RootLayout';
@@ -13,6 +13,8 @@ import superjson from 'superjson';
 import { ProfileLayout } from '../components/layouts/profile-layout/ProfileLayout';
 import { SnackbarProvider } from 'notistack';
 import { ReactQueryDevtools } from 'react-query/devtools';
+import { PusherContext } from '../context/pusher';
+import pusherJs from 'pusher-js';
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -23,6 +25,29 @@ type AppPropsWithLayout = AppProps & {
 };
 
 const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps, router }) => {
+  const pusherRef = useRef<pusherJs | null>(null);
+
+  useEffect(() => {
+    if (router.pathname.startsWith('/profile')) {
+      if (!pusherRef.current) {
+        pusherRef.current = new pusherJs(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
+          cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+          authEndpoint: '/api/pusher/auth-channel',
+          userAuthentication: {
+            endpoint: '/api/pusher/auth-user',
+            transport: 'ajax',
+          },
+          forceTLS: true,
+        });
+      }
+    } else {
+      if (pusherRef.current) {
+        pusherRef.current.disconnect();
+        pusherRef.current = null;
+      }
+    }
+  }, [router.pathname]);
+
   // Use the layout defined at the page level, if available
   const getLayout =
     Component.getLayout ??
@@ -43,12 +68,14 @@ const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps, router }) => {
     <>
       <SessionProvider session={pageProps.session}>
         <ThemeProvider theme={theme}>
-          <SnackbarProvider
-            autoHideDuration={3000}
-            maxSnack={3}
-          >
-            <RootLayout>{getLayout(<Component {...pageProps} />)}</RootLayout>
-          </SnackbarProvider>
+          <PusherContext.Provider value={pusherRef.current}>
+            <SnackbarProvider
+              autoHideDuration={3000}
+              maxSnack={3}
+            >
+              <RootLayout>{getLayout(<Component {...pageProps} />)}</RootLayout>
+            </SnackbarProvider>
+          </PusherContext.Provider>
         </ThemeProvider>
       </SessionProvider>
       <ReactQueryDevtools

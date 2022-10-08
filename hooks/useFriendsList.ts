@@ -2,10 +2,11 @@ import { Chats } from '@prisma/client';
 import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { useContext } from 'react';
+import { PusherContext } from '../context/pusher';
 import { SignalData } from '../pages/profile/chats/[callId]';
 import { enableChatScroll } from '../store/chatUIStore';
 import type { ApprovedFriendWithFirstChat, FriendRequest } from '../types/friend';
-import { pusher } from '../util/pusher';
 import { trpc } from '../util/trpc';
 
 interface UseFriendsListReturns {
@@ -19,6 +20,8 @@ interface UseFriendsListReturns {
 }
 
 export const useFriendsList = (enabled: boolean = true, subscribeToPusher: boolean = false): UseFriendsListReturns => {
+  const pusher = useContext(PusherContext);
+
   const { pathname, push } = useRouter();
   const { data: _sessionData } = useSession();
   const utils = trpc.useContext();
@@ -32,7 +35,7 @@ export const useFriendsList = (enabled: boolean = true, subscribeToPusher: boole
       if (subscribeToPusher) {
         const friends = data.filter((friend) => Boolean(friend.approvedAt));
         friends.forEach((friend) => {
-          if (!pusher.channel(`private-${friend.id}`)) {
+          if (pusher && !pusher.channel(`private-${friend.id}`)) {
             const friendChannel = pusher.subscribe(`private-${friend.id}`);
             friendChannel.bind('message', async (chat: Chats) => {
               utils.invalidateQueries([
