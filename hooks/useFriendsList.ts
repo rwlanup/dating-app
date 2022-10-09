@@ -52,8 +52,8 @@ export const useFriendsList = (enabled: boolean = true, subscribeToPusher: boole
                 updateLastChatRead();
               }
             });
-
             friendChannel.bind(`client-call-${friend.id}`, (signal: SignalData) => {
+              console.log(signal);
               if (signal.type === 'offer') {
                 push({
                   query: {

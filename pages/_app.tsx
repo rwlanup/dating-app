@@ -2,7 +2,7 @@ import '../styles/globals.css';
 import { SessionProvider } from 'next-auth/react';
 import type { AppProps } from 'next/app';
 import type { NextPage } from 'next';
-import { ReactElement, ReactNode, FC, useRef, useEffect } from 'react';
+import { ReactElement, ReactNode, FC, useRef, useEffect, useState } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import { theme } from '../theme';
 import { RootLayout } from '../components/layouts/root-layout/RootLayout';
@@ -25,28 +25,34 @@ type AppPropsWithLayout = AppProps & {
 };
 
 const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps, router }) => {
-  const pusherRef = useRef<pusherJs | null>(null);
+  const [pusher, setPusher] = useState<pusherJs | null>(null);
 
   useEffect(() => {
     if (router.pathname.startsWith('/profile')) {
-      if (!pusherRef.current) {
-        pusherRef.current = new pusherJs(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
-          cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
-          authEndpoint: '/api/pusher/auth-channel',
-          userAuthentication: {
-            endpoint: '/api/pusher/auth-user',
-            transport: 'ajax',
-          },
-          forceTLS: true,
-        });
+      if (!pusher) {
+        if (pusherJs.instances.length > 0) {
+          setPusher(pusherJs.instances[0]);
+        } else {
+          setPusher(
+            new pusherJs(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
+              cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+              authEndpoint: '/api/pusher/auth-channel',
+              userAuthentication: {
+                endpoint: '/api/pusher/auth-user',
+                transport: 'ajax',
+              },
+              forceTLS: true,
+            })
+          );
+        }
       }
     } else {
-      if (pusherRef.current) {
-        pusherRef.current.disconnect();
-        pusherRef.current = null;
+      if (pusher) {
+        pusher.disconnect();
+        setPusher(null);
       }
     }
-  }, [router.pathname]);
+  }, [router.pathname, pusher]);
 
   // Use the layout defined at the page level, if available
   const getLayout =
@@ -68,7 +74,7 @@ const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps, router }) => {
     <>
       <SessionProvider session={pageProps.session}>
         <ThemeProvider theme={theme}>
-          <PusherContext.Provider value={pusherRef.current}>
+          <PusherContext.Provider value={pusher}>
             <SnackbarProvider
               autoHideDuration={3000}
               maxSnack={3}
