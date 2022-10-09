@@ -41,30 +41,35 @@ export const VideoCall: FC<VideoCallProps> = ({
           flexDirection: 'column',
         }}
       >
-        {isFriendVideoOff ? (
-          <Box sx={{ mt: '10vh' }}>
-            <Avatar
-              alt={friendProfile.fullName}
-              sx={{ height: 200, width: 200, mx: 'auto', mb: 2 }}
-            />
-            <Typography
-              align="center"
-              variant="h4"
-              fontWeight="Bold"
-              component="h1"
-            >
-              {friendProfile.fullName}
-            </Typography>
-          </Box>
-        ) : (
-          <Box
-            component="video"
-            ref={friendVideoElRef}
-            autoPlay
-            playsInline
-            sx={{ height: 1, width: 1, position: 'absolute', bgcolor: 'common.black', borderRadius: 3 }}
+        <Box sx={{ mt: '10vh', display: isFriendVideoOff ? 'block' : 'none' }}>
+          <Avatar
+            src={friendProfile.profilePicture}
+            alt={friendProfile.fullName}
+            sx={{ height: 200, width: 200, mx: 'auto', mb: 2 }}
           />
-        )}
+          <Typography
+            align="center"
+            variant="h4"
+            fontWeight="Bold"
+            component="h1"
+          >
+            {friendProfile.fullName}
+          </Typography>
+        </Box>
+        <Box
+          component="video"
+          ref={friendVideoElRef}
+          autoPlay
+          playsInline
+          sx={{
+            height: 1,
+            width: 1,
+            position: 'absolute',
+            bgcolor: 'common.black',
+            borderRadius: 3,
+            display: isFriendVideoOff ? 'none' : 'block',
+          }}
+        />
         <Box
           sx={{
             mt: 'auto',

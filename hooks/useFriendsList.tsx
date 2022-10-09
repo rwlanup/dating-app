@@ -2,12 +2,14 @@ import { Chats } from '@prisma/client';
 import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { useSnackbar } from 'notistack';
 import { useContext } from 'react';
 import { PusherContext } from '../context/pusher';
 import { SignalData } from '../pages/profile/chats/[callId]';
 import { enableChatScroll } from '../store/chatUIStore';
 import type { ApprovedFriendWithFirstChat, FriendRequest } from '../types/friend';
 import { trpc } from '../util/trpc';
+import { CallActions } from '../components/others/call-actions/CallActions';
 
 interface UseFriendsListReturns {
   isLoading: boolean;
@@ -19,10 +21,11 @@ interface UseFriendsListReturns {
   sentFriendRequests?: FriendRequest[];
 }
 
-export const useFriendsList = (enabled: boolean = true, subscribeToPusher: boolean = false): UseFriendsListReturns => {
+export const useFriendsList = (enabled: boolean = true): UseFriendsListReturns => {
   const pusher = useContext(PusherContext);
+  const { enqueueSnackbar } = useSnackbar();
 
-  const { pathname, push } = useRouter();
+  const { pathname } = useRouter();
   const { data: _sessionData } = useSession();
   const utils = trpc.useContext();
   const sessionData = _sessionData as Session;
@@ -32,41 +35,47 @@ export const useFriendsList = (enabled: boolean = true, subscribeToPusher: boole
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     onSuccess(data) {
-      if (subscribeToPusher) {
-        const friends = data.filter((friend) => Boolean(friend.approvedAt));
-        friends.forEach((friend) => {
-          if (pusher && !pusher.channel(`private-${friend.id}`)) {
-            const friendChannel = pusher.subscribe(`private-${friend.id}`);
-            friendChannel.bind('message', async (chat: Chats) => {
-              utils.invalidateQueries([
-                'chats.messagesByFriendId',
-                {
-                  friendId: chat.friendsId,
-                },
-              ]);
-              await utils.invalidateQueries(['friends.list']);
-              enableChatScroll();
+      const friends = data.filter((friend) => Boolean(friend.approvedAt));
+      friends.forEach((friend) => {
+        if (pusher && !pusher.channel(`private-${friend.id}`)) {
+          const friendChannel = pusher.subscribe(`private-${friend.id}`);
+          friendChannel.bind('message', async (chat: Chats) => {
+            utils.invalidateQueries([
+              'chats.messagesByFriendId',
+              {
+                friendId: chat.friendsId,
+              },
+            ]);
+            await utils.invalidateQueries(['friends.list']);
+            enableChatScroll();
 
-              // Update last chat page visits
-              if (pathname === '/profile/chats') {
-                updateLastChatRead();
-              }
-            });
-            friendChannel.bind(`client-call-${friend.id}`, (signal: SignalData) => {
-              console.log(signal);
-              if (signal.type === 'offer') {
-                push({
-                  query: {
-                    friendId: friend.id,
-                    callerId: signal.callerId,
-                  },
-                  pathname: `/profile/chats/${signal.callId}`,
+            // Update last chat page visits
+            if (pathname === '/profile/chats') {
+              updateLastChatRead();
+            }
+          });
+          friendChannel.bind(`client-call-${friend.id}`, (signal: SignalData) => {
+            switch (signal.type) {
+              case 'callOffer':
+                enqueueSnackbar(`You have a call from ${friend.profile.fullName}`, {
+                  action: (key) => (
+                    <CallActions
+                      callId={signal.callId}
+                      callerId={signal.callerId}
+                      friendId={friend.id}
+                      snackbarId={key}
+                    />
+                  ),
+                  autoHideDuration: 60000,
+                  anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
                 });
-              }
-            });
-          }
-        });
-      }
+                break;
+              default:
+                break;
+            }
+          });
+        }
+      });
     },
   });
 

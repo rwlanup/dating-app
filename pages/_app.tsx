@@ -76,6 +76,7 @@ const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps, router }) => {
         <ThemeProvider theme={theme}>
           <PusherContext.Provider value={pusher}>
             <SnackbarProvider
+              preventDuplicate
               autoHideDuration={3000}
               maxSnack={3}
             >

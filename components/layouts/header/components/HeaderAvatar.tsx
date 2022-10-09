@@ -43,7 +43,7 @@ export const HeaderAvatar: FC = () => {
     },
   });
 
-  useFriendsList(true, true);
+  useFriendsList(true);
 
   if (isIdle || isLoading || !data) {
     return (
