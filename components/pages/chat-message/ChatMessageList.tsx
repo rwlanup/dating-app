@@ -1,5 +1,6 @@
 import { Grid } from '@mui/material';
 import type { Chats } from '@prisma/client';
+import { useSession } from 'next-auth/react';
 import { FC, useEffect } from 'react';
 import { trpc } from '../../../util/trpc';
 import { ChatMessageInfo } from './ChatMessageInfo';
@@ -12,7 +13,11 @@ interface ChatMessageListProps {
 }
 
 export const ChatMessageList: FC<ChatMessageListProps> = ({ chatMessages, friendName, friendId }) => {
-  const isLastChatRead = chatMessages.length > 0 ? chatMessages[chatMessages.length - 1].isRead : true;
+  const { data } = useSession();
+  const isLastChatRead =
+    chatMessages.length > 0 && data
+      ? chatMessages[chatMessages.length - 1].isRead || data.user.id === chatMessages[chatMessages.length - 1].senderId
+      : true;
   const utils = trpc.useContext();
   const { mutate } = trpc.useMutation('chats.updateChatRead', {
     onSuccess() {

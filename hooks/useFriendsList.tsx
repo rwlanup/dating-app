@@ -25,13 +25,13 @@ export const useFriendsList = (enabled: boolean = true): UseFriendsListReturns =
   const pusher = useContext(PusherContext);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-  const { pathname } = useRouter();
+  const router = useRouter();
   const { data: _sessionData } = useSession();
   const utils = trpc.useContext();
   const sessionData = _sessionData as Session;
-  const { mutate: updateLastChatRead } = trpc.useMutation('profile.updateLastChatRead');
   const { data, isLoading, isError, error, isSuccess } = trpc.useQuery(['friends.list'], {
     enabled,
+    cacheTime: !enabled ? 0 : undefined,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     onSuccess(data) {
@@ -49,11 +49,6 @@ export const useFriendsList = (enabled: boolean = true): UseFriendsListReturns =
               ]);
               await utils.invalidateQueries(['friends.list']);
               enableChatScroll();
-
-              // Update last chat page visits
-              if (pathname === '/profile/chats') {
-                updateLastChatRead();
-              }
             });
           }
 

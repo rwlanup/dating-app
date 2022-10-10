@@ -1,4 +1,5 @@
 import { ListItem, ListItemAvatar, Avatar, ListItemText, Badge, ListItemButton } from '@mui/material';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { FC } from 'react';
@@ -11,6 +12,7 @@ interface ChatFriendListItemProps {
 }
 
 export const ChatFriendListItem: FC<ChatFriendListItemProps> = ({ friend }) => {
+  const { data: session } = useSession();
   const { query } = useRouter();
   const isOnline = useStore(
     onlineUsersStore,
@@ -49,7 +51,9 @@ export const ChatFriendListItem: FC<ChatFriendListItemProps> = ({ friend }) => {
             primary={friend.profile.fullName}
             secondary={friend.chat?.message || `Say hi to ${friend.profile.fullName}`}
             secondaryTypographyProps={
-              friend.chat && !friend.chat.isRead ? { color: 'common.black', fontWeight: 'Medium' } : undefined
+              friend.chat && !friend.chat.isRead && friend.chat.senderId !== session?.user.id
+                ? { color: 'common.black', fontWeight: 'Medium' }
+                : undefined
             }
           />
         </ListItemButton>

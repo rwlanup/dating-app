@@ -1,4 +1,4 @@
-import { Box, Drawer, Button, Grid, useMediaQuery, Theme } from '@mui/material';
+import { Box, Drawer, Button, Grid, useMediaQuery, Theme, Badge } from '@mui/material';
 import Link from 'next/link';
 import { FC, MouseEventHandler, ReactElement, ReactNode, useEffect } from 'react';
 import FavoriteTwoToneIcon from '@mui/icons-material/FavoriteTwoTone';
@@ -16,6 +16,7 @@ import {
   toggleProfileDrawerOnMobileVisible,
 } from '../../../store/layoutUIStore';
 import { trpc } from '../../../util/trpc';
+import { useFriendsList } from '../../../hooks/useFriendsList';
 
 interface ProfileLayoutProps {
   page: ReactElement;
@@ -25,6 +26,7 @@ interface MenuItem {
   label: string;
   icon: ReactNode;
   url?: string;
+  badge?: string | number;
   onClick?: MouseEventHandler;
 }
 
@@ -34,12 +36,31 @@ export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
   const router = useRouter();
   const pathname = router.pathname;
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
+  const { receivedFriendRequests, friends } = useFriendsList(false);
+  const { data: profile } = trpc.useQuery(['profile.me'], {
+    enabled: false,
+    cacheTime: 0,
+  });
 
   const isDrawerOnMobileVisible = useStore(
     layoutUIStore,
     (state) => state.isProfileDrawerOnMobileVisible,
     () => false
   );
+
+  const unreadChatCount =
+    friends && profile
+      ? friends.filter((friend) => {
+          if (friend.chat && !friend.chat.isRead) {
+            if (profile.id === friend.chat.senderId) return false;
+            if (profile.lastChatReadAt) {
+              return profile.lastChatReadAt.getTime() < friend.chat.sentAt.getTime();
+            }
+            return true;
+          }
+          return false;
+        }).length
+      : 0;
 
   // Redirect to home page in case of unauthentication
   useEffect(() => {
@@ -55,8 +76,13 @@ export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
 
   const MENU_LIST: MenuItem[] = [
     { label: 'Discover partners', icon: <FavoriteTwoToneIcon />, url: '/profile' },
-    { label: 'Chats', icon: <ChatTwoToneIcon />, url: '/profile/chats' },
-    { label: 'Friends', icon: <Diversity1TwoToneIcon />, url: '/profile/friends' },
+    { label: 'Chats', icon: <ChatTwoToneIcon />, url: '/profile/chats', badge: unreadChatCount },
+    {
+      label: 'Friends',
+      icon: <Diversity1TwoToneIcon />,
+      url: '/profile/friends',
+      badge: receivedFriendRequests?.length,
+    },
     { label: 'Profile settings', icon: <ManageAccountsTwoToneIcon />, url: '/profile/settings' },
     { label: 'Interests', icon: <InterestsTwoToneIcon />, url: '/profile/interests' },
     {
@@ -89,7 +115,20 @@ export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
         variant={isActive ? 'contained' : 'text'}
         onClick={menu.onClick}
       >
-        {menu.label}
+        <Badge
+          badgeContent={menu.badge}
+          color="secondary"
+          invisible={!menu.badge}
+          sx={{
+            width: 1,
+            alignItems: 'center',
+            gap: 1,
+            justifyContent: 'space-between',
+            '.MuiBadge-badge': { transform: 'none', position: 'static' },
+          }}
+        >
+          {menu.label}
+        </Badge>
       </Button>
     );
   };
