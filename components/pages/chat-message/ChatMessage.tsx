@@ -99,9 +99,13 @@ export const ChatMessage: FC = () => {
       }}
       onScroll={scrollHandler}
       ref={containerRef}
+      component="section"
     >
+      <ChatMessageHeader
+        id={friend.id}
+        friendProfile={friend.profile}
+      />
       <Box
-        component="section"
         sx={{
           position: 'relative',
           height: 1,
@@ -109,7 +113,6 @@ export const ChatMessage: FC = () => {
           flexDirection: 'column',
         }}
       >
-        <ChatMessageHeader friendProfile={friend.profile} />
         <Box sx={{ px: { xs: 2, xl: 3 } }}>
           {isFetchingNextPage && (
             <Typography

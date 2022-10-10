@@ -1,34 +1,37 @@
 import { Avatar, Box, Grid, IconButton, Skeleton, Theme, Typography, useMediaQuery } from '@mui/material';
 import { signOut } from 'next-auth/react';
-import { FC, useEffect } from 'react';
+import { FC, useContext, useEffect } from 'react';
 import { CHANNEL_NAMES } from '../../../../common/config/pusher';
+import { PusherContext } from '../../../../context/pusher';
 import { useFriendsList } from '../../../../hooks/useFriendsList';
 import { toggleProfileDrawerOnMobileVisible } from '../../../../store/layoutUIStore';
 import { addMember, removeMember, resetFromSubscription } from '../../../../store/onlineUsersStore';
-import { pusher } from '../../../../util/pusher';
 import { trpc } from '../../../../util/trpc';
 
 export const HeaderAvatar: FC = () => {
+  const pusher = useContext(PusherContext);
+
   // Authenticating user
   useEffect(() => {
-    pusher.connect();
-    pusher.user.signin();
-    return () => {
-      pusher.disconnect();
-    };
-  }, []);
+    if (pusher) {
+      if (!pusher.user.signin_requested) {
+        pusher.user.signin();
+      }
+    }
+  }, [pusher]);
 
   // Authorizing for pusher channels channel
   useEffect(() => {
-    const presenceChannel = pusher.subscribe(CHANNEL_NAMES.online);
-    presenceChannel.bind('pusher:subscription_succeeded', resetFromSubscription);
-    presenceChannel.bind('pusher:member_added', addMember);
-    presenceChannel.bind('pusher:member_removed', removeMember);
-
-    return () => {
-      presenceChannel.unsubscribe();
-    };
-  }, []);
+    if (pusher && !pusher.channel(CHANNEL_NAMES.online)) {
+      const presenceChannel = pusher.subscribe(CHANNEL_NAMES.online);
+      presenceChannel.bind('pusher:subscription_succeeded', resetFromSubscription);
+      presenceChannel.bind('pusher:member_added', addMember);
+      presenceChannel.bind('pusher:member_removed', removeMember);
+      return () => {
+        presenceChannel.unsubscribe();
+      };
+    }
+  }, [pusher]);
 
   const isTablet = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
 
@@ -40,7 +43,7 @@ export const HeaderAvatar: FC = () => {
     },
   });
 
-  useFriendsList(true, true);
+  useFriendsList(true);
 
   if (isIdle || isLoading || !data) {
     return (

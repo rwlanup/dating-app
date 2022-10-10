@@ -9,16 +9,25 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import CallTwoToneIcon from '@mui/icons-material/CallTwoTone';
 import VisibilityOffTwoToneIcon from '@mui/icons-material/VisibilityOffTwoTone';
 import type { FC } from 'react';
 import { ApprovedFriendWithFirstChat } from '../../../types/friend';
+import { CallButton } from '../../others/call-button/CallButton';
+import { useStore } from '../../../hooks/useStore';
+import { onlineUsersStore } from '../../../store/onlineUsersStore';
 
 interface ChatMessageHeaderProps {
   friendProfile: ApprovedFriendWithFirstChat['profile'];
+  id: string;
 }
 
-export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile }) => {
+export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile, id }) => {
+  const isOnline = useStore(
+    onlineUsersStore,
+    (state) => state.members.has(friendProfile.id),
+    () => false
+  );
+
   return (
     <Box
       sx={{
@@ -29,6 +38,7 @@ export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile })
         top: 0,
         left: 0,
         bgcolor: 'common.white',
+        zIndex: 10,
       }}
       component="header"
     >
@@ -48,41 +58,36 @@ export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile })
           secondary={friendProfile.profession}
           secondaryTypographyProps={{ color: 'secondary' }}
         />
-        <Grid
-          container
-          sx={{ width: 'auto' }}
-          columnSpacing={1}
-        >
-          <Grid item>
-            <Tooltip
-              title={
-                <Typography
-                  color="inherit"
-                  fontSize="inherit"
-                  fontWeight="inherit"
-                >
-                  Private mode
-                  <br />
-                  Your messages won&apos;t be recorded
-                </Typography>
-              }
-            >
-              <IconButton size="large">
-                <VisibilityOffTwoToneIcon />
-              </IconButton>
-            </Tooltip>
-          </Grid>
-          <Grid item>
-            <Tooltip title="Call now">
-              <IconButton
-                color="primary"
-                size="large"
+        {isOnline && (
+          <Grid
+            container
+            sx={{ width: 'auto' }}
+            columnSpacing={1}
+          >
+            <Grid item>
+              <Tooltip
+                title={
+                  <Typography
+                    color="inherit"
+                    fontSize="inherit"
+                    fontWeight="inherit"
+                  >
+                    Private mode
+                    <br />
+                    Your messages won&apos;t be recorded
+                  </Typography>
+                }
               >
-                <CallTwoToneIcon />
-              </IconButton>
-            </Tooltip>
+                <IconButton size="large">
+                  <VisibilityOffTwoToneIcon />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+            <Grid item>
+              <CallButton id={id} />
+            </Grid>
           </Grid>
-        </Grid>
+        )}
       </ListItem>
     </Box>
   );
