@@ -1,12 +1,13 @@
-import { Box, CircularProgress } from '@mui/material';
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useFriendsList } from '../../../hooks/useFriendsList';
 import { VideoCall } from '../../../components/pages/video-call/VideoCall';
 import { Channel } from 'pusher-js';
 import { PusherContext } from '../../../context/pusher';
+import { VideoCallLoading } from '../../../components/pages/video-call/VideoCallLoading';
+import { VideoCallEnd } from '../../../components/pages/video-call/VideoCallEnd';
 
 const SERVERS = {
   iceServers: [
@@ -16,7 +17,7 @@ const SERVERS = {
   ],
   iceCandidatePoolSize: 10,
 };
-type CallStatus = 'ACCEPTED' | 'REJECTED' | 'PENDING';
+type CallStatus = 'ACCEPTED' | 'REJECTED' | 'PENDING' | 'DISCONNECTED' | 'ENDED';
 export type SignalData =
   | {
       type: 'answer';
@@ -42,6 +43,14 @@ export type SignalData =
   | {
       type: 'callAccept';
       callId: string;
+    }
+  | {
+      type: 'callEnd';
+      callId: string;
+    }
+  | {
+      type: 'callDisconnect';
+      callId: string;
     };
 export type DataChannelMessage =
   | {
@@ -66,7 +75,7 @@ const CallPage: NextPage = () => {
 
   // UI State
   const { isLoading: friendsListLoading, friends } = useFriendsList();
-  const friend = friends?.find((friend) => friend.id === friendId);
+  const friend = useMemo(() => friends?.find((friend) => friend.id === friendId), [friendId, friends]);
   const [callStatus, setCallStatus] = useState<CallStatus>('PENDING');
   const [isLoading, setIsLoading] = useState(true);
   const userVideoElRef = useRef<HTMLVideoElement>();
@@ -201,7 +210,22 @@ const CallPage: NextPage = () => {
             setCallStatus('ACCEPTED');
             break;
           case 'callReject':
+            if (userPeerRef.current) {
+              userPeerRef.current.close();
+            }
             setCallStatus('REJECTED');
+            break;
+          case 'callDisconnect':
+            if (userPeerRef.current) {
+              userPeerRef.current.close();
+            }
+            setCallStatus('DISCONNECTED');
+            break;
+          case 'callEnd':
+            if (userPeerRef.current) {
+              userPeerRef.current.close();
+            }
+            setCallStatus('ENDED');
             break;
         }
       });
@@ -230,6 +254,31 @@ const CallPage: NextPage = () => {
     }
   }, [callStatus, isLoading]);
 
+  const handleDisconnect = useCallback(() => {
+    if (channelRef.current && friend && callId) {
+      channelRef.current.trigger(`client-call-${friend.id}`, {
+        type: 'callDisconnect',
+        callId,
+      } as SignalData);
+    }
+  }, [friend, callId]);
+
+  // Handling disconnecting calls
+  useEffect(() => {
+    if (friend && callId && channelRef.current) {
+      window.addEventListener('beforeunload', handleDisconnect);
+    }
+    return () => {
+      window.removeEventListener('beforeunload', handleDisconnect);
+    };
+  }, [handleDisconnect, friend, callId]);
+
+  useEffect(() => {
+    return () => {
+      handleDisconnect();
+    };
+  }, [handleDisconnect]);
+
   // Handling accepted calls
   useEffect(() => {
     (async () => {
@@ -243,7 +292,7 @@ const CallPage: NextPage = () => {
   // Handling calls
   useEffect(() => {
     (async () => {
-      if (pusher && friend && callStatus !== 'ACCEPTED' && typeof callerId === 'string') {
+      if (pusher && friend && callStatus === 'PENDING' && typeof callerId === 'string') {
         if (!channelRef.current) {
           channelRef.current = pusher.channel(`private-${friend.id}`) || pusher.subscribe(`private-${friend.id}`);
         }
@@ -267,11 +316,30 @@ const CallPage: NextPage = () => {
     })();
   }, [pusher, friend, callStatus, callerId, userId, callId]);
 
+  const handleCallEnd = () => {
+    if (channelRef.current && friend) {
+      channelRef.current.trigger(`client-call-${friend.id}`, {
+        type: 'callEnd',
+        callId,
+      } as SignalData);
+    }
+    if (userPeerRef.current) {
+      userPeerRef.current.close();
+    }
+    setCallStatus('ENDED');
+  };
+
+  if (callStatus === 'ENDED' || callStatus === 'DISCONNECTED' || callStatus === 'REJECTED') {
+    return <VideoCallEnd reason={callStatus} />;
+  }
+
   if (friendsListLoading || !friend || isLoading || callStatus !== 'ACCEPTED')
     return (
-      <Box sx={{ height: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress size={100} />
-      </Box>
+      <VideoCallLoading
+        isCaller={userId === callerId}
+        onCallEnd={handleCallEnd}
+        name={friend?.profile.fullName}
+      />
     );
 
   const toggleMuted = () => {
@@ -317,6 +385,7 @@ const CallPage: NextPage = () => {
       isFriendVideoOff={isFriendVideoOff}
       toggleMuted={toggleMuted}
       toggleVideo={toggleVideo}
+      endCall={handleCallEnd}
       friendProfile={friend.profile}
     />
   );

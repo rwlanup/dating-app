@@ -1,9 +1,11 @@
 import { IconButton } from '@mui/material';
 import { useRouter } from 'next/router';
-import type { FC } from 'react';
+import { FC, useContext } from 'react';
 import CallTwoToneIcon from '@mui/icons-material/CallTwoTone';
 import CallEndTwoToneIcon from '@mui/icons-material/CallEndTwoTone';
 import { SnackbarKey, useSnackbar } from 'notistack';
+import { PusherContext } from '../../../context/pusher';
+import { SignalData } from '../../../pages/profile/chats/[callId]';
 
 interface CallActionsProps {
   callId: string;
@@ -14,6 +16,7 @@ interface CallActionsProps {
 
 export const CallActions: FC<CallActionsProps> = ({ callId, callerId, friendId, snackbarId }) => {
   const router = useRouter();
+  const pusher = useContext(PusherContext);
   const { closeSnackbar } = useSnackbar();
   const handleAcceptCall = (): void => {
     closeSnackbar(snackbarId);
@@ -27,8 +30,13 @@ export const CallActions: FC<CallActionsProps> = ({ callId, callerId, friendId, 
   };
 
   const handleRejectCall = (): void => {
+    if (pusher && pusher.channel(`private-${friendId}`)) {
+      pusher.channel(`private-${friendId}`).trigger(`client-call-${friendId}`, {
+        type: 'callReject',
+        callId,
+      } as SignalData);
+    }
     closeSnackbar(snackbarId);
-    console.log('reject');
   };
 
   return (

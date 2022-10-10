@@ -23,7 +23,7 @@ interface UseFriendsListReturns {
 
 export const useFriendsList = (enabled: boolean = true): UseFriendsListReturns => {
   const pusher = useContext(PusherContext);
-  const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   const { pathname } = useRouter();
   const { data: _sessionData } = useSession();
@@ -37,43 +37,52 @@ export const useFriendsList = (enabled: boolean = true): UseFriendsListReturns =
     onSuccess(data) {
       const friends = data.filter((friend) => Boolean(friend.approvedAt));
       friends.forEach((friend) => {
-        if (pusher && !pusher.channel(`private-${friend.id}`)) {
-          const friendChannel = pusher.subscribe(`private-${friend.id}`);
-          friendChannel.bind('message', async (chat: Chats) => {
-            utils.invalidateQueries([
-              'chats.messagesByFriendId',
-              {
-                friendId: chat.friendsId,
-              },
-            ]);
-            await utils.invalidateQueries(['friends.list']);
-            enableChatScroll();
+        if (pusher) {
+          const friendChannel = pusher.channel(`private-${friend.id}`) || pusher.subscribe(`private-${friend.id}`);
+          if (!friendChannel.callbacks.get('message')) {
+            friendChannel.bind('message', async (chat: Chats) => {
+              utils.invalidateQueries([
+                'chats.messagesByFriendId',
+                {
+                  friendId: chat.friendsId,
+                },
+              ]);
+              await utils.invalidateQueries(['friends.list']);
+              enableChatScroll();
 
-            // Update last chat page visits
-            if (pathname === '/profile/chats') {
-              updateLastChatRead();
-            }
-          });
-          friendChannel.bind(`client-call-${friend.id}`, (signal: SignalData) => {
-            switch (signal.type) {
-              case 'callOffer':
-                enqueueSnackbar(`You have a call from ${friend.profile.fullName}`, {
-                  action: (key) => (
-                    <CallActions
-                      callId={signal.callId}
-                      callerId={signal.callerId}
-                      friendId={friend.id}
-                      snackbarId={key}
-                    />
-                  ),
-                  autoHideDuration: 60000,
-                  anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
-                });
-                break;
-              default:
-                break;
-            }
-          });
+              // Update last chat page visits
+              if (pathname === '/profile/chats') {
+                updateLastChatRead();
+              }
+            });
+          }
+
+          if (!friendChannel.callbacks.get(`client-call-${friend.id}`)) {
+            friendChannel.bind(`client-call-${friend.id}`, (signal: SignalData) => {
+              switch (signal.type) {
+                case 'callOffer':
+                  enqueueSnackbar(`You have a call from ${friend.profile.fullName}`, {
+                    action: (key) => (
+                      <CallActions
+                        callId={signal.callId}
+                        callerId={signal.callerId}
+                        friendId={friend.id}
+                        snackbarId={key}
+                      />
+                    ),
+                    persist: true,
+                    anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
+                    key: signal.callId,
+                  });
+                  break;
+                case 'callEnd':
+                  closeSnackbar(signal.callId);
+                  break;
+                default:
+                  break;
+              }
+            });
+          }
         }
       });
     },

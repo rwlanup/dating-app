@@ -15,6 +15,7 @@ interface VideoCallProps {
   isFriendVideoOff: boolean;
   toggleMuted: () => void;
   toggleVideo: () => void;
+  endCall: () => void;
   friendProfile: ApprovedFriendWithFirstChat['profile'];
 }
 
@@ -26,6 +27,7 @@ export const VideoCall: FC<VideoCallProps> = ({
   isFriendVideoOff,
   toggleMuted,
   toggleVideo,
+  endCall,
   friendProfile,
 }) => {
   return (
@@ -105,6 +107,7 @@ export const VideoCall: FC<VideoCallProps> = ({
           </Tooltip>
           <Tooltip title="End call">
             <IconButton
+              onClick={endCall}
               sx={{ '&:focus': { boxShadow: 'none!important' } }}
               size="large"
               color="primary"
@@ -119,6 +122,7 @@ export const VideoCall: FC<VideoCallProps> = ({
           component="video"
           ref={userVideoElRef}
           autoPlay
+          muted
           playsInline
           sx={{ height: 120, width: 160, borderRadius: 1, bgcolor: 'common.white', boxShadow: 3 }}
         />

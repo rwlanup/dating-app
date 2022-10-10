@@ -106,26 +106,17 @@ export const chatsRouter = createRouter()
       const receiverUserId =
         _session.user.id === friend.receiverUserId ? friend.requestedUserId : friend.receiverUserId;
 
-      // const chat = await prisma.chats.create({
-      //   data: {
-      //     type: 'CALL',
-      //     isRead: false,
-      //     friendsId: friend.id,
-      //     senderId: _session.user.id,
-      //     receiverId: receiverUserId,
-      //   },
-      // });
-      const chat = await prisma.chats.findFirst({
-        where: {
-          friendsId: input,
+      const chat = await prisma.chats.create({
+        data: {
           type: 'CALL',
+          isRead: false,
+          friendsId: friend.id,
+          senderId: _session.user.id,
+          receiverId: receiverUserId,
         },
       });
 
-      // await pusher.sendToUser(receiverUserId, 'call', chat);
-      // await pusher.sendToUser(_session.user.id, 'call', chat);
-
-      return chat as Chats;
+      return chat;
     },
   })
 
