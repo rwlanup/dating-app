@@ -1,5 +1,6 @@
 import { Avatar, Box, Grid, IconButton, Skeleton, Theme, Typography, useMediaQuery } from '@mui/material';
 import { signOut } from 'next-auth/react';
+import Link from 'next/link';
 import { FC, useContext, useEffect } from 'react';
 import { CHANNEL_NAMES } from '../../../../common/config/pusher';
 import { PusherContext } from '../../../../context/pusher';
@@ -72,25 +73,32 @@ export const HeaderAvatar: FC = () => {
   }
 
   return (
-    <Grid
-      container
-      columnSpacing={1}
-      alignItems="center"
+    <Link
+      passHref
+      href="/profile"
     >
-      <Grid item>
-        <Typography
-          variant="content"
-          fontWeight="Bold"
-        >
-          👋 {data.fullName}
-        </Typography>
+      <Grid
+        component="a"
+        sx={{ textDecoration: 'none', color: 'common.black' }}
+        container
+        columnSpacing={1}
+        alignItems="center"
+      >
+        <Grid item>
+          <Typography
+            variant="content"
+            fontWeight="Bold"
+          >
+            👋 {data.fullName}
+          </Typography>
+        </Grid>
+        <Grid item>
+          <Avatar
+            src={data.profilePicture}
+            alt={data.fullName}
+          ></Avatar>
+        </Grid>
       </Grid>
-      <Grid item>
-        <Avatar
-          src={data.profilePicture}
-          alt={data.fullName}
-        ></Avatar>
-      </Grid>
-    </Grid>
+    </Link>
   );
 };

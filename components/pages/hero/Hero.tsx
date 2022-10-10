@@ -1,6 +1,7 @@
 import { alpha, Box, Button, Container, Grid, styled, Typography } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
+import Link from 'next/link';
 import type { FC } from 'react';
 import HeroIllustration from '../../../public/images/hero-illustration.svg';
 import { showRegisterFormInAuthDialog } from '../../../store/authDialogUIStore';
@@ -43,12 +44,21 @@ export const Hero: FC = () => {
               Tell us about your interest and find your matching soulmates. It&apos;s never too late to fall in love
               again. Find your real feelings.
             </Typography>
-            <Button
-              onClick={showRegisterFormInAuthDialog}
-              disabled={session.status === 'loading' || session.status === 'authenticated'}
-            >
-              Create account
-            </Button>
+            {session.status === 'authenticated' ? (
+              <Link
+                href="/profile"
+                passHref
+              >
+                <Button>Go to profile</Button>
+              </Link>
+            ) : (
+              <Button
+                onClick={showRegisterFormInAuthDialog}
+                disabled={session.status === 'loading'}
+              >
+                Create account
+              </Button>
+            )}
           </Grid>
           <Grid
             item
