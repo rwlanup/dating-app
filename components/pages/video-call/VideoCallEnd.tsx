@@ -1,9 +1,10 @@
 import { Box, Button, Typography } from '@mui/material';
 import Link from 'next/link';
 import type { FC } from 'react';
+import { RTCStatus } from '../../../hooks/useRTCWithPusher';
 
 interface VideoCallEndProps {
-  reason?: 'ENDED' | 'DISCONNECTED' | 'REJECTED';
+  reason?: RTCStatus;
 }
 export const VideoCallEnd: FC<VideoCallEndProps> = ({ reason = 'ENDED' }) => {
   return (

@@ -20,6 +20,13 @@ export const ChatFriendListItem: FC<ChatFriendListItemProps> = ({ friend }) => {
     () => false
   );
 
+  const chatMessage =
+    friend.chat?.type === 'CALL'
+      ? friend.chat.isRead
+        ? `You were in a call with ${friend.profile.fullName}`
+        : `You missed a call from ${friend.profile.fullName}`
+      : friend.chat?.message || `Say hi to ${friend.profile.fullName}`;
+
   return (
     <ListItem
       alignItems="flex-start"
@@ -49,7 +56,7 @@ export const ChatFriendListItem: FC<ChatFriendListItemProps> = ({ friend }) => {
           <ListItemText
             primaryTypographyProps={{ fontWeight: 'Medium' }}
             primary={friend.profile.fullName}
-            secondary={friend.chat?.message || `Say hi to ${friend.profile.fullName}`}
+            secondary={chatMessage}
             secondaryTypographyProps={
               friend.chat && !friend.chat.isRead && friend.chat.senderId !== session?.user.id
                 ? { color: 'common.black', fontWeight: 'Medium' }

@@ -100,7 +100,7 @@ export const chatsRouter = createRouter()
 
   .mutation('call', {
     input: friendIdSchema,
-    resolve: async ({ ctx: { prisma, session, pusher }, input }): Promise<Chats> => {
+    resolve: async ({ ctx: { prisma, session }, input }): Promise<Chats> => {
       const _session = session as Session;
       const friend = await checkIfAuthorizedFriendId(_session, input);
       const receiverUserId =

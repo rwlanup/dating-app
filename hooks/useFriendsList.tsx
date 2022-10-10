@@ -5,11 +5,11 @@ import { useRouter } from 'next/router';
 import { useSnackbar } from 'notistack';
 import { useContext } from 'react';
 import { PusherContext } from '../context/pusher';
-import { SignalData } from '../pages/profile/chats/[callId]';
 import { enableChatScroll } from '../store/chatUIStore';
 import type { ApprovedFriendWithFirstChat, FriendRequest } from '../types/friend';
 import { trpc } from '../util/trpc';
 import { CallActions } from '../components/others/call-actions/CallActions';
+import { SignalData } from './useRTCWithPusher';
 
 interface UseFriendsListReturns {
   isLoading: boolean;

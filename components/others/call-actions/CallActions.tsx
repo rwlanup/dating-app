@@ -5,7 +5,8 @@ import CallTwoToneIcon from '@mui/icons-material/CallTwoTone';
 import CallEndTwoToneIcon from '@mui/icons-material/CallEndTwoTone';
 import { SnackbarKey, useSnackbar } from 'notistack';
 import { PusherContext } from '../../../context/pusher';
-import { SignalData } from '../../../pages/profile/chats/[callId]';
+import { trpc } from '../../../util/trpc';
+import { SignalData } from '../../../hooks/useRTCWithPusher';
 
 interface CallActionsProps {
   callId: string;
@@ -18,7 +19,9 @@ export const CallActions: FC<CallActionsProps> = ({ callId, callerId, friendId, 
   const router = useRouter();
   const pusher = useContext(PusherContext);
   const { closeSnackbar } = useSnackbar();
+  const { mutate: updateChatRead } = trpc.useMutation('chats.updateChatRead');
   const handleAcceptCall = (): void => {
+    updateChatRead(friendId);
     closeSnackbar(snackbarId);
     router.push({
       query: {
@@ -30,6 +33,7 @@ export const CallActions: FC<CallActionsProps> = ({ callId, callerId, friendId, 
   };
 
   const handleRejectCall = (): void => {
+    updateChatRead(friendId);
     if (pusher && pusher.channel(`private-${friendId}`)) {
       pusher.channel(`private-${friendId}`).trigger(`client-call-${friendId}`, {
         type: 'callReject',
