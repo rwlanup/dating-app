@@ -15,6 +15,9 @@ import { SnackbarProvider } from 'notistack';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { PusherContext } from '../context/pusher';
 import pusherJs from 'pusher-js';
+import Router from 'next/router';
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -53,6 +56,22 @@ const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps, router }) => {
       }
     }
   }, [router.pathname, pusher]);
+
+  useEffect(() => {
+    const handleRouteStart = () => NProgress.start();
+    const handleRouteDone = () => NProgress.done();
+
+    Router.events.on('routeChangeStart', handleRouteStart);
+    Router.events.on('routeChangeComplete', handleRouteDone);
+    Router.events.on('routeChangeError', handleRouteDone);
+
+    return () => {
+      // Remove the event handler on unmount!
+      Router.events.off('routeChangeStart', handleRouteStart);
+      Router.events.off('routeChangeComplete', handleRouteDone);
+      Router.events.off('routeChangeError', handleRouteDone);
+    };
+  }, []);
 
   // Use the layout defined at the page level, if available
   const getLayout =
