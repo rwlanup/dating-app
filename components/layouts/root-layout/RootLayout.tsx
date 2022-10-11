@@ -4,7 +4,6 @@ import { SnackbarProvider } from 'notistack';
 import pusherJs from 'pusher-js';
 import { FC, PropsWithChildren, useEffect, useState } from 'react';
 import { PusherContext } from '../../../context/pusher';
-import { Footer } from '../footer/Footer';
 import { Header } from '../header/Header';
 
 export const RootLayout: FC<PropsWithChildren> = ({ children }) => {
@@ -47,7 +46,6 @@ export const RootLayout: FC<PropsWithChildren> = ({ children }) => {
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', minHeight: '100vh' }}>
           <Header />
           {children}
-          <Footer />
         </Box>
       </SnackbarProvider>
     </PusherContext.Provider>

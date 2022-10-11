@@ -1,19 +1,19 @@
 import { Container, Grid, Typography, Link, alpha } from '@mui/material';
 import type { FC } from 'react';
 
-export const Footer: FC = () => {
+export const HeaderNote: FC = () => {
   return (
     <Container
-      component="footer"
       maxWidth={false}
-      sx={(theme) => ({
-        bgcolor: alpha(theme.palette.primary[50], 0.25),
+      sx={{
+        bgcolor: 'grey.900',
         pb: 1,
         pt: 1,
         borderTop: 1,
         mt: 'auto',
         borderColor: 'divider',
-      })}
+        color: 'grey.300',
+      }}
     >
       <Grid
         container
@@ -27,13 +27,12 @@ export const Footer: FC = () => {
             paragraph
             sx={{ mb: 0 }}
             variant="content"
-            color="text.secondary"
           >
             <Typography
               component="span"
               variant="inherit"
               fontWeight="Medium"
-              color="primary"
+              color="grey.100"
             >
               Important:
             </Typography>{' '}
@@ -45,6 +44,7 @@ export const Footer: FC = () => {
             underline="always"
             href="https://github.com/rwlanup"
             target="_blank"
+            color="grey.100"
           >
             Built by: Anup Rawal
           </Link>
