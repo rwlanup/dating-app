@@ -139,3 +139,5 @@ export const ChatMessage: FC = () => {
     </Box>
   );
 };
+
+export default ChatMessage;
