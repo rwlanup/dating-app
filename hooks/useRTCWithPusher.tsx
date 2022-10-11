@@ -384,8 +384,8 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
         if (!channelRef.current) {
           channelRef.current =
             pusher.channel(configRef.current.channelName) || pusher.subscribe(configRef.current.channelName);
-          channelRef.current.bind(configRef.current.eventName, pusherCallback);
         }
+        channelRef.current.bind(configRef.current.eventName, pusherCallback);
         // Accept call if current user is not a caller
         if (userId !== configRef.current.callerId) {
           if (configRef.current.mode === 'video') {

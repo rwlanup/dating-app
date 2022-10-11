@@ -29,7 +29,7 @@ export const ChatMessage: FC = () => {
   const { isLoading, data, isError, error, fetchNextPage, isFetchingNextPage, isIdle } = trpc.useInfiniteQuery(
     ['chats.messagesByFriendId', { friendId: query.id as string }],
     {
-      enabled: Boolean(hasFriendId && friend),
+      enabled: Boolean(friend),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     }
   );

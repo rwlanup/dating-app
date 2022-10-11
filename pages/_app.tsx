@@ -2,7 +2,7 @@ import '../styles/globals.css';
 import { SessionProvider } from 'next-auth/react';
 import type { AppProps } from 'next/app';
 import type { NextPage } from 'next';
-import { ReactElement, ReactNode, FC, useRef, useEffect, useState } from 'react';
+import { ReactElement, ReactNode, FC, useEffect } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import { theme } from '../theme';
 import { RootLayout } from '../components/layouts/root-layout/RootLayout';
@@ -11,10 +11,7 @@ import { AppRouter } from '../server/routers/_app';
 import { httpBatchLink } from '@trpc/client/links/httpBatchLink';
 import superjson from 'superjson';
 import { ProfileLayout } from '../components/layouts/profile-layout/ProfileLayout';
-import { SnackbarProvider } from 'notistack';
 import { ReactQueryDevtools } from 'react-query/devtools';
-import { PusherContext } from '../context/pusher';
-import pusherJs from 'pusher-js';
 import Router from 'next/router';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
@@ -28,35 +25,6 @@ type AppPropsWithLayout = AppProps & {
 };
 
 const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps, router }) => {
-  const [pusher, setPusher] = useState<pusherJs | null>(null);
-
-  useEffect(() => {
-    if (router.pathname.startsWith('/profile')) {
-      if (!pusher) {
-        if (pusherJs.instances.length > 0) {
-          setPusher(pusherJs.instances[0]);
-        } else {
-          setPusher(
-            new pusherJs(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
-              cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
-              authEndpoint: '/api/pusher/auth-channel',
-              userAuthentication: {
-                endpoint: '/api/pusher/auth-user',
-                transport: 'ajax',
-              },
-              forceTLS: true,
-            })
-          );
-        }
-      }
-    } else {
-      if (pusher) {
-        pusher.disconnect();
-        setPusher(null);
-      }
-    }
-  }, [router.pathname, pusher]);
-
   useEffect(() => {
     const handleRouteStart = () => NProgress.start();
     const handleRouteDone = () => NProgress.done();
@@ -93,15 +61,7 @@ const MyApp: FC<AppPropsWithLayout> = ({ Component, pageProps, router }) => {
     <>
       <SessionProvider session={pageProps.session}>
         <ThemeProvider theme={theme}>
-          <PusherContext.Provider value={pusher}>
-            <SnackbarProvider
-              preventDuplicate
-              autoHideDuration={3000}
-              maxSnack={3}
-            >
-              <RootLayout>{getLayout(<Component {...pageProps} />)}</RootLayout>
-            </SnackbarProvider>
-          </PusherContext.Provider>
+          <RootLayout>{getLayout(<Component {...pageProps} />)}</RootLayout>
         </ThemeProvider>
       </SessionProvider>
       <ReactQueryDevtools

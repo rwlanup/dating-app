@@ -51,7 +51,6 @@ export const useFriendsList = (enabled: boolean = true): UseFriendsListReturns =
               enableChatScroll();
             });
           }
-
           if (!friendChannel.callbacks.get(`client-call-${friend.id}`)) {
             friendChannel.bind(`client-call-${friend.id}`, (signal: SignalData) => {
               switch (signal.type) {
