@@ -54,7 +54,6 @@ export const ProfileList: FC<ProfileListProps> = ({ profiles, isLoading }) => {
                 : {}
             }
           >
-            {}
             <ProfileListItem data={profile} />
           </Box>
         </Grid>

@@ -9,6 +9,7 @@ import { FriendsList } from '../../../components/pages/friends-list/FriendsList'
 import { ErrorScreen } from '../../../components/pages/error-screen/ErrorScreen';
 import { FriendsPageSkeleton } from '../../../components/pages/friends-page-skeleton/FriendsPageSkeleton';
 import { FriendOrRequest } from '../../../types/friend';
+import Head from 'next/head';
 
 export type FRIENDS_TYPE = 'FRIENDS' | 'SENT_REQUESTS' | 'RECEIVED_REQUESTS';
 
@@ -49,6 +50,13 @@ const FriendsPage: NextPage = () => {
 
   return (
     <>
+      <Head>
+        <title>Friends (Partners) | Ditto</title>
+        <meta
+          name="description"
+          content="Find all your friends or partners, received requests and sent requests. Manage all your friends in one place."
+        />
+      </Head>
       <Typography
         variant="h3"
         component="h1"

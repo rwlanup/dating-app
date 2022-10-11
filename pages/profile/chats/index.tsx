@@ -1,13 +1,16 @@
 import { Box, Grid, Theme, useMediaQuery } from '@mui/material';
-import { NextPage } from 'next';
+import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
-import { ChatFriendsList } from '../../../components/pages/chat-friends-list/ChatFriendsList';
-import { ChatMessage } from '../../../components/pages/chat-message/ChatMessage';
 import { ErrorScreen } from '../../../components/pages/error-screen/ErrorScreen';
 import { useFriendsList } from '../../../hooks/useFriendsList';
 import Diversity1TwoToneIcon from '@mui/icons-material/Diversity1TwoTone';
 import { trpc } from '../../../util/trpc';
 import { useEffect } from 'react';
+import dynamic from 'next/dynamic';
+import Head from 'next/head';
+
+const DynamicChatMessage = dynamic(() => import('../../../components/pages/chat-message/ChatMessage'));
+const DynamicChatFriendsList = dynamic(() => import('../../../components/pages/chat-friends-list/ChatFriendsList'));
 
 const ChatsPage: NextPage = () => {
   const isDesktop = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'));
@@ -48,57 +51,66 @@ const ChatsPage: NextPage = () => {
   }
 
   return (
-    <Box
-      sx={{
-        height: {
-          xs: 'calc(100% + 32px)',
-          md: 'calc(100% + 48px)',
-        },
-        overflow: 'hidden',
-        m: { xs: -2, md: -3 },
-      }}
-    >
-      <Grid
-        container
-        sx={{ height: 1 }}
+    <>
+      <Head>
+        <title>Chats | Ditto</title>
+        <meta
+          name="description"
+          content="Chat with your dates and your friends. You can also join in private messages."
+        />
+      </Head>
+      <Box
+        sx={{
+          height: {
+            xs: 'calc(100% + 32px)',
+            md: 'calc(100% + 48px)',
+          },
+          overflow: 'hidden',
+          m: { xs: -2, md: -3 },
+        }}
       >
-        {!(!isDesktop && hasFriendId) && (
-          <Grid
-            item
-            xs={12}
-            lg={4}
-            sx={{ position: 'relative' }}
-          >
-            <Box
-              sx={{
-                position: { lg: 'absolute' },
-                left: 0,
-                top: 0,
-                bottom: 0,
-                width: 1,
-                maxHeight: 1,
-                overflowY: 'scroll',
-                borderRight: { lg: 2 },
-                borderColor: { lg: 'divider' },
-                bgcolor: 'primary.50',
-              }}
+        <Grid
+          container
+          sx={{ height: 1 }}
+        >
+          {!(!isDesktop && hasFriendId) && (
+            <Grid
+              item
+              xs={12}
+              lg={4}
+              sx={{ position: 'relative' }}
             >
-              <ChatFriendsList />
-            </Box>
-          </Grid>
-        )}
-        {(isDesktop || hasFriendId) && (
-          <Grid
-            item
-            xs={12}
-            lg={8}
-            sx={{ position: 'relative' }}
-          >
-            <ChatMessage />
-          </Grid>
-        )}
-      </Grid>
-    </Box>
+              <Box
+                sx={{
+                  position: { lg: 'absolute' },
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  width: 1,
+                  maxHeight: 1,
+                  overflowY: 'scroll',
+                  borderRight: { lg: 2 },
+                  borderColor: { lg: 'divider' },
+                  bgcolor: 'primary.50',
+                }}
+              >
+                <DynamicChatFriendsList />
+              </Box>
+            </Grid>
+          )}
+          {(isDesktop || hasFriendId) && (
+            <Grid
+              item
+              xs={12}
+              lg={8}
+              sx={{ position: 'relative' }}
+            >
+              <DynamicChatMessage />
+            </Grid>
+          )}
+        </Grid>
+      </Box>
+    </>
   );
 };
 

@@ -74,3 +74,5 @@ export const ChatFriendsList: FC = () => {
     </Box>
   );
 };
+
+export default ChatFriendsList;

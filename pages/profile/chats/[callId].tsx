@@ -7,6 +7,7 @@ import { VideoCallLoading } from '../../../components/pages/video-call/VideoCall
 import { VideoCallEnd } from '../../../components/pages/video-call/VideoCallEnd';
 import { useRTCWithPusher, UseRTCWithPusherConfig } from '../../../hooks/useRTCWithPusher';
 import { ApprovedFriendWithFirstChat } from '../../../types/friend';
+import Head from 'next/head';
 
 const CallPage: NextPage = () => {
   // URL and User data
@@ -55,17 +56,26 @@ const CallPage: NextPage = () => {
       />
     );
   return (
-    <VideoCall
-      friendVideoElRef={friendVideoElRef}
-      userVideoElRef={userVideoElRef}
-      isMuted={videoModeStatus.isMuted}
-      isVideoOff={videoModeStatus.isVideoOff}
-      isFriendVideoOff={videoModeStatus.isFriendVideoOff}
-      toggleMuted={toggleMuted}
-      toggleVideo={toggleVideo}
-      endCall={endCall}
-      friendProfile={(friend as ApprovedFriendWithFirstChat).profile}
-    />
+    <>
+      <Head>
+        <title>In Video Call | Ditto</title>
+        <meta
+          name="description"
+          content="Enjoy our video calling experience with your partners. Your video call is totally private and no one can join your video call"
+        />
+      </Head>
+      <VideoCall
+        friendVideoElRef={friendVideoElRef}
+        userVideoElRef={userVideoElRef}
+        isMuted={videoModeStatus.isMuted}
+        isVideoOff={videoModeStatus.isVideoOff}
+        isFriendVideoOff={videoModeStatus.isFriendVideoOff}
+        toggleMuted={toggleMuted}
+        toggleVideo={toggleVideo}
+        endCall={endCall}
+        friendProfile={(friend as ApprovedFriendWithFirstChat).profile}
+      />
+    </>
   );
 };
 

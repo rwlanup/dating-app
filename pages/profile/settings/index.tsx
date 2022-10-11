@@ -6,6 +6,7 @@ import { ProfileSettingForm } from '../../../components/pages/profile-setting-fo
 import { ProfileSettingSkeleton } from '../../../components/pages/profile-setting-skeleton/ProfileSettingSkeleton';
 import { useMemo } from 'react';
 import { NullPartial } from '../../../types/utils';
+import Head from 'next/head';
 
 const ProfileSettingsPage: NextPage = () => {
   const utils = trpc.useContext();
@@ -45,11 +46,20 @@ const ProfileSettingsPage: NextPage = () => {
   }
 
   return (
-    <ProfileSettingForm
-      defaultValues={formDefaultValues}
-      onSubmit={mutate}
-      isLoading={isLoading}
-    />
+    <>
+      <Head>
+        <title>Profile Settings | Ditto</title>
+        <meta
+          name="description"
+          content="Update your profile information and get more access to your matching soulmate"
+        />
+      </Head>
+      <ProfileSettingForm
+        defaultValues={formDefaultValues}
+        onSubmit={mutate}
+        isLoading={isLoading}
+      />
+    </>
   );
 };
 

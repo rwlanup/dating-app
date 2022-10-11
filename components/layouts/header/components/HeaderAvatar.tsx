@@ -102,3 +102,5 @@ export const HeaderAvatar: FC = () => {
     </Link>
   );
 };
+
+export default HeaderAvatar;

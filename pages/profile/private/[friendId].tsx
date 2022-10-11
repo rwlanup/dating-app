@@ -12,6 +12,7 @@ import { VideoCallLoading } from '../../../components/pages/video-call/VideoCall
 import { useFriendsList } from '../../../hooks/useFriendsList';
 import { useRTCWithPusher, UseRTCWithPusherConfig } from '../../../hooks/useRTCWithPusher';
 import { ApprovedFriendWithFirstChat } from '../../../types/friend';
+import Head from 'next/head';
 
 const PrivateChatMessagePage: NextPage = () => {
   const containerRef = useRef<HTMLDivElement>();
@@ -69,51 +70,60 @@ const PrivateChatMessagePage: NextPage = () => {
   }
 
   return (
-    <Box
-      ref={containerRef}
-      sx={{
-        bgcolor: 'common.black',
-        height: 1,
-        width: 1,
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        color: 'common.white',
-        display: 'flex',
-        flexDirection: 'column',
-        maxHeight: 1,
-        overflowY: 'auto',
-      }}
-    >
-      <ChatMessageHeader
-        sx={{ bgcolor: 'grey.900' }}
-        friendProfile={(friend as ApprovedFriendWithFirstChat).profile}
-        id={(friend as ApprovedFriendWithFirstChat).id}
-        hideBtn
-      />
+    <>
+      <Head>
+        <title>Private Chats | Ditto</title>
+        <meta
+          name="description"
+          content="Enjoy our private chats experience with your partners. Your messages are completely private and we do not store any information related to your chat messages"
+        />
+      </Head>
       <Box
+        ref={containerRef}
         sx={{
-          position: 'relative',
-          flex: 1,
+          bgcolor: 'common.black',
+          height: 1,
+          width: 1,
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          color: 'common.white',
           display: 'flex',
           flexDirection: 'column',
+          maxHeight: 1,
+          overflowY: 'auto',
         }}
       >
-        <Box sx={{ px: { xs: 2, xl: 3 }, py: 2 }}>
-          <ChatMessageList
-            chatMessages={messages}
-            friendName={(friend as ApprovedFriendWithFirstChat).profile.fullName}
+        <ChatMessageHeader
+          sx={{ bgcolor: 'grey.900' }}
+          friendProfile={(friend as ApprovedFriendWithFirstChat).profile}
+          id={(friend as ApprovedFriendWithFirstChat).id}
+          hideBtn
+        />
+        <Box
+          sx={{
+            position: 'relative',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <Box sx={{ px: { xs: 2, xl: 3 }, py: 2 }}>
+            <ChatMessageList
+              chatMessages={messages}
+              friendName={(friend as ApprovedFriendWithFirstChat).profile.fullName}
+              friendId={(friend as ApprovedFriendWithFirstChat).id}
+            />
+          </Box>
+
+          <ChatMessageBox
+            isPrivate
             friendId={(friend as ApprovedFriendWithFirstChat).id}
+            onSend={sendMessage}
           />
         </Box>
-
-        <ChatMessageBox
-          isPrivate
-          friendId={(friend as ApprovedFriendWithFirstChat).id}
-          onSend={sendMessage}
-        />
       </Box>
-    </Box>
+    </>
   );
 };
 

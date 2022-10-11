@@ -10,7 +10,9 @@ import { LoadMoreButton } from '../../components/ui/load-more-button/LoadMoreBut
 import { useFriendsList } from '../../hooks/useFriendsList';
 import { ProfileListItem } from '../../types/profile';
 import { trpc } from '../../util/trpc';
+import Head from 'next/head';
 const DiscoverPartnersPage: NextPage = () => {
+  const { data: profile } = trpc.useQuery(['profile.me']);
   const { enqueueSnackbar } = useSnackbar();
   const [paginationData, setPaginationData] = useState<PaginationInputs>({
     cursor: undefined,
@@ -69,6 +71,13 @@ const DiscoverPartnersPage: NextPage = () => {
 
   return (
     <>
+      <Head>
+        <title>{profile?.fullName} | Ditto</title>
+        <meta
+          name="description"
+          content={`${profile?.fullName} - ${profile?.bio}`}
+        />
+      </Head>
       <SearchForm
         onSubmit={onSearchChange}
         isLoading={loading || isFetchingNextPage}

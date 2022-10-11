@@ -4,6 +4,7 @@ import { TTL } from '../../../common/config/support';
 import { InterestsForm } from '../../../components/pages/interests-form/InterestsForm';
 import { InterestsFormSkeleton } from '../../../components/pages/interests-form/InterestsFormSkeleton';
 import { trpc } from '../../../util/trpc';
+import Head from 'next/head';
 
 const InterestsSettingPage: NextPage = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -25,11 +26,20 @@ const InterestsSettingPage: NextPage = () => {
 
   if (isInterestsLoading) return <InterestsFormSkeleton />;
   return (
-    <InterestsForm
-      onSubmit={mutate}
-      isLoading={isLoading}
-      defaultValues={data}
-    />
+    <>
+      <Head>
+        <title>Interests | Ditto</title>
+        <meta
+          name="description"
+          content="Manage your interests in life and get the soulmate with matching interests"
+        />
+      </Head>
+      <InterestsForm
+        onSubmit={mutate}
+        isLoading={isLoading}
+        defaultValues={data}
+      />
+    </>
   );
 };
 
