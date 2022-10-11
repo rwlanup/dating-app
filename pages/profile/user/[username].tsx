@@ -6,6 +6,7 @@ import { ProfileDetailInterests } from '../../../components/pages/profile-detail
 import { ProfileDetailSkeleton } from '../../../components/pages/profile-detail/ProfileDetailSkeleton';
 import { useFriendsList } from '../../../hooks/useFriendsList';
 import { trpc } from '../../../util/trpc';
+import Head from 'next/head';
 
 const ProfileDetailPage: NextPage = () => {
   const router = useRouter();
@@ -35,6 +36,13 @@ const ProfileDetailPage: NextPage = () => {
 
   return (
     <>
+      <Head>
+        <title>Profile - {data.fullName} | Ditto</title>
+        <meta
+          name="description"
+          content={`${data.fullName} - ${data.bio}`}
+        />
+      </Head>
       <ProfileDetailHeader profile={data} />
       <ProfileDetailInterests
         bio={data.bio}
