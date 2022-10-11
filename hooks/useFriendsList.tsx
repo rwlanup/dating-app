@@ -56,19 +56,25 @@ export const useFriendsList = (enabled: boolean = true): UseFriendsListReturns =
             friendChannel.bind(`client-call-${friend.id}`, (signal: SignalData) => {
               switch (signal.type) {
                 case 'callOffer':
-                  enqueueSnackbar(`You have a call from ${friend.profile.fullName}`, {
-                    action: (key) => (
-                      <CallActions
-                        callId={signal.callId}
-                        callerId={signal.callerId}
-                        friendId={friend.id}
-                        snackbarId={key}
-                      />
-                    ),
-                    persist: true,
-                    anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
-                    key: signal.callId,
-                  });
+                  enqueueSnackbar(
+                    signal.mode === 'text'
+                      ? `${friend.profile.fullName} wants to chat in private`
+                      : `You have a call from ${friend.profile.fullName}`,
+                    {
+                      action: (key) => (
+                        <CallActions
+                          mode={signal.mode}
+                          callId={signal.callId}
+                          callerId={signal.callerId}
+                          friendId={friend.id}
+                          snackbarId={key}
+                        />
+                      ),
+                      persist: true,
+                      anchorOrigin: { horizontal: 'center', vertical: 'bottom' },
+                      key: signal.callId,
+                    }
+                  );
                   break;
                 case 'callEnd':
                   closeSnackbar(signal.callId);

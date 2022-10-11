@@ -3,6 +3,7 @@ import { Channel } from 'pusher-js';
 import { MutableRefObject, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { PusherContext } from '../context/pusher';
 
+export type CallMode = 'video' | 'text';
 export type RTCStatus = 'ACCEPTED' | 'REJECTED' | 'PENDING' | 'DISCONNECTED' | 'ENDED' | 'CONNECTED';
 export type SignalData =
   | {
@@ -21,6 +22,7 @@ export type SignalData =
       type: 'callOffer';
       callId: string;
       callerId: string;
+      mode: CallMode;
     }
   | {
       type: 'callReject';
@@ -126,6 +128,19 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
   useEffect(() => {
     configRef.current = config;
   }, [config, enabled]);
+
+  const reset = useCallback(() => {
+    dataChannelRef.current = undefined;
+    friendPeerRef.current = undefined;
+    userPeerRef.current = undefined;
+    friendStreamRef.current = undefined;
+    userStreamRef.current = undefined;
+    hasRTCConnectionStartedRef.current = false;
+    channelRef.current = undefined;
+    setVideoModeStatus(DEFAULT_VIDEO_MODE_STATUS);
+    setSentMessages([]);
+    setReceivedMessages([]);
+  }, []);
 
   // Bind Event to Data channel
   const bindEventToDataChannel = useCallback(() => {
@@ -244,74 +259,71 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
     }
   }, []);
 
+  const pusherCallback = useCallback(
+    async (data: SignalData) => {
+      switch (data.type) {
+        case 'offer':
+          await createAnswer(data.offer);
+          setRTCStatus('CONNECTED');
+          break;
+        case 'answer':
+          await addAnswer(data.answer);
+          setRTCStatus('CONNECTED');
+          break;
+        case 'candidate':
+          if (
+            userPeerRef.current &&
+            userPeerRef.current.remoteDescription &&
+            userPeerRef.current.signalingState !== 'closed'
+          ) {
+            userPeerRef.current.addIceCandidate(data.candidate);
+          }
+          break;
+        case 'callAccept':
+          setRTCStatus('ACCEPTED');
+          break;
+        case 'callReject':
+          setRTCStatus('REJECTED');
+          break;
+        case 'callDisconnect':
+          setRTCStatus((prevStatus) => {
+            if (CLOSED_RTC_STATUSES.includes(prevStatus)) {
+              return prevStatus;
+            }
+            return 'DISCONNECTED';
+          });
+          break;
+        case 'callEnd':
+          setRTCStatus('ENDED');
+          break;
+      }
+    },
+    [createAnswer, addAnswer]
+  );
+
   // Stop streaming
   const stopStreaming = useCallback(() => {
+    if (userPeerRef.current) {
+      userPeerRef.current.close();
+    }
     if (userStreamRef.current) {
       userStreamRef.current.getTracks().forEach((track) => track.stop());
     }
-  }, []);
-
-  // Attach events to channel
-  useEffect(() => {
-    if (pusher && configRef.current) {
-      channelRef.current =
-        pusher.channel(configRef.current.channelName) || pusher.subscribe(configRef.current.channelName);
-      channelRef.current.bind(configRef.current.eventName, async (data: SignalData) => {
-        switch (data.type) {
-          case 'offer':
-            await createAnswer(data.offer);
-            setRTCStatus('CONNECTED');
-            break;
-          case 'answer':
-            await addAnswer(data.answer);
-            setRTCStatus('CONNECTED');
-            break;
-          case 'candidate':
-            if (userPeerRef.current && userPeerRef.current.remoteDescription) {
-              userPeerRef.current.addIceCandidate(data.candidate);
-            }
-            break;
-          case 'callAccept':
-            setRTCStatus('ACCEPTED');
-            break;
-          case 'callReject':
-            stopStreaming();
-            if (userPeerRef.current) {
-              userPeerRef.current.close();
-            }
-            setRTCStatus('REJECTED');
-            break;
-          case 'callDisconnect':
-            stopStreaming();
-            if (userPeerRef.current) {
-              userPeerRef.current.close();
-            }
-            setRTCStatus((prevStatus) => {
-              if (CLOSED_RTC_STATUSES.includes(prevStatus)) {
-                return prevStatus;
-              }
-              return 'DISCONNECTED';
-            });
-            break;
-          case 'callEnd':
-            stopStreaming();
-            if (userPeerRef.current) {
-              userPeerRef.current.close();
-            }
-            setRTCStatus('ENDED');
-            break;
-        }
-      });
+    if (channelRef.current && configRef.current) {
+      channelRef.current.unbind(configRef.current.eventName, pusherCallback);
     }
-  }, [pusher, addAnswer, createAnswer, stopStreaming]);
+    reset();
+  }, [reset, pusherCallback]);
+
+  useEffect(() => {
+    if (CLOSED_RTC_STATUSES.includes(RTCStatus)) {
+      stopStreaming();
+    }
+  }, [RTCStatus, stopStreaming]);
 
   // Handling video preview
   useEffect(() => {
-    if (
-      (RTCStatus === 'ACCEPTED' || RTCStatus === 'CONNECTED') &&
-      configRef.current &&
-      configRef.current.mode === 'video'
-    ) {
+    if (RTCStatus === 'CONNECTED' && configRef.current && configRef.current.mode === 'video') {
       if (configRef.current.userVideoElRef.current) {
         configRef.current.userVideoElRef.current.srcObject = userStreamRef.current || null;
       }
@@ -328,8 +340,8 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
         callId: configRef.current.callId,
       } as SignalData);
     }
-    stopStreaming();
-  }, [stopStreaming]);
+    setRTCStatus('DISCONNECTED');
+  }, []);
 
   // Disconnect on window close
   useEffect(() => {
@@ -357,7 +369,9 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
         RTCStatus === 'ACCEPTED' &&
         !hasRTCConnectionStartedRef.current
       ) {
-        userStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        if (configRef.current.mode === 'video') {
+          userStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        }
         await createOffer();
       }
     })();
@@ -370,10 +384,13 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
         if (!channelRef.current) {
           channelRef.current =
             pusher.channel(configRef.current.channelName) || pusher.subscribe(configRef.current.channelName);
+          channelRef.current.bind(configRef.current.eventName, pusherCallback);
         }
         // Accept call if current user is not a caller
         if (userId !== configRef.current.callerId) {
-          userStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+          if (configRef.current.mode === 'video') {
+            userStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+          }
           channelRef.current.trigger(configRef.current.eventName, {
             type: 'callAccept',
             callId: configRef.current.callId,
@@ -385,11 +402,12 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
             type: 'callOffer',
             callId: configRef.current.callId,
             callerId: configRef.current.callerId,
+            mode: configRef.current.mode,
           } as SignalData);
         }
       }
     })();
-  }, [pusher, RTCStatus, userId, enabled]);
+  }, [pusher, RTCStatus, userId, enabled, pusherCallback]);
 
   const endCall = useCallback(() => {
     if (channelRef.current && configRef.current) {
@@ -398,12 +416,8 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
         callId: configRef.current.callId,
       } as SignalData);
     }
-    if (userPeerRef.current) {
-      userPeerRef.current.close();
-    }
     setRTCStatus('ENDED');
-    stopStreaming();
-  }, [stopStreaming]);
+  }, []);
 
   const toggleMuted = useCallback(() => {
     if (configRef.current && configRef.current.mode === 'video') {

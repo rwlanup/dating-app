@@ -15,6 +15,7 @@ import { ApprovedFriendWithFirstChat } from '../../../types/friend';
 import { CallButton } from '../../others/call-button/CallButton';
 import { useStore } from '../../../hooks/useStore';
 import { onlineUsersStore } from '../../../store/onlineUsersStore';
+import { PrivateChatButton } from '../../others/private-chat-button/PrivateChatButton';
 
 interface ChatMessageHeaderProps {
   friendProfile: ApprovedFriendWithFirstChat['profile'];
@@ -65,23 +66,7 @@ export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile, i
             columnSpacing={1}
           >
             <Grid item>
-              <Tooltip
-                title={
-                  <Typography
-                    color="inherit"
-                    fontSize="inherit"
-                    fontWeight="inherit"
-                  >
-                    Private mode
-                    <br />
-                    Your messages won&apos;t be recorded
-                  </Typography>
-                }
-              >
-                <IconButton size="large">
-                  <VisibilityOffTwoToneIcon />
-                </IconButton>
-              </Tooltip>
+              <PrivateChatButton friendId={id} />
             </Grid>
             <Grid item>
               <CallButton id={id} />
