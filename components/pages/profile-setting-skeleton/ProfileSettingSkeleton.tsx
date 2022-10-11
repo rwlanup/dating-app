@@ -1,4 +1,4 @@
-import { Box, Skeleton, Grid, InputLabel } from '@mui/material';
+import { Box, Skeleton, Grid } from '@mui/material';
 import type { FC } from 'react';
 import { times } from '../../../util/callback';
 

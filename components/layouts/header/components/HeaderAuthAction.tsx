@@ -1,8 +1,8 @@
 import { Button, Grid, Skeleton, Theme, useMediaQuery } from '@mui/material';
 import { useSession } from 'next-auth/react';
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { showLoginFormInAuthDialog, showRegisterFormInAuthDialog } from '../../../../store/authDialogUIStore';
-import { AuthActions, AuthDialog } from '../../../pages/auth-dialog/AuthDialog';
+import { AuthDialog } from '../../../pages/auth-dialog/AuthDialog';
 import { HeaderAvatar } from './HeaderAvatar';
 
 export const HeaderAuthAction: FC = () => {

@@ -6,9 +6,11 @@ import { useSnackbar } from 'notistack';
 
 interface ChatMessageBoxProps {
   friendId: string;
+  isPrivate?: boolean;
+  onSend?: (message: string) => void;
 }
 
-export const ChatMessageBox: FC<ChatMessageBoxProps> = ({ friendId }) => {
+export const ChatMessageBox: FC<ChatMessageBoxProps> = ({ friendId, isPrivate, onSend }) => {
   const { enqueueSnackbar } = useSnackbar();
   const [message, setMessage] = useState('');
   const { mutate, isLoading } = trpc.useMutation('chats.sendMessage', {
@@ -26,11 +28,18 @@ export const ChatMessageBox: FC<ChatMessageBoxProps> = ({ friendId }) => {
   const sendMessage = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (message.trim().length !== 0) {
-      mutate({
-        friendId,
-        message,
-        type: 'MESSAGE',
-      });
+      if (!isPrivate) {
+        mutate({
+          friendId,
+          message,
+          type: 'MESSAGE',
+        });
+      } else {
+        if (onSend) {
+          onSend(message);
+        }
+        setMessage('');
+      }
     }
   };
 

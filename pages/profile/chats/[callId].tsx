@@ -1,7 +1,6 @@
 import type { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { useMemo, useRef } from 'react';
-import { useSession } from 'next-auth/react';
 import { useFriendsList } from '../../../hooks/useFriendsList';
 import { VideoCall } from '../../../components/pages/video-call/VideoCall';
 import { VideoCallLoading } from '../../../components/pages/video-call/VideoCallLoading';
@@ -17,7 +16,7 @@ const CallPage: NextPage = () => {
   const callerId = router.query.callerId;
 
   // UI State
-  const { isLoading: friendsListLoading, friends } = useFriendsList();
+  const { isLoading: friendsListLoading, friends } = useFriendsList(false);
   const friend = useMemo(() => friends?.find((friend) => friend.id === friendId), [friendId, friends]);
   const userVideoElRef = useRef<HTMLVideoElement>();
   const friendVideoElRef = useRef<HTMLVideoElement>();

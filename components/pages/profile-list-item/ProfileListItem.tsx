@@ -1,4 +1,3 @@
-import LoadingButton from '@mui/lab/LoadingButton';
 import { Box, Button, Grid, Typography } from '@mui/material';
 import Link from 'next/link';
 import type { FC } from 'react';

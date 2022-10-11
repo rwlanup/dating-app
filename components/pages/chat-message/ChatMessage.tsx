@@ -29,7 +29,7 @@ export const ChatMessage: FC = () => {
   const { isLoading, data, isError, error, fetchNextPage, isFetchingNextPage, isIdle } = trpc.useInfiniteQuery(
     ['chats.messagesByFriendId', { friendId: query.id as string }],
     {
-      enabled: Boolean(hasFriendId && friend),
+      enabled: Boolean(friend),
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     }
   );
@@ -77,11 +77,13 @@ export const ChatMessage: FC = () => {
   }, []);
 
   const scrollHandler = (): void => {
-    const element = containerRef.current;
-    const handler = throttle(fetchNextPage);
-    if (element) {
-      if (element.scrollTop < 100 && !isFetchingNextPage) {
-        handler();
+    if (!shouldScroll) {
+      const element = containerRef.current;
+      const handler = throttle(fetchNextPage);
+      if (element) {
+        if (element.scrollTop < 100 && !isFetchingNextPage) {
+          handler();
+        }
       }
     }
   };

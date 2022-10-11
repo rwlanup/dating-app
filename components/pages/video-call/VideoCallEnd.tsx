@@ -5,8 +5,9 @@ import { RTCStatus } from '../../../hooks/useRTCWithPusher';
 
 interface VideoCallEndProps {
   reason?: RTCStatus;
+  isChat?: boolean;
 }
-export const VideoCallEnd: FC<VideoCallEndProps> = ({ reason = 'ENDED' }) => {
+export const VideoCallEnd: FC<VideoCallEndProps> = ({ reason = 'ENDED', isChat }) => {
   return (
     <Box
       sx={{
@@ -23,7 +24,7 @@ export const VideoCallEnd: FC<VideoCallEndProps> = ({ reason = 'ENDED' }) => {
         component="span"
         fontWeight="Bold"
       >
-        Your call has been {reason.toLowerCase()}.
+        Your {isChat ? 'chat' : 'call'} has been {reason.toLowerCase()}.
       </Typography>
       <Link
         passHref

@@ -1,27 +1,18 @@
-import {
-  Avatar,
-  Box,
-  Grid,
-  IconButton,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import VisibilityOffTwoToneIcon from '@mui/icons-material/VisibilityOffTwoTone';
+import { Avatar, Box, BoxProps, Grid, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import type { FC } from 'react';
 import { ApprovedFriendWithFirstChat } from '../../../types/friend';
 import { CallButton } from '../../others/call-button/CallButton';
 import { useStore } from '../../../hooks/useStore';
 import { onlineUsersStore } from '../../../store/onlineUsersStore';
+import { PrivateChatButton } from '../../others/private-chat-button/PrivateChatButton';
 
-interface ChatMessageHeaderProps {
+interface ChatMessageHeaderProps extends BoxProps<'header'> {
   friendProfile: ApprovedFriendWithFirstChat['profile'];
   id: string;
+  hideBtn?: boolean;
 }
 
-export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile, id }) => {
+export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile, id, hideBtn, sx, ...otherProps }) => {
   const isOnline = useStore(
     onlineUsersStore,
     (state) => state.members.has(friendProfile.id),
@@ -39,8 +30,10 @@ export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile, i
         left: 0,
         bgcolor: 'common.white',
         zIndex: 10,
+        ...sx,
       }}
       component="header"
+      {...otherProps}
     >
       <ListItem
         disablePadding
@@ -58,30 +51,14 @@ export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile, i
           secondary={friendProfile.profession}
           secondaryTypographyProps={{ color: 'secondary' }}
         />
-        {isOnline && (
+        {isOnline && !hideBtn && (
           <Grid
             container
             sx={{ width: 'auto' }}
             columnSpacing={1}
           >
             <Grid item>
-              <Tooltip
-                title={
-                  <Typography
-                    color="inherit"
-                    fontSize="inherit"
-                    fontWeight="inherit"
-                  >
-                    Private mode
-                    <br />
-                    Your messages won&apos;t be recorded
-                  </Typography>
-                }
-              >
-                <IconButton size="large">
-                  <VisibilityOffTwoToneIcon />
-                </IconButton>
-              </Tooltip>
+              <PrivateChatButton friendId={id} />
             </Grid>
             <Grid item>
               <CallButton id={id} />

@@ -2,10 +2,11 @@ import { Box, BoxProps, Typography } from '@mui/material';
 import { Chats } from '@prisma/client';
 import { useSession } from 'next-auth/react';
 import type { FC } from 'react';
+import { RTCMessage } from '../../../hooks/useRTCWithPusher';
 import { getRelativeTime } from '../../../util/date';
 
 interface ChatMessageListItemProps extends BoxProps {
-  message: Chats;
+  message: Chats | RTCMessage;
 }
 
 export const ChatMessageListItem: FC<ChatMessageListItemProps> = ({ message, sx = {}, ...otherProps }) => {
@@ -16,6 +17,8 @@ export const ChatMessageListItem: FC<ChatMessageListItemProps> = ({ message, sx 
   const bgcolor: string = isSent ? 'secondary.200' : 'secondary.main';
   const color: string = isSent ? 'secondary.900' : 'secondary.contrastText';
   const alignItems: string = isSent ? 'flex-end' : 'flex-start';
+
+  const content = 'content' in message ? message.content : message.message;
 
   return (
     <Box
@@ -43,17 +46,19 @@ export const ChatMessageListItem: FC<ChatMessageListItemProps> = ({ message, sx 
           component="span"
           color={color}
         >
-          {message.message}
+          {content}
         </Typography>
       </Box>
-      <Typography
-        component="span"
-        fontWeight="Medium"
-        sx={{ fontSize: '0.75rem', mt: 0.25 }}
-        color="text.secondary"
-      >
-        {getRelativeTime(message.sentAt)}
-      </Typography>
+      {'sentAt' in message && (
+        <Typography
+          component="span"
+          fontWeight="Medium"
+          sx={{ fontSize: '0.75rem', mt: 0.25 }}
+          color="text.secondary"
+        >
+          {getRelativeTime(message.sentAt)}
+        </Typography>
+      )}
     </Box>
   );
 };

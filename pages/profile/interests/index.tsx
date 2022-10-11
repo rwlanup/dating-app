@@ -7,11 +7,7 @@ import { trpc } from '../../../util/trpc';
 
 const InterestsSettingPage: NextPage = () => {
   const { enqueueSnackbar } = useSnackbar();
-  const {
-    data,
-    isLoading: isInterestsLoading,
-    isError,
-  } = trpc.useQuery(['interests.mine'], {
+  const { data, isLoading: isInterestsLoading } = trpc.useQuery(['interests.mine'], {
     select(interests) {
       return { interests: interests.map((interest) => interest.name) };
     },
