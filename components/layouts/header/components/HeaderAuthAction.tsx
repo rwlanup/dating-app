@@ -1,48 +1,41 @@
-import { Button, Grid, Skeleton, Theme, useMediaQuery } from '@mui/material';
+import { Skeleton } from '@mui/material';
 import { useSession } from 'next-auth/react';
-import { FC } from 'react';
-import { showLoginFormInAuthDialog, showRegisterFormInAuthDialog } from '../../../../store/authDialogUIStore';
-import { AuthDialog } from '../../../pages/auth-dialog/AuthDialog';
-import { HeaderAvatar } from './HeaderAvatar';
+import { FC, Suspense } from 'react';
+import dynamic from 'next/dynamic';
+
+const DynamicHeaderAuthActionGuest = dynamic(() => import('./HeaderAuthActionGuest'), {
+  suspense: true,
+});
+
+const DynamicHeaderAvatar = dynamic(() => import('./HeaderAvatar'), {
+  suspense: true,
+});
+
+const HeaderAvatarSkeleton = () => {
+  return (
+    <Skeleton
+      variant="circular"
+      height={40}
+      width={40}
+    />
+  );
+};
 
 export const HeaderAuthAction: FC = () => {
   const session = useSession();
-  const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
 
-  if (session.status === 'authenticated') return <HeaderAvatar />;
-
-  if (session.status === 'loading')
+  if (session.status === 'authenticated')
     return (
-      <Skeleton
-        variant="circular"
-        height={40}
-        width={40}
-      />
+      <Suspense fallback={<HeaderAvatarSkeleton />}>
+        <DynamicHeaderAvatar />
+      </Suspense>
     );
 
+  if (session.status === 'loading') return <HeaderAvatarSkeleton />;
+
   return (
-    <>
-      {isMobile ? (
-        <Button onClick={showLoginFormInAuthDialog}>Log in</Button>
-      ) : (
-        <Grid
-          container
-          spacing={2}
-        >
-          <Grid item>
-            <Button
-              variant="outlined"
-              onClick={showLoginFormInAuthDialog}
-            >
-              Log in
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button onClick={showRegisterFormInAuthDialog}>Create account</Button>
-          </Grid>
-        </Grid>
-      )}
-      <AuthDialog />
-    </>
+    <Suspense fallback={<HeaderAvatarSkeleton />}>
+      <DynamicHeaderAuthActionGuest />
+    </Suspense>
   );
 };
