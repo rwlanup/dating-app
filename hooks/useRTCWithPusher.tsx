@@ -64,24 +64,27 @@ export type UseRTCWithPusherConfig = {
     }
   | {
       mode: 'text';
+      friendId: string;
+      userId: string;
     }
 );
 
+export interface RTCMessage {
+  content: string;
+  senderId: string;
+}
 export interface UseRTCWithPusherReturns {
   isLoading: boolean;
   isClosed: boolean;
-  sentMessages: string[];
-  setSentMessages: (newMessages: string[]) => void;
-  receivedMessages: string[];
-  setReceivedMessages: (newMessages: string[]) => void;
   videoModeStatus: RTCVideoModeStatus;
   toggleMuted: () => void;
   toggleVideo: () => void;
   disconnect: () => void;
   endCall: () => void;
-  sendMessage: (message: string) => void;
   status: RTCStatus;
   isCaller: boolean;
+  sendMessage: (message: string) => void;
+  messages: RTCMessage[];
 }
 
 export interface RTCVideoModeStatus {
@@ -114,8 +117,7 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
   const userId = session.data?.user.id as string;
   const [RTCStatus, setRTCStatus] = useState<RTCStatus>('PENDING');
   const [videoModeStatus, setVideoModeStatus] = useState<RTCVideoModeStatus>(DEFAULT_VIDEO_MODE_STATUS);
-  const [sentMessages, setSentMessages] = useState<string[]>([]);
-  const [receivedMessages, setReceivedMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<RTCMessage[]>([]);
 
   // Peer connection
   const dataChannelRef = useRef<RTCDataChannel>();
@@ -138,8 +140,7 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
     hasRTCConnectionStartedRef.current = false;
     channelRef.current = undefined;
     setVideoModeStatus(DEFAULT_VIDEO_MODE_STATUS);
-    setSentMessages([]);
-    setReceivedMessages([]);
+    setMessages([]);
   }, []);
 
   // Bind Event to Data channel
@@ -148,12 +149,13 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
       dataChannelRef.current.onmessage = (event: MessageEvent<string>) => {
         const data = JSON.parse(event.data) as DataChannelMessage;
         // Check if data is a message
-        if (data.type === 'message') {
-          setReceivedMessages((prevMessages) => [...prevMessages, data.content]);
+        const config = configRef.current;
+        if (data.type === 'message' && config && config.mode === 'text') {
+          setMessages((prevMessages) => [...prevMessages, { content: data.content, senderId: config.friendId }]);
           return;
         }
         // Check if signal is based on video toggle
-        if (data.type === 'signal' && configRef.current && configRef.current.mode === 'video') {
+        if (data.type === 'signal' && config && config.mode === 'video') {
           setVideoModeStatus((prevState) => ({
             ...prevState,
             isFriendVideoOff: data.isVideoOff,
@@ -462,8 +464,9 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
   }, []);
 
   const sendMessage = useCallback((message: string) => {
-    if (dataChannelRef.current && dataChannelRef.current.readyState === 'open') {
-      setSentMessages((prevMessages) => [...prevMessages, message]);
+    const config = configRef.current;
+    if (dataChannelRef.current && dataChannelRef.current.readyState === 'open' && config && config.mode === 'text') {
+      setMessages((prevMessages) => [...prevMessages, { content: message, senderId: config.userId }]);
       dataChannelRef.current.send(
         JSON.stringify({
           type: 'message',
@@ -479,10 +482,6 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
   return {
     isLoading,
     isClosed,
-    sentMessages,
-    setSentMessages,
-    receivedMessages,
-    setReceivedMessages,
     videoModeStatus,
     toggleMuted,
     toggleVideo,
@@ -491,5 +490,6 @@ export const useRTCWithPusher = (enabled: boolean, config?: UseRTCWithPusherConf
     sendMessage,
     status: RTCStatus,
     isCaller: userId === configRef.current?.callerId,
+    messages,
   };
 };

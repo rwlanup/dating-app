@@ -182,7 +182,7 @@ export const ProfileLayout: FC<ProfileLayoutProps> = ({ page }) => {
         </Drawer>
       </Box>
       <Box
-        sx={{ p: { xs: 2, md: 3 }, flex: 1 }}
+        sx={{ p: { xs: 2, md: 3 }, flex: 1, position: 'relative' }}
         id="main"
         component="main"
       >

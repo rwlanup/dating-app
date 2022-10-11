@@ -23,8 +23,9 @@ export const CallActions: FC<CallActionsProps> = ({ callId, callerId, friendId, 
   const { mutate: updateChatRead } = trpc.useMutation('chats.updateChatRead');
   const handleAcceptCall = (): void => {
     closeSnackbar(snackbarId);
+    const isInCall = router.pathname === '/profile/private/[friendId]' || router.pathname === '/profile/chats/[callId]';
     if (mode === 'text') {
-      if (router.pathname === '/profile/private/[friendId]') {
+      if (isInCall) {
         window.open(`/profile/private/${friendId}?senderId=${callerId}`, '_blank');
       } else {
         router.push({
@@ -36,7 +37,7 @@ export const CallActions: FC<CallActionsProps> = ({ callId, callerId, friendId, 
       }
     } else {
       updateChatRead(friendId);
-      if (router.pathname === '/profile/chats/[callId]') {
+      if (isInCall) {
         window.open(`/profile/chats/${callId}?friendId=${friendId}&callerId=${callerId}`, '_blank');
       } else {
         router.push({

@@ -1,6 +1,7 @@
 import {
   Avatar,
   Box,
+  BoxProps,
   Grid,
   IconButton,
   ListItem,
@@ -17,12 +18,13 @@ import { useStore } from '../../../hooks/useStore';
 import { onlineUsersStore } from '../../../store/onlineUsersStore';
 import { PrivateChatButton } from '../../others/private-chat-button/PrivateChatButton';
 
-interface ChatMessageHeaderProps {
+interface ChatMessageHeaderProps extends BoxProps<'header'> {
   friendProfile: ApprovedFriendWithFirstChat['profile'];
   id: string;
+  hideBtn?: boolean;
 }
 
-export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile, id }) => {
+export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile, id, hideBtn, sx, ...otherProps }) => {
   const isOnline = useStore(
     onlineUsersStore,
     (state) => state.members.has(friendProfile.id),
@@ -40,8 +42,10 @@ export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile, i
         left: 0,
         bgcolor: 'common.white',
         zIndex: 10,
+        ...sx,
       }}
       component="header"
+      {...otherProps}
     >
       <ListItem
         disablePadding
@@ -59,7 +63,7 @@ export const ChatMessageHeader: FC<ChatMessageHeaderProps> = ({ friendProfile, i
           secondary={friendProfile.profession}
           secondaryTypographyProps={{ color: 'secondary' }}
         />
-        {isOnline && (
+        {isOnline && !hideBtn && (
           <Grid
             container
             sx={{ width: 'auto' }}
