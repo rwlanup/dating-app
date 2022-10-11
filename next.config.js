@@ -1,5 +1,7 @@
+import withNextBundleAnalyzer from 'next-bundle-analyzer';
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+let nextConfig = {
   reactStrictMode: false,
   swcMinify: true,
   typescript: {
@@ -7,4 +9,8 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+const shouldAnalyzeBundles = process.env.ANALYZE === 'true';
+
+export default withNextBundleAnalyzer({
+  enabled: shouldAnalyzeBundles,
+})(nextConfig);
