@@ -77,11 +77,13 @@ export const ChatMessage: FC = () => {
   }, []);
 
   const scrollHandler = (): void => {
-    const element = containerRef.current;
-    const handler = throttle(fetchNextPage);
-    if (element) {
-      if (element.scrollTop < 100 && !isFetchingNextPage) {
-        handler();
+    if (!shouldScroll) {
+      const element = containerRef.current;
+      const handler = throttle(fetchNextPage);
+      if (element) {
+        if (element.scrollTop < 100 && !isFetchingNextPage) {
+          handler();
+        }
       }
     }
   };
