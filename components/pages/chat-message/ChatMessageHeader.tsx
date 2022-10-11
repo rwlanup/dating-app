@@ -1,16 +1,4 @@
-import {
-  Avatar,
-  Box,
-  BoxProps,
-  Grid,
-  IconButton,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import VisibilityOffTwoToneIcon from '@mui/icons-material/VisibilityOffTwoTone';
+import { Avatar, Box, BoxProps, Grid, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import type { FC } from 'react';
 import { ApprovedFriendWithFirstChat } from '../../../types/friend';
 import { CallButton } from '../../others/call-button/CallButton';

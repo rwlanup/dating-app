@@ -28,7 +28,7 @@ export const FriendRequestButton: FC<FriendRequestButtonProps> = ({ friendId, ..
     onError(error) {
       enqueueSnackbar(error.message, { variant: 'error' });
     },
-    onSuccess(data, { response }) {
+    onSuccess(data) {
       enqueueSnackbar(data.message, { variant: 'success' });
       utils.invalidateQueries(['friends.list']);
     },

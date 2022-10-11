@@ -1,6 +1,6 @@
 import { Box, Typography, TypographyProps } from '@mui/material';
 import { Interest } from '@prisma/client';
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { UserProfile } from '../../../types/profile';
 import { groupInterestsByMatch } from '../../../util/server';
 import { trpc } from '../../../util/trpc';

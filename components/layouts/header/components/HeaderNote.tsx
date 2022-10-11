@@ -1,4 +1,4 @@
-import { Container, Grid, Typography, Link, alpha } from '@mui/material';
+import { Container, Grid, Typography, Link } from '@mui/material';
 import type { FC } from 'react';
 
 export const HeaderNote: FC = () => {

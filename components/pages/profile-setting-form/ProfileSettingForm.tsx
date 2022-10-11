@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Typography } from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 import { FC } from 'react';
 import { GENDER_OPTIONS } from '../../../common/config/selectOption';
 import { useForm } from 'react-hook-form';
