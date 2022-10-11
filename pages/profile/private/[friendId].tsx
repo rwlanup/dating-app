@@ -3,16 +3,19 @@ import type { NextPage } from 'next';
 import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { ChatMessageBox } from '../../../components/pages/chat-message/ChatMessageBox';
 import { ChatMessageHeader } from '../../../components/pages/chat-message/ChatMessageHeader';
 import { ChatMessageList } from '../../../components/pages/chat-message/ChatMessageList';
 import { ChatMessageSkeleton } from '../../../components/pages/chat-message/ChatMessageSkeleton';
+import { VideoCallEnd } from '../../../components/pages/video-call/VideoCallEnd';
+import { VideoCallLoading } from '../../../components/pages/video-call/VideoCallLoading';
 import { useFriendsList } from '../../../hooks/useFriendsList';
 import { useRTCWithPusher, UseRTCWithPusherConfig } from '../../../hooks/useRTCWithPusher';
 import { ApprovedFriendWithFirstChat } from '../../../types/friend';
 
 const PrivateChatMessagePage: NextPage = () => {
+  const containerRef = useRef<HTMLDivElement>();
   const router = useRouter();
   const { data: session } = useSession();
   const friendId = router.query.friendId;
@@ -37,13 +40,38 @@ const PrivateChatMessagePage: NextPage = () => {
     };
   }, [isEnabled, friend, senderId, session]);
 
-  const { endCall, isClosed, isLoading, status, sendMessage, messages } = useRTCWithPusher(isEnabled, RTCConfig);
+  const { endCall, isClosed, isLoading, status, sendMessage, messages, isCaller } = useRTCWithPusher(
+    isEnabled,
+    RTCConfig
+  );
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  if (isClosed) {
+    return (
+      <VideoCallEnd
+        isChat
+        reason={status}
+      />
+    );
+  }
 
   if (isLoading || !(status === 'ACCEPTED' || status === 'CONNECTED') || !isEnabled) {
-    return <ChatMessageSkeleton />;
+    return (
+      <VideoCallLoading
+        isCaller={isCaller}
+        name={friend?.profile.fullName}
+        onCallEnd={endCall}
+      />
+    );
   }
+
   return (
     <Box
+      ref={containerRef}
       sx={{
         bgcolor: 'common.black',
         height: 1,
@@ -52,6 +80,10 @@ const PrivateChatMessagePage: NextPage = () => {
         left: 0,
         top: 0,
         color: 'common.white',
+        display: 'flex',
+        flexDirection: 'column',
+        maxHeight: 1,
+        overflowY: 'auto',
       }}
     >
       <ChatMessageHeader
@@ -63,12 +95,12 @@ const PrivateChatMessagePage: NextPage = () => {
       <Box
         sx={{
           position: 'relative',
-          height: 1,
+          flex: 1,
           display: 'flex',
           flexDirection: 'column',
         }}
       >
-        <Box sx={{ px: { xs: 2, xl: 3 } }}>
+        <Box sx={{ px: { xs: 2, xl: 3 }, py: 2 }}>
           <ChatMessageList
             chatMessages={messages}
             friendName={(friend as ApprovedFriendWithFirstChat).profile.fullName}

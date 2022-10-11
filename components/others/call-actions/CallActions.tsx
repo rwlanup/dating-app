@@ -1,4 +1,4 @@
-import { IconButton } from '@mui/material';
+import { Button, IconButton } from '@mui/material';
 import { useRouter } from 'next/router';
 import { FC, useContext } from 'react';
 import CallTwoToneIcon from '@mui/icons-material/CallTwoTone';
@@ -63,6 +63,28 @@ export const CallActions: FC<CallActionsProps> = ({ callId, callerId, friendId, 
     }
     closeSnackbar(snackbarId);
   };
+
+  if (mode === 'text') {
+    return (
+      <>
+        <Button
+          color="error"
+          size="small"
+          onClick={handleRejectCall}
+          sx={{ mr: 1 }}
+        >
+          Reject
+        </Button>
+        <Button
+          color="success"
+          size="small"
+          onClick={handleAcceptCall}
+        >
+          Join
+        </Button>
+      </>
+    );
+  }
 
   return (
     <>
