@@ -7,7 +7,6 @@ import { useEffect, useMemo, useRef } from 'react';
 import { ChatMessageBox } from '../../../components/pages/chat-message/ChatMessageBox';
 import { ChatMessageHeader } from '../../../components/pages/chat-message/ChatMessageHeader';
 import { ChatMessageList } from '../../../components/pages/chat-message/ChatMessageList';
-import { ChatMessageSkeleton } from '../../../components/pages/chat-message/ChatMessageSkeleton';
 import { VideoCallEnd } from '../../../components/pages/video-call/VideoCallEnd';
 import { VideoCallLoading } from '../../../components/pages/video-call/VideoCallLoading';
 import { useFriendsList } from '../../../hooks/useFriendsList';
