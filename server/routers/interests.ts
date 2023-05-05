@@ -14,7 +14,6 @@ export const interestsRouter = createRouter()
         where: {
           name: {
             contains: input || '',
-            mode: 'insensitive',
           },
         },
         select: {

@@ -1,4 +1,4 @@
-import type { Prisma, User } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import type { Session } from 'next-auth';
 import { ITEMS_PER_REQUEST } from '../../common/config/support';
@@ -37,7 +37,6 @@ export const friendsRouter = createRouter()
 
       const filter: Prisma.StringFilter = {
         contains: search,
-        mode: 'insensitive',
       };
 
       const users = await prisma.user.findMany({
