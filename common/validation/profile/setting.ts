@@ -16,7 +16,7 @@ const profilePictureServerSchema = z
     } else {
       return SUPPORTED_IMAGE_MIME_TYPES.includes(decryptedValue.mimeType);
     }
-  }, 'Please upload an image with .jpg, .jpeg or .png format under 2MB');
+  }, 'Please upload an image with .jpg, .jpeg or .png format under 500KB');
 
 export const profileSettingSchema = z.object({
   fullName: z
@@ -68,16 +68,16 @@ export const profileSettingSchema = z.object({
     typeof window === 'undefined'
       ? profilePictureServerSchema
       : z
-          .instanceof(File, 'Please upload a profile picture')
-          .refine(
-            (value: File) => SUPPORTED_IMAGE_MIME_TYPES.includes(value.type),
-            'Please upload an image with .jpg, .jpeg or .png format'
-          )
-          .refine(
-            (value: File) => value.size <= 2097152, // 2097152 = 1024 * 1024 * 2 = 2MB
-            'Please upload an image'
-          )
-          .or(profilePictureServerSchema),
+        .instanceof(File, 'Please upload a profile picture')
+        .refine(
+          (value: File) => SUPPORTED_IMAGE_MIME_TYPES.includes(value.type),
+          'Please upload an image with .jpg, .jpeg or .png format'
+        )
+        .refine(
+          (value: File) => value.size <= 512000, // 512000 = 1024 * 500 = 500KB
+          'Please upload an image'
+        )
+        .or(profilePictureServerSchema),
   bio: z
     .string({
       invalid_type_error: 'Please enter a valid bio',
