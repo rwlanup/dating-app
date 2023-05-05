@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 // Gender for User
@@ -58,6 +59,8 @@ model InterestsOnUsers {
   interestId String
 
   @@id([userId, interestId])
+  @@index([userId])
+  @@index([interestId])
   @@map("usersinterests")
 }
 
@@ -72,6 +75,8 @@ model Friends {
   Chats           Chats[]
 
   @@unique([requestedUserId, receiverUserId])
+  @@index([receiverUserId])
+  @@index([requestedUserId])
   @@map("friends")
 }
 
@@ -93,5 +98,8 @@ model Chats {
   friend     Friends  @relation(fields: [friendsId], references: [id], onDelete: Cascade)
   friendsId  String
 
+  @@index([receiverId])
+  @@index([senderId])
+  @@index([friendsId])
   @@map("chats")
 }

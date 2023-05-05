@@ -59,7 +59,7 @@ A dating app built for privacy or find your soul mates from your interests.
 
 1. To get inside the application container, run
    ```
-   docker exec -it dating-app sh
+   docker exec -it dating_app sh
    ```
 2. To run app on detached mode run
 
